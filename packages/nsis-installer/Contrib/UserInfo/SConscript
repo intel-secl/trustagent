@@ -1,0 +1,20 @@
+target = 'UserInfo'
+
+files = Split("""
+	UserInfo.c
+""")
+
+libs = Split("""
+	kernel32
+	advapi32
+	user32
+	bufferoverflowU
+""")
+
+examples = Split("""
+	UserInfo.nsi
+""")
+
+Import('BuildPlugin')
+
+BuildPlugin(target, files, libs, examples)

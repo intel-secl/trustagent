@@ -1,0 +1,235 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>com.intel.mtwilson.trustagent.packages</groupId>
+    <artifactId>tboot-linux</artifactId>
+    <version>4.4-SNAPSHOT</version>
+    
+    <packaging>pom</packaging>
+    <description>tboot linux installer bin</description>
+
+    <properties>
+        <makeself.directory>${project.build.directory}/${project.artifactId}-${project.version}</makeself.directory>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/files</directory>
+            </resource>
+        </resources>
+    </build>
+    
+    
+     <profiles>
+        <profile>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+
+            <build>
+               <plugins>
+
+                 <!-- Copy all the src files for Docker-compose from src/main/resources -->
+                 <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.6</version>
+                    <executions>
+                       <execution>
+                          <id>copy-resources</id>
+                          <phase>validate</phase>
+                          <goals>
+                             <goal>copy-resources</goal>
+                          </goals>
+                          <configuration>
+                             <includeEmptyDirs>true</includeEmptyDirs>
+                             <outputDirectory>${makeself.directory}</outputDirectory>
+                             <resources>
+                                <resource>
+                                   <directory>src/main/resources</directory>
+                                   <filtering>true</filtering>
+                                </resource>
+                             </resources>
+                          </configuration>
+                       </execution>
+
+
+                       <execution>
+                          <id>copy-build-resources</id>
+                          <phase>generate-resources</phase>
+                          <goals>
+                             <goal>copy-resources</goal>
+                          </goals>
+                          <configuration>
+                             <outputDirectory>${project.build.directory}</outputDirectory>
+                             <resources>
+                                <resource>
+                                   <directory>src/build</directory>
+                                   <includes>
+                                      <include>**/*</include>
+                                   </includes>
+                                   <filtering>false</filtering>
+                                </resource>
+                             </resources>
+                          </configuration>
+                       </execution>
+
+                    </executions>
+                 </plugin>
+
+                 <!-- copy artifacts plugin -->
+                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.4</version>
+                    <executions>
+                       <execution>
+                          <id>copy</id>
+                          <phase>generate-resources</phase>
+                          <goals>
+                             <goal>copy</goal>
+                          </goals>
+                          <configuration>
+                             <artifactItems>
+                                <artifactItem>
+                                   <groupId>com.intel.mtwilson.linux</groupId>
+                                   <artifactId>mtwilson-linux-util</artifactId>
+                                   <version>${project.version}</version>
+                                   <type>sh</type>
+                                   <outputDirectory>${makeself.directory}</outputDirectory>
+                                   <destFileName>functions</destFileName>
+                                </artifactItem>
+                             </artifactItems>
+                             <overWriteReleases>false</overWriteReleases>
+                             <overWriteSnapshots>true</overWriteSnapshots>
+                          </configuration>
+                       </execution>
+                    </executions>
+                 </plugin>
+
+                 <!-- begin create self-extracting installer plugin -->
+                 <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>1.2.1</version>
+                    <executions>
+                       <execution>
+                          <id>create-single-installer</id>
+                          <phase>prepare-package</phase>
+                          <goals>
+                             <goal>exec</goal>
+                          </goals>
+                          <configuration>
+                             <executable>bash</executable>
+                             <arguments>
+                                <argument>makebin-auto.sh</argument>
+                                <argument>${makeself.directory}</argument>
+                             </arguments>
+                          </configuration>
+                       </execution>
+                    </executions>
+                 </plugin>
+
+                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.8</version>
+                    <executions>
+
+                       <!-- Copy the tbooot RPM and set the permissions -->
+                       <execution>
+                          <!--id>default-cli</id-->
+                          <phase>process-resources</phase>
+                          <goals>
+                             <goal>run</goal>
+                          </goals>
+                          <configuration>
+                             <target>
+                                <chmod perm="+x" file="${project.build.directory}/get-dependencies.sh"/>
+                                <exec executable="/bin/bash" dir="${makeself.directory}" failonerror="true">
+                                   <redirector output="${project.build.directory}/get-dependencies.log" alwayslog="true"/>
+                                   <arg value="-c"/>
+                                   <arg value="../get-dependencies.sh"/>
+                                </exec>
+                             </target>
+                          </configuration>
+                       </execution>
+
+                       <!-- Attach the artifact to the repo -->
+                       <execution>
+                          <id>copy-artifact</id>
+                          <phase>package</phase>
+                          <goals>
+                             <goal>run</goal>
+                          </goals>
+                          <configuration>
+                             <target>
+                                <attachartifact file="${project.build.directory}/${project.artifactId}-${project.version}.bin"/>
+                             </target>
+                          </configuration>
+                       </execution>
+                    </executions>
+                 </plugin>
+
+              </plugins>
+          </build>
+        </profile>
+
+        <!-- activate this profile with  -Dsigning on the command line -->
+        <profile>
+            <id>signing</id>         
+            <activation>
+                <property>
+                    <name>signing</name>
+                </property>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <id>code-signing</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <chmod perm="a+rwx" file="${project.build.directory}/${project.artifactId}-${project.version}.bin" />
+                                        <exec executable="/bin/bash" failonerror="true">
+                                            <redirector output="${project.build.directory}/intel-signfile.log" alwayslog="true"/>
+                                            <arg value="intel-signfile.sh"/>
+                                            <arg value="${project.build.directory}/${project.artifactId}-${project.version}.bin"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>attach-artifacts-code-signing</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <attachartifact file="${project.build.directory}/${project.artifactId}-${project.version}.bin.README.sig" type="bin.README.sig"/>
+                                        <attachartifact file="${project.build.directory}/${project.artifactId}-${project.version}.bin.README"  type="bin.README"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    
+    </profiles>
+</project>

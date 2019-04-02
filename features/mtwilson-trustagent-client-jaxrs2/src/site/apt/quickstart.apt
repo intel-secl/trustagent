@@ -1,0 +1,96 @@
+           -----------------------------------------------------
+           Cloud Integrity Technology Trust Agent API Quickstart
+           -----------------------------------------------------
+           -----------------------------------------------------
+                              03-19-2018
+           -----------------------------------------------------
+
+Background
+
+   ISecL (Intel Security Libraries) is the product name for the Remote Trust
+Attestation Solution that provides a secure mechanism in a data center to attest
+the trust of different hypervisors and Operating systems on multiple devices
+including servers, clients, network and storage components.  The primary purpose
+of this attestation is for trust verification, remediation, reporting, and
+compliance in a Data Center and Cloud environments.
+
+	The trust agent is the webservice installed on individual host hardware in
+the data center, and this client documentation describes the REST API interfaces
+that the attestation service uses to collect host information and interface with
+each host TPM.
+	
+*Directly calling into the REST APIs
+
+	During the trust agent installation, the user can export the environment variables TRUSTAGENT_ADMIN_USERNAME and TRUSTAGENT_ADMIN_PASSWORD. These credentials can be used for basic authorization to access the REST APIs of the trust agent. If these environment variables are not set during installation, then they will be automatically and randomly generated and registered with the attestation service.
+	
+	If the user wants to skip the security, then the user has to ensure that the IP address of the client is added to the trusted IP list in the trust agent shiro configuration. This can be accomplished by updating the contents of the shiro.ini file under /opt/trustagent/configuration with the following configuration:
+
+	"iniHostRealm=com.intel.mtwilson.shiro.authc.host.IniHostRealm"
+	
+	iniHostRealm.allow=192.168.0.1,192.168.0.2
+	
+*Using the API CLient Toolkit
+
+	In order to simplify the invocation of the APIs, there is an API client toolkit. The toolkit provides the following:
+
+	[]Zip file containing the client and related dependendent jar files
+
+Getting started with the SDK
+	
+* Importing the jars
+
+	After the installation of the host verification service and trust agent on a host, users can call into the APIs for performing various different functions. The sample code below shows how users can initialize the trust agent client using the API client toolkit. Refer to the full javadoc API Documentation (included) for details on all the available methods.
+
+	To start with users need to include the jar files in their project and import the following packages:
+	
++---
+import com.intel.dcsg.cpg.crypto.Sha256Digest;
+import com.intel.dcsg.cpg.io.UUID;
+import com.intel.mtwilson.tls.policy.factory.TlsPolicyFactoryUtil;
+import com.intel.dcsg.cpg.tls.policy.TlsConnection;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
+import com.intel.mtwilson.tls.policy.TlsPolicyDescriptor;
+import com.intel.mtwilson.trustagent.model.HostInfo;
+import com.intel.mtwilson.trustagent.model.TpmQuoteResponse;
+import com.intel.mtwilson.trustagent.model.VMAttestationRequest;
+import com.intel.mtwilson.trustagent.model.VMAttestationResponse;
+import com.intel.mtwilson.trustagent.model.VMQuoteResponse;
++---
+
+*Setting up the required properties
+	
+	The trust agent APIs can be accessed with the credential specified at installation. The user should add them to a properties configuration:
+
++---
+Properties properties = new Properties();
+properties.setProperty("mtwilson.api.username", [TRUSTAGENT_ADMIN_USERNAME]);
+properties.setProperty("mtwilson.api.password", [TRUSTAGENT_ADMIN_PASSWORD]);
+properties.setProperty("mtwilson.api.url", "https://trustagent.server.com:1443/mtwilson/v2");
+properties.setProperty("mtwilson.api.tls.policy.certificate.sha256", "ae8b50d9a45d1941d5486df204b9e05a433e3a5bc13445f48774af686d18dcfc");       
++---
+
+*Configuration of TLS policy
+	
+	We need to specify the TLS policy that the user will use to communicate with the host:
+	
++---
+TlsPolicyDescriptor tlsPolicyDescriptor = new TlsPolicyDescriptor();
+tlsPolicyDescriptor.setPolicyType("certificate-digest");
+tlsPolicyDescriptor.setData(Arrays.asList("b4 78 1f 45 01 03 d7 ea 58 80 46 69 ab 77 59 0b d3 8d 98 10 99 29 dc 75 d0 b1 2b 4d 9b 35 93 f9")); // Sha256 digest of the host's SSL certificate
+Map<String, String> metaData = new HashMap<>();
+metaData.put("digest_algorithm","SHA-256");
+tlsPolicyDescriptor.setMeta(metaData);
+tlsPolicy.setDescriptor(tlsPolicyDescriptor);
+TlsPolicy tlsPolicy = TlsPolicyFactoryUtil.createTlsPolicy(tlsPolicyDescriptor);
++---
+
+*Initiating trust agent client
+
+	The host connection string URL needs to be defined, and the trust agent client can be initialized using the properties and TLS policy objects previously created:
+	
++---
+URL hostUrl = new URL("https://10.1.1.100:1443");
+TrustAgentClient client = new TrustAgentClient(properties);
++---
+
+	Now review the API client documentation on the com.intel.mtwilson.trustagent.client.jaxrs.TrustAgentClient within the provided javadoc for information on how to make calls to the trust agent.

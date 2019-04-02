@@ -1,0 +1,3 @@
+# A successful build produces the following files:
+packages/trustagent-windows/target/trustagent-windows-4.2-SNAPSHOT-signed.exe
+packages/trustagent-windows/target/trustagent-windows-4.2-SNAPSHOT.exe

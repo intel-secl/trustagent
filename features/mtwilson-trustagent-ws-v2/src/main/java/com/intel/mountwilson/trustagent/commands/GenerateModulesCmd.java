@@ -1,0 +1,53 @@
+/*
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+package com.intel.mountwilson.trustagent.commands;
+
+import com.intel.dcsg.cpg.crypto.RandomUtil;
+import com.intel.mountwilson.common.ErrorCode;
+import com.intel.mountwilson.common.ICommand;
+import com.intel.mountwilson.common.TAException;
+import com.intel.mountwilson.trustagent.data.TADataContext;
+import com.intel.mtwilson.Folders;
+import com.intel.mtwilson.core.tpm.Tpm;
+import com.intel.mtwilson.util.exec.EscapeUtil;
+import com.intel.mtwilson.util.exec.ExecUtil;
+import com.intel.mtwilson.util.exec.Result;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.io.FileUtils;
+
+/**
+ *
+ * @author skaja
+ */
+public class GenerateModulesCmd implements ICommand {
+
+    Logger log = LoggerFactory.getLogger(getClass().getName());
+    private final TADataContext context;
+
+    public GenerateModulesCmd(TADataContext context) {
+        this.context = context;
+    }
+
+    @Override
+    public void execute() throws TAException {
+        try {
+            Tpm tpm = Tpm.open(Paths.get(Folders.application(), "bin"));
+            context.setModules(tpm.getModuleLog());
+        } catch (Tpm.TpmException | IOException ex) {
+            throw new TAException(ErrorCode.ERROR, "Error while getting Module details.", ex);
+        }
+
+    }
+}

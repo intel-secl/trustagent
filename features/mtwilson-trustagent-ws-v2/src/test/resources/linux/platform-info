@@ -1,0 +1,14 @@
+{
+  "os-version" : "7.3",
+  "processor-flags" : "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat epb pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm xsaveopt cqm_llc cqm_occup_llc",
+  "bios-name" : "Intel Corporation",
+  "tpm-version" : "1.2",
+  "processor-info" : "F2 06 03 00 FF FB EB BF",
+  "hardware-uuid" : "801E2ABC-CB28-E411-906E-0012795D96DD",
+  "bios-version" : "SE5C610.86B.01.01.1008.031920151331",
+  "os-name" : "RedHatEnterpriseServer",
+  "host-name" : "purva-host",
+  "no-of-sockets" : "2",
+  "vmm-name" : "",
+  "vmm-version" : ""
+}
