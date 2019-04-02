@@ -32,6 +32,7 @@ public class Diagnostic {
 
     /*
     public static void checkBouncycastlePresent() {
+        tryLoadingClass("org.bouncycastle.jce.provider.BouncyCastleProvider");
         tryLoadingClass("org.bouncycastle.jce.provider.JDKDigestSignature");
         tryLoadingClass("org.bouncycastle.jce.provider.JDKDigestSignature$SHA1WithRSAEncryption");
     }

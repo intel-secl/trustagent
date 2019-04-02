@@ -6,6 +6,7 @@ package com.intel.mtwilson.trustagent.ws.v2;
 
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.core.common.PlatformInfoException;
+import com.intel.mtwilson.core.common.model.HardwareFeature;
 import com.intel.mtwilson.launcher.ws.ext.V2;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -13,6 +14,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import com.intel.mtwilson.core.common.model.HostInfo;
 import com.intel.mtwilson.core.tpm.Tpm;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
@@ -58,6 +61,9 @@ public class Host {
             host.setPcrBanks(pcrBanks);
             host.setTpmEnabled(hostCntrl.getContext().getTpmEnabled());
             host.setTxtEnabled(hostCntrl.getContext().getTxtEnabled());
+            host.setTbootInstalled(hostCntrl.getContext().getTbootInstalled());
+            hostCntrl.getContext().getHardwareFeatures().get(HardwareFeature.TPM).getMeta().put("pcr_banks",StringUtils.join(pcrBanks, '_'));
+            host.setHardwareFeatures(hostCntrl.getContext().getHardwareFeatures());
             /*
             String responseXML =
                     "<host_info>"

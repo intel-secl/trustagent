@@ -3,7 +3,7 @@
     
     <groupId>com.intel.mtwilson.trustagent.packages</groupId>
     <artifactId>trustagent-linux</artifactId>
-    <version>4.4-SNAPSHOT</version>
+    <version>5.0-SNAPSHOT</version>
     
     <packaging>pom</packaging>
     <description>Self-extracting executable that installs Trust Agent and its bundled requirements</description>
@@ -73,8 +73,14 @@
                     <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
-                <!--
                 <dependency>
+                    <groupId>com.intel.isecl</groupId>
+                    <artifactId>workload-agent</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <type>bin</type>
+                </dependency>
+        
+                <!--<dependency>
                     <groupId>net.sourceforge.tboot</groupId>
                     <artifactId>tboot</artifactId>
                     <version>1.9.7</version>
@@ -87,9 +93,7 @@
                     <version>1.9.7</version>
                     <classifier>amd64</classifier>
                     <type>deb</type>
-                </dependency>
-                -->
-                
+                </dependency>-->
                 <dependency>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-api</artifactId>
@@ -144,6 +148,13 @@
                                             <groupId>com.intel.mtwilson.trustagent.features</groupId>
                                             <artifactId>mtwilson-trustagent-tpm2-packages</artifactId>
                                             <version>${project.version}</version>
+                                            <type>bin</type>
+                                            <outputDirectory>${makeself.directory}</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>com.intel.isecl</groupId>
+                                            <artifactId>workload-agent</artifactId>
+                                            <version>1.0-SNAPSHOT</version>
                                             <type>bin</type>
                                             <outputDirectory>${makeself.directory}</outputDirectory>
                                         </artifactItem>

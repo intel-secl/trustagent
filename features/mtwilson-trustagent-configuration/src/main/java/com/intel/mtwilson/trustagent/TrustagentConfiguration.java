@@ -52,6 +52,8 @@ public class TrustagentConfiguration {
     public final static String MTWILSON_TLS_CERT_SHA256 = "mtwilson.tls.cert.sha256";
     public final static String MTWILSON_API_USERNAME = "mtwilson.api.username"; // NOTE: MUST NOT STORE THE VALUE
     public final static String MTWILSON_API_PASSWORD = "mtwilson.api.password"; // NOTE: MUST NOT STORE THE VALUE
+    public final static String FLAVOR_UUIDS = "flavor.uuids";
+    public final static String FLAVOR_LABELS = "flavor.labels";
     public final static String TPM_OWNER_SECRET = "tpm.owner.secret"; // 20 bytes hex (40 hex digits)
     public final static String TPM_SRK_SECRET = "tpm.srk.secret"; // 20 bytes hex (40 hex digits)
     public final static String AIK_SECRET = "aik.secret"; // 20 bytes hex (40 hex digits)
@@ -143,6 +145,12 @@ public class TrustagentConfiguration {
     }
     public String getMtWilsonApiPassword() {
         return conf.get(MTWILSON_API_PASSWORD, null);// intentionally no default - this must be configured during setup
+    }
+    public String getFlavorUUIDs() {
+        return conf.get(FLAVOR_UUIDS, null);
+    }
+    public String getFlavorLabels() {
+        return conf.get(FLAVOR_LABELS, null);
     }
     public String getTpmOwnerSecretHex() {
         return conf.get(TPM_OWNER_SECRET, null); // intentionally no default - this must be generated during setup
@@ -463,7 +471,7 @@ public class TrustagentConfiguration {
     }
 
     public File getBindingKeyX509CertificateFile() {
-        return new File(Folders.configuration() + File.separator + "bindingkey.pem");        
+        return new File("/etc/workload-agent/bindingkey.pem");
     }
 
     public File getBindingKeyBlobFile() {
@@ -505,7 +513,7 @@ public class TrustagentConfiguration {
     }
 
     public File getSigningKeyX509CertificateFile() {
-        return new File(Folders.configuration() + File.separator + "signingkey.pem");        
+        return new File("/etc/workloadagent/signingkey.pem");        
     }
 
     public File getSigningKeyBlobFile() {

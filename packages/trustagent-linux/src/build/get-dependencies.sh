@@ -1,6 +1,6 @@
 #!/bin/bash
 TBOOT_VERSION="1.9.7"
-TBOOTXM_VERSION="4.4-SNAPSHOT"
+TBOOTXM_VERSION="5.0-SNAPSHOT"
 
 
 yum_detect() {
@@ -68,7 +68,7 @@ maven_get_tboot() {
 
 maven_get_tbootxm() {
   local _group_id="com.intel.mtwilson.tbootxm.packages"
-  local _artifact_id="tbootxm"
+  local _artifact_id="application-agent"
   local _version="${TBOOTXM_VERSION}"
   local _packaging="bin"
   local _classifier=
@@ -90,4 +90,4 @@ maven_get_tbootxm() {
 
 detect_os
 maven_get_tboot
-#maven_get_tbootxm
+maven_get_tbootxm

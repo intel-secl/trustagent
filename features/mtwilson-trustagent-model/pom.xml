@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.intel.mtwilson.trustagent.features</groupId>
         <artifactId>trustagent-maven-build-features</artifactId>
-        <version>4.4-SNAPSHOT</version>
+        <version>5.0-SNAPSHOT</version>
     </parent>
     
     <build>
@@ -124,7 +124,7 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-        
+
         <!-- mtwilson -->
         <dependency>
             <groupId>com.intel.mtwilson.common</groupId>

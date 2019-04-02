@@ -21,16 +21,11 @@ if [ -f "${OUTFILE}" ]; then
   rm -f "${OUTFILE}"
 fi
 
+# store the location of pcr_event_log
+INFILE_PCR_EVENTLOG=${INFILE_PCR_EVENTLOG:-/opt/trustagent/var/ramfs/pcr_event_log}
 TXTSTAT=$(which txt-stat 2>/dev/null)
 TXTSTAT=${TXTSTAT:-"/usr/sbin/txt-stat"}
 
-if [ ! -f "$TXTSTAT" ]; then
-  echo "Cannot find txt-stat binary"
-  exit 1
-fi
-TXTSTAT="sudo -n $TXTSTAT"
-
-if [ -n "$1" ]; then INFILE="cat $1"; else INFILE="$TXTSTAT"; fi
 INFILE_TCB_MEASUREMENT_SHA256=${INFILE_TCB_MEASUREMENT_SHA256:-/var/log/trustagent/measurement.bin}
 # 2.0 outputs to /opt/trustagent/var/measureLog.xml
 OUTFILE=${OUTFILE:-/opt/trustagent/var/measureLog.xml}
@@ -224,7 +219,49 @@ xml_pcr2() {
   echo "$BLANK8<value>$3</value>"
   echo "$BLANK6</module>"
 }
- #main
+
+# get the PCR values from /opt/trustagent/var/ramfs/pcr_event_log
+generate_pcr_measurelog ()
+{
+  if [ -f "$INFILE_PCR_EVENTLOG" ];then
+    while read line; do
+      if [ -z "$line" ];then
+        continue
+      fi
+      num=0
+      for word in $line; do
+        if [ $num -eq 0 ];then
+          PCR_BANK="$word"
+        elif [ $num -eq 1 ];then
+          PCR_NUM="$word"
+        elif [ $num -eq 2 ];then
+          NAME="$word"
+        elif [ $num -eq 3 ];then
+          VALUE="$word"
+        fi
+        let "num++"
+      done
+      xml_pcr2 "$PCR_BANK" "$PCR_NUM" "$VALUE" "$NAME"
+    done
+  fi
+}
+
+#main
+if [ ! -f "$TXTSTAT" ]; then
+  echo "<measureLog>" >$OUTFILE
+  echo "$BLANK2<txt>" >>$OUTFILE
+  echo "$BLANK2$BLANK2<txtStatus>0</txtStatus>" >>$OUTFILE
+  echo "$BLANK2$BLANK2<modules>" >>$OUTFILE
+  generate_pcr_measurelog < "$INFILE_PCR_EVENTLOG" >>$OUTFILE
+  echo "$BLANK2$BLANK2</modules>" >>$OUTFILE
+  echo "$BLANK2</txt>" >>$OUTFILE
+  echo "</measureLog>" >>$OUTFILE
+  exit 0
+else
+  TXTSTAT="sudo -n $TXTSTAT"
+fi
+
+if [ -n "$1" ]; then INFILE="cat $1"; else INFILE="$TXTSTAT"; fi
 
  ######>>>> event
  #0x401
@@ -458,6 +495,10 @@ echo "$BLANK2$BLANK4<edxSenterFlags>$sinit_mle_data_edx_senter_flags</edxSenterF
 echo "$BLANK2$BLANK2</sinitMleData>" >>$OUTFILE
 
 echo "$BLANK2$BLANK2<modules>" >>$OUTFILE
+
+# write the PCR values to the measure log
+generate_pcr_measurelog < "$INFILE_PCR_EVENTLOG" >>$OUTFILE
+
 if [ $txt_status -eq 2 -a $x501Data!="EOF" ];then
   for((g=1;g<=${#x501DataArray[*]};g++));do
     xml_pcr  "${x501PcrIndexArray[$g]}" "$g" "${x501DataArray[$g]}"  "${#x501DataArray[*]}"  >>$OUTFILE

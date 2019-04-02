@@ -22,7 +22,7 @@
 # 14. If VIRSH_DEFAULT_CONNECT_URI is defined in environment copy it to env directory
 # 15. extract trustagent zip
 # 16. symlink tagent
-# 17. install measurement agent
+# 17. install application agent
 # 18. migrate any old data to the new locations (v1 - v3)
 # 19. setup authbind to allow non-root trustagent to listen on ports 80 and 443
 # 20. create tpm-tools and additional binary symlinks
@@ -36,11 +36,11 @@
 # 28. update the extensions cache file
 # 29. ensure the trustagent owns all the content created during setup
 # 30. create a trustagent username "mtwilson" with no password and all privileges for mtwilson access
-# 31. tagent start
-# 32. tagent setup
-# 33. register tpm password with mtwilson
-# 34. restart monit
-# 35. config logrotate
+# 31. config logrotate
+# 32. tagent start
+# 33. tagent setup
+# 34. register tpm password with mtwilson
+# 35. restart monit
 
 
 #####
@@ -71,6 +71,7 @@ export LOG_COPYTRUNCATE=${LOG_COPYTRUNCATE:-copytruncate}
 export LOG_SIZE=${LOG_SIZE:-1G}
 export LOG_OLD=${LOG_OLD:-12}
 export PROVISION_ATTESTATION=${PROVISION_ATTESTATION:-y}
+export AUTOMATIC_PULL_MANIFEST=${AUTOMATIC_PULL_MANIFEST:-y}
 export TRUSTAGENT_ADMIN_USERNAME=${TRUSTAGENT_ADMIN_USERNAME:-tagent-admin}
 export REGISTER_TPM_PASSWORD=${REGISTER_TPM_PASSWORD:-y}
 export TRUSTAGENT_LOGIN_REGISTER=${TRUSTAGENT_LOGIN_REGISTER:-true}
@@ -156,17 +157,7 @@ if [ "${TRUSTAGENT_SETUP_PREREQS:-yes}" == "yes" ]; then
   spResult=$?
 fi
 
-# refactor this check after install_prereq.sh and setup_prereq.sh are sorted out
-if [[ $ipResult -eq 255 ]] && [[ $spResult -ne 255 ]]; then
-  echo
-  echo "Trust Agent: A reboot is required. Please reboot and run installer again."
-  echo
-fi
-if [[ $ipResult -eq 255 ]] || [[ $spResult -eq 255 ]]; then
-  mkdir -p "$TRUSTAGENT_HOME/var"
-  touch "$TRUSTAGENT_HOME/var/reboot_required"
-  exit 255
-fi
+mkdir -p "$TRUSTAGENT_HOME/var/ramfs"
 
 # 7. determine if we are installing as root or non-root, create groups and users accordingly
 if [ "$(whoami)" == "root" ]; then
@@ -389,18 +380,37 @@ if [[ ! -h $TRUSTAGENT_BIN/tagent ]]; then
   ln -s $TRUSTAGENT_BIN/tagent.sh $TRUSTAGENT_BIN/tagent
 fi
 
-# 17. install measurement agent
-#if [ "$TBOOTXM_INSTALL" != "N" ] && [ "$TBOOTXM_INSTALL" != "No" ] && [ "$TBOOTXM_INSTALL" != "n" ] && [ "$TBOOTXM_INSTALL" != "no" ]; then 
+#17. install application agent
+if [ "$TBOOTXM_INSTALL" != "N" ] && [ "$TBOOTXM_INSTALL" != "No" ] && [ "$TBOOTXM_INSTALL" != "n" ] && [ "$TBOOTXM_INSTALL" != "no" ]; then 
 #  ### INSTALL MEASUREMENT AGENT --comment out for now for cit 2.2
-#  echo "Installing measurement agent..."
-#  TBOOTXM_PACKAGE=`ls -1 tbootxm-*.bin 2>/dev/null | tail -n 1`
-#  if [ -z "$TBOOTXM_PACKAGE" ]; then
-#    echo_failure "Failed to find measurement agent installer package"
-#    exit -1
-#  fi
-#  ./$TBOOTXM_PACKAGE
-#  if [ $? -ne 0 ]; then echo_failure "Failed to install measurement agent"; exit -1; fi
-#fi
+  echo "Installing application agent..."
+  TBOOTXM_PACKAGE=`ls -1 application-agent*.bin 2>/dev/null | tail -n 1`
+  if [ -z "$TBOOTXM_PACKAGE" ]; then
+    echo_failure "Failed to find application agent installer package"
+    exit -1
+  fi
+  ./$TBOOTXM_PACKAGE
+  if [ $? -ne 0 ]; then echo_failure "Failed to install application agent"; exit -1; fi
+fi
+
+#Added execute permission for measure binary
+chmod o+x /opt/tbootxm
+chmod o+x /opt/tbootxm/bin/
+chmod o+x /opt/tbootxm/lib/
+chmod o+x /opt/tbootxm/bin/measure
+chmod o+x /opt/tbootxm/lib/libwml.so
+
+
+#Copy default software manifest to /opt/trustagent/var/
+if ! stat $TRUSTAGENT_VAR/manifest_* 1> /dev/null 2>&1; then
+  UUID=$(uuidgen)
+  if [ "$TPM_VERSION" == "1.2" ]; then
+    cp manifest_tpm12.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
+  else
+    cp manifest_tpm20.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
+  fi
+  sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
+fi
 
 # 18. migrate any old data to the new locations (v1 - v3)  (should be rewritten in java)
 v1_aik=$TRUSTAGENT_V_1_2_CONFIGURATION/cert
@@ -462,8 +472,12 @@ if [ -n "$TRUSTAGENT_USERNAME" ] && [ "$TRUSTAGENT_USERNAME" != "root" ] && [ -d
   chown $TRUSTAGENT_USERNAME /etc/authbind/byport/80 /etc/authbind/byport/443
 fi
 
+if is_suefi_enabled; then
+  export SKIP_INSTALL_TBOOT="y"
+fi
+
 # if we are building a docker image, skip this step
-if [[ "$(whoami)" == "root" && ${DOCKER} != "true" ]]; then
+if [[ "$(whoami)" == "root" && ${DOCKER} != "true" && "$SKIP_INSTALL_TBOOT" != "y" && "$SKIP_INSTALL_TBOOT" != "Y" && "$SKIP_INSTALL_TBOOT" != "yes" ]]; then
   # this section adds tagent sudoers file so that user can execute txt-stat command
   txtStat=$(which txt-stat 2>/dev/null)
   if [ -z "$txtStat" ]; then
@@ -560,11 +574,12 @@ function setup_tpm12_symlinks() {
 
 function setup_tpm20_symlinks() {
     #Sym link TPM 2.0 tools into $TRUSTAGEN_BIN/
-    if [[ ! -e "/usr/local/sbin/tpm2_takeownership" ]]; then
+    if [[ ! -e "/usr/bin/tpm2_takeownership" ]]; then
       echo_failure "cannot find command: tpm2_takeownership (from tpm2-tools)"
       exit 1
     fi
-    ln -s /usr/local/sbin/tpm2_* "$TRUSTAGENT_BIN/"
+#    ln -s /usr/local/sbin/tpm2_* "$TRUSTAGENT_BIN/"
+    ln -s /usr/bin/tpm2_* "$TRUSTAGENT_BIN/"
 }
 
 # 20. create tpm-tools and additional binary symlinks
@@ -780,10 +795,10 @@ maybe_clear_tpm2() {
     fi
 }
 
-# we can't access the TPM during a docker image build, skip this
-if [[ "$TPM_VERSION" == "2.0" && ${DOCKER} != "true" ]]; then
-    maybe_clear_tpm2
-fi
+## we can't access the TPM during a docker image build, skip this
+#if [[ "$TPM_VERSION" == "2.0" && ${DOCKER} != "true" ]]; then
+#    maybe_clear_tpm2
+#fi
 
 # 29. ensure the trustagent owns all the content created during setup
 for directory in $TRUSTAGENT_HOME $TRUSTAGENT_CONFIGURATION $TRUSTAGENT_JAVA $TRUSTAGENT_BIN $TRUSTAGENT_ENV $TRUSTAGENT_REPOSITORY $TRUSTAGENT_LOGS $TRUSTAGENT_TMP; do
@@ -795,16 +810,75 @@ if [ "${LOCALHOST_INTEGRATION}" == "yes" ]; then
   /opt/trustagent/bin/tagent.sh localhost-integration
 fi
 
+#tagent config mtwilson.extensions.fileIncludeFilter.contains "${MTWILSON_EXTENSIONS_FILEINCLUDEFILTER_CONTAINS:-mtwilson,trustagent,jersey-media-multipart}" >/dev/null
+#tagent config mtwilson.extensions.packageIncludeFilter.startsWith "${MTWILSON_EXTENSIONS_PACKAGEINCLUDEFILTER_STARTSWITH:-com.intel,org.glassfish.jersey.media.multipart}" >/dev/null
+
+
+
+## dashboard
+#tagent config mtwilson.navbar.buttons trustagent-keys,mtwilson-configuration-settings-ws-v2,mtwilson-core-html5 >/dev/null
+#tagent config mtwilson.navbar.hometab keys >/dev/null
+
+#tagent config jetty.port ${JETTY_PORT:-80} >/dev/null
+#tagent config jetty.secure.port ${JETTY_SECURE_PORT:-443} >/dev/null
+
+#tagent setup
+#tagent start
+
+# 30. create a trustagent username "mtwilson" with no password and all privileges for mtwilson access
+# create a trustagent username "mtwilson" with no password and all privileges
+# which allows mtwilson to access it until mtwilson UI is updated to allow
+# entering username and password for accessing the trust agent
+
+# Starting with 3.0, we have a separate task that creates a new user name and password per host
+# So we do not need to create this user without password. This is would address the security issue as well
+#/usr/local/bin/tagent password mtwilson --nopass *:*
+
+# give tagent a chance to do any other setup (such as the .env file and pcakey)
+# and make sure it's successful before trying to start the trust agent
+# NOTE: only the output from start-http-server is redirected to the logfile;
+#       the stdout from the setup command will be displayed
+#tagent setup
+#tagent start >>$logfile  2>&1
+
+########################################################################################################################
+# 31. config logrotate
+mkdir -p /etc/logrotate.d
+
+if [ ! -a /etc/logrotate.d/trustagent ]; then
+ echo "/opt/trustagent/logs/trustagent.log {
+    missingok
+	notifempty
+	rotate $LOG_OLD
+	maxsize $LOG_SIZE
+    nodateext
+	$LOG_ROTATION_PERIOD
+	$LOG_COMPRESS
+	$LOG_DELAYCOMPRESS
+	$LOG_COPYTRUNCATE
+}" > /etc/logrotate.d/trustagent
+fi
+
 # exit trustagent setup if TRUSTAGENT_NOSETUP is set
 if [ -n "$TRUSTAGENT_NOSETUP" ]; then
   echo "TRUSTAGENT_NOSETUP value is set. So, skipping the trustagent setup task."
   exit 0;
 fi
 
-# 33. tagent setup
-tagent setup 
+#Stop further installation if there is no TPM driver loaded
+if [[ $ipResult -eq 254 ]]; then
+  mkdir -p "$TRUSTAGENT_HOME/var"
+  touch "$TRUSTAGENT_HOME/var/reboot_required"
+  echo
+  echo_warning "Trust Agent: TPM driver is not loaded. Please load it and run trustagent setup."
+  echo
+  exit 254
+fi
 
-# 34. tagent start
+# 32. tagent setup
+tagent setup
+
+# 33. tagent start
 tagent start
 
 if [[ "$PROVISION_ATTESTATION" == "y" || "$PROVISION_ATTESTATION" == "Y" || "$PROVISION_ATTESTATION" == "yes" ]]; then
@@ -823,17 +897,53 @@ if [[ "$PROVISION_ATTESTATION" == "y" || "$PROVISION_ATTESTATION" == "Y" || "$PR
     fi
 fi
 
+# install workload agent
+if [[ "$INSTALL_WORKLOAD_AGENT" != "n" && "$INSTALL_WORKLOAD_AGENT" != "N" && "$INSTALL_WORKLOAD_AGENT" != "no" ]]; then
+  # make sure that we have exported the TRUSTAGENT_CONFIGURATION and TRUSTAGENT_USERNAME as these are required by
+  # the workload_agent installer
+  export TRUSTAGENT_CONFIGURATION
+  export TRUSTAGENT_USERNAME
+
+  ./workload-agent-*.bin
+  if [ $? -ne 0 ]; then
+    echo_failure "Workload Agent Installation Failed"
+    exit 1
+  fi
+fi
+
+# TODO: when sequence of events are optimized
+tagent restart
+
+# register host with HVS
 if [[( "$PROVISION_ATTESTATION" == "y" || "$PROVISION_ATTESTATION" == "Y" || "$PROVISION_ATTESTATION" == "yes" ) && ( "$AUTOMATIC_REGISTRATION" == "y" || "$AUTOMATIC_REGISTRATION" == "Y" || "$AUTOMATIC_REGISTRATION" == "yes" )]]; then
     tagent create-host
 fi
 
+if [[( "$PROVISION_ATTESTATION" == "y" || "$PROVISION_ATTESTATION" == "Y" || "$PROVISION_ATTESTATION" == "yes" ) && ( "$AUTOMATIC_PULL_MANIFEST" == "y" || "$AUTOMATIC_PULL_MANIFEST" == "Y" || "$AUTOMATIC_PULL_MANIFEST" == "yes" )]]; then
+    tagent get-configured-manifest
+fi
+
 if [[( "$PROVISION_ATTESTATION" == "y" || "$PROVISION_ATTESTATION" == "Y" || "$PROVISION_ATTESTATION" == "yes" ) && ( "$AUTOMATIC_FLAVOR_CREATION" == "y" || "$AUTOMATIC_FLAVOR_CREATION" == "Y" || "$AUTOMATIC_FLAVOR_CREATION" == "yes" )]]; then
-    tagent create-host-unique-flavor
+    if [[ $ipResult -ne 255 ]]; then
+        tagent create-host-unique-flavor
+    else
+        echo "Host not in measured launch environment. So skipping the automatic flavor creation step."
+    fi
+fi
+
+#Prompt for reboot if there is no Measured Launch Environment
+if [[ $ipResult -eq 255 ]]; then
+  mkdir -p "$TRUSTAGENT_HOME/var"
+  touch "$TRUSTAGENT_HOME/var/reboot_required"
+  echo
+  echo_warning "Trust Agent: Not in Measured Launch Environment. Please reboot host."
+  echo
+  exit 255
 fi
 
 #exit
 
-# 33. register tpm password with mtwilson
+# 34. register tpm password with mtwilson
 # optional: register tpm password with mtwilson so pull provisioning can
 #           be accomplished with less reboots (no ownership transfer)
 #           default is not to register the password.
@@ -847,7 +957,7 @@ fi
 #  tagent setup register-tpm-password
 #fi
 
-# 34. restart monit
+# 35. restart monit
 # NOTE:  monit should only be restarted AFTER trustagent is up and running
 #        so that it doesn't try to start it before we're done with our setup
 #        tasks.
@@ -862,21 +972,3 @@ fi
 
 # remove the temporary setup env file
 #rm -f $TRUSTAGENT_ENV/trustagent-setup
-
-########################################################################################################################
-# 35. config logrotate 
-mkdir -p /etc/logrotate.d
-
-if [ ! -a /etc/logrotate.d/trustagent ]; then
- echo "/opt/trustagent/logs/trustagent.log {
-    missingok
-	notifempty
-	rotate $LOG_OLD
-	maxsize $LOG_SIZE
-    nodateext
-	$LOG_ROTATION_PERIOD 
-	$LOG_COMPRESS
-	$LOG_DELAYCOMPRESS
-	$LOG_COPYTRUNCATE
-}" > /etc/logrotate.d/trustagent
-fi

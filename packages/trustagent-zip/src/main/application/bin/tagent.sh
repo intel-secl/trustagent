@@ -96,25 +96,6 @@ fi
 
 ###################################################################################################
 
-# if non-root execution is specified, and we are currently root, start over; the TRUSTAGENT_SUDO variable limits this to one attempt
-# we make an exception for the following commands:
-# - 'uninstall' may require root access to delete users and certain directories
-# - 'update-system-info' requires root access to use dmidecode and virsh commands
-# - 'restart' requires root access as it calls trustagent_update_system_info to update system information
-if [ -n "$TRUSTAGENT_USERNAME" ] && [ "$TRUSTAGENT_USERNAME" != "root" ] && [ $(whoami) == "root" ] && [ -z "$TRUSTAGENT_SUDO" ] && [ "$1" != "uninstall" ] && [ "$1" != "update-system-info" ] && [ "$1" != "restart" ] && [[ "$1" != "replace-"* ]]; then
-
-  # before we switch to non-root, check if tcsd is running and start it if necessary
-  trousers=$(which tcsd 2>/dev/null)
-  if [ -n "$trousers" ]; then $trousers; fi
-
-  export TRUSTAGENT_SUDO=true
-  sudo -u $TRUSTAGENT_USERNAME -H -E $TRUSTAGENT_BIN/tagent $*
-  exit $?
-fi
-
-###################################################################################################
-
-
 # default directory layout follows the 'home' style
 TRUSTAGENT_CONFIGURATION=${TRUSTAGENT_CONFIGURATION:-${TRUSTAGENT_CONF:-$TRUSTAGENT_HOME/configuration}}
 TRUSTAGENT_JAVA=${TRUSTAGENT_JAVA:-$TRUSTAGENT_HOME/java}
@@ -145,6 +126,7 @@ TRUSTAGENT_LOG4J_LOG_FILE=$TRUSTAGENT_LOGS/trustagent-log4j.log
 TRUSTAGENT_AUTHORIZE_TASKS="download-mtwilson-tls-certificate download-mtwilson-privacy-ca-certificate request-endorsement-certificate request-aik-certificate $TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS login-register"
 TRUSTAGENT_REGISTRATION_TASKS="attestation-registration"
 TRUSTAGENT_CREATE_FLAVOR_TASK="create-host-unique-flavor"
+TRUSTAGENT_GET_MANIFEST_TASK="get-configured-manifest"
 TRUSTAGENT_TPM_TASKS="create-tpm-owner-secret create-tpm-srk-secret create-aik-secret take-ownership"
 TRUSTAGENT_START_TASKS="secure-store create-keystore-password create-tls-keypair create-tpm-owner-secret take-ownership"
 TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS="create-binding-key certify-binding-key create-signing-key certify-signing-key"
@@ -190,6 +172,48 @@ CLASSPATH=$(echo $JARS | tr ' ' ':')
 # able to see the full command line in ps because the output is normally
 # truncated at 4096 characters. so we export the classpath to the environment
 export CLASSPATH
+
+###################################################################################################
+
+# writes system information into files non-root trustagent can read
+# (root access required to run)
+trustagent_update_system_info() {
+  if [ "$(whoami)" == "root" ]; then
+    # user is root, so run the commands and cache the output
+    mkdir -p $TRUSTAGENT_VAR/system-info
+
+    $JAVA_CMD $JAVA_OPTS com.intel.mtwilson.trustagent.ws.v2.PlatformInfoCollector > $TRUSTAGENT_VAR/system-info/platform-info
+    chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $TRUSTAGENT_VAR
+  else
+    echo_failure "Must run 'tagent update-system-info' as root"
+  fi
+}
+
+if ([ "$1" == "start" ] || [ "$1" == "restart" ]) && [ $(whoami) == "root" ]; then
+   trustagent_update_system_info $*
+fi
+
+###################################################################################################
+
+# if non-root execution is specified, and we are currently root, start over; the TRUSTAGENT_SUDO variable limits this to one attempt
+# we make an exception for the following commands:
+# - 'uninstall' may require root access to delete users and certain directories
+# - 'update-system-info' requires root access to use dmidecode and virsh commands
+# - 'restart' requires root access as it calls trustagent_update_system_info to update system information
+if [ -n "$TRUSTAGENT_USERNAME" ] && [ "$TRUSTAGENT_USERNAME" != "root" ] && [ $(whoami) == "root" ] && [ -z "$TRUSTAGENT_SUDO" ] && [ "$1" != "uninstall" ] && [ "$1" != "update-system-info" ] && [ "$1" != "restart" ] && [[ "$1" != "replace-"* ]]; then
+
+  #Start TPM resource manager
+  service tcsd2 stop >/dev/null 2>&1
+  service tpm2-abrmd start >/dev/null 2>&1
+
+  # before we switch to non-root, check if tcsd is running and start it if necessary
+  trousers=$(which tcsd 2>/dev/null)
+  if [ -n "$trousers" ]; then $trousers; fi
+
+  export TRUSTAGENT_SUDO=true
+  sudo -u $TRUSTAGENT_USERNAME -H -E $TRUSTAGENT_BIN/tagent $*
+  exit $?
+fi
 
 ###################################################################################################
 
@@ -277,9 +301,9 @@ trustagent_start() {
 
     if [[ ${DOCKER} != "true" ]]; then
         # regenerate Measurement log when trustagent is started, but only if not in Docker, since the Docker entrypoint handles it
-        echo "Running module analsysis ... "
+        # echo "Running module analysis ... "
         rm -rf $TRUSTAGENT_HOME/var/measureLog.xml
-        $TRUSTAGENT_HOME/bin/module_analysis.sh
+        $TRUSTAGENT_HOME/bin/module_analysis.sh 2>/dev/null
     fi
 
     # check if we need to use authbind or if we can start java directly
@@ -339,6 +363,14 @@ trustagent_stop() {
     else
       echo "Failed to stop trust agent"
     fi
+  fi
+}
+
+workload_agent_uninstall() {
+  # if an existing tagent is already running, stop it while we install
+  existing_wlagent=`which wlagent 2>/dev/null`
+  if [ -f "$existing_wlagent" ]; then
+    $existing_wlagent uninstall --purge
   fi
 }
 
@@ -414,24 +446,12 @@ print_help() {
     echo "Usage: $0 export-config [outfile|--in=infile|--out=outfile|--stdout] [--env-password=PASSWORD_VAR]"
     echo "Usage: $0 config [key] [--delete|newValue]"
     echo "Usage: $0 replace-tls-key-pair [--private-key=private-key-file] [--cert-chain=cert-chain-file]"
+    echo "Usage: $0 get-configured-manifest [environment-file]"
     echo "Available setup tasks:"
     echo $TRUSTAGENT_SETUP_TASKS | tr ' ' '\n'
     echo register-tpm-password
 }
 
-# writes system information into files non-root trustagent can read 
-# (root access required to run)
-trustagent_update_system_info() {
-  if [ "$(whoami)" == "root" ]; then
-    # user is root, so run the commands and cache the output
-    mkdir -p $TRUSTAGENT_VAR/system-info
-
-    $JAVA_CMD $JAVA_OPTS com.intel.mtwilson.trustagent.ws.v2.PlatformInfoCollector > $TRUSTAGENT_VAR/system-info/platform-info
-    chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $TRUSTAGENT_VAR
-  else
-    echo_failure "Must run 'tagent update-system-info' as root"
-  fi
-}
 
 # uses only information cached by trustagent_update_system_info 
 # (root access not required)
@@ -498,13 +518,7 @@ case "$1" in
     trustagent_stop
     ;;
   restart)
-    #trousers_detect_and_run
-#    trustagent_stop
-#    $TRUSTAGENT_BIN
     $TRUSTAGENT_BIN/tagent stop
-    #trustagent_setup $TRUSTAGENT_START_TASKS
-    trustagent_update_system_info $*
-#    trustagent_start
     $TRUSTAGENT_BIN/tagent start
     ;;
   java-detect)
@@ -604,9 +618,13 @@ case "$1" in
   create-host-unique-flavor)
    
     trustagent_setup --force $TRUSTAGENT_CREATE_FLAVOR_TASK
+    ;;
+  get-configured-manifest)
 
+    trustagent_setup --force $TRUSTAGENT_GET_MANIFEST_TASK
     ;;
   uninstall)
+    workload_agent_uninstall
     trustagent_stop
 	policyagent_uninstall
     vrtm_uninstall

@@ -5,15 +5,10 @@
 TXTSTAT=$(which txt-stat 2>/dev/null)
 TXTSTAT=${TXTSTAT:-"/usr/sbin/txt-stat"}
 
-if [ ! -f "$TXTSTAT" ]; then
-  echo "Cannot find txt-stat binary"
-  exit 1
-fi
-TXTSTAT="sudo -n $TXTSTAT"
-
+# store the location of pcr_event_log
+INFILE_PCR_EVENTLOG=${INFILE_PCR_EVENTLOG:-/opt/trustagent/var/ramfs/pcr_event_log}
 INFILE_TCB_MEASUREMENT_SHA256="/var/log/trustagent/measurement.sha256"
 
-if [ -n "$1" ]; then INFILE="cat $1"; else INFILE="$TXTSTAT"; fi
 # 2.0 outputs to /opt/trustagent/var/measureLog.xml
 OUTFILE=${OUTFILE:-/opt/trustagent/var/measureLog.xml}
 # 1.2 outputs to measureLog.xml in current directory
@@ -54,6 +49,32 @@ xml_module()
   echo "$BLANK6</module>"
 }
 
+# get the PCR values from /opt/trustagent/var/ramfs/pcr_event_log
+generate_pcr_measurelog ()
+{
+  if [ -f "$INFILE_PCR_EVENTLOG" ];then
+    while read line; do
+      if [ -z "$line" ];then
+        continue
+      fi
+      num=0
+      for word in $line; do
+        if [ $num -eq 0 ];then
+          PCR_BANK="$word"
+        elif [ $num -eq 1 ];then
+          PCR_NUM="$word"
+        elif [ $num -eq 2 ];then
+          NAME="$word"
+        elif [ $num -eq 3 ];then
+          VALUE="$word"
+        fi
+        let "num++"
+      done
+      xml_module "$PCR_BANK" "$PCR_NUM" "$NAME" "$VALUE"
+    done
+  fi
+}
+
 get_line_number()
 {
   local num="`$INFILE | grep -n "$1" | awk -F: '{print $1}'`"
@@ -85,6 +106,11 @@ getName()
   0x412) echo LCP_DETAILS_HASH;;
   0x413) echo LCP_AUTHORITIES_HASH;;
   0x414) echo NV_INFO_HASH;;
+  0x416) echo EVTYPE_KM_HASH;;
+  0x417) echo EVTYPE_BPM_HASH;;
+  0x418) echo EVTYPE_KM_INFO_HASH;;
+  0x419) echo EVTYPE_BPM_INFO_HASH;;
+  0x41a) echo EVTYPE_BOOT_POL_HASH;;
   0x4ff) echo CAP_VALUE;;
   0x501)
     case "$lRound" in
@@ -118,8 +144,24 @@ getBank()
   echo `getBankById $lAlgId`
 }
 
-txt_status=3
+#main
+if [ ! -f "$TXTSTAT" ]; then
+  echo "<measureLog>" >$OUTFILE
+  echo "$BLANK2<txt>" >>$OUTFILE
+  echo "$BLANK2$BLANK2<txtStatus>0</txtStatus>" >>$OUTFILE
+  echo "$BLANK2$BLANK2<modules>" >>$OUTFILE
+  generate_pcr_measurelog < "$INFILE_PCR_EVENTLOG" >>$OUTFILE
+  echo "$BLANK2$BLANK2</modules>" >>$OUTFILE
+  echo "$BLANK2</txt>" >>$OUTFILE
+  echo "</measureLog>" >>$OUTFILE
+  exit 0
+else
+  TXTSTAT="sudo -n $TXTSTAT"
+fi
 
+if [ -n "$1" ]; then INFILE="cat $1"; else INFILE="$TXTSTAT"; fi
+
+txt_status=3
 #start xml file generation, continue only when $txt_status = 3
 echo "<measureLog>" >$OUTFILE
 echo "$BLANK2<txt>" >>$OUTFILE
@@ -160,6 +202,9 @@ done
 
 #output all modules
 echo "$BLANK2$BLANK2<modules>" >>$OUTFILE
+# write the PCR values to the measure log
+generate_pcr_measurelog < "$INFILE_PCR_EVENTLOG" >>$OUTFILE
+
 for((g=0;g<${#xDigestArray[*]};g++));do
   if [ "${xTypeArray[$g]}" != 0x3 -a "${xPcrIndexArray[$g]}" != 255 ]; then
     xml_module "${xBankArray[$g]}" "${xPcrIndexArray[$g]}" "${xNameArray[$g]}" "${xDigestArray[$g]}" >>$OUTFILE

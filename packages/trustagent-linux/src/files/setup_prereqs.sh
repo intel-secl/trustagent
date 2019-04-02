@@ -28,8 +28,7 @@ if [ -z "$TPM_VERSION" ]; then
   detect_tpm_version
 fi
 
-# 3. Start tcsd (it already has an init script for next boot, but we need it now)
-
+# 1. Start tcsd (it already has an init script for next boot, but we need it now)
 # tpm 1.2
 is_tcsd_running() {
   local tcsd_pid=$(ps aux | grep tcsd | grep -v grep)

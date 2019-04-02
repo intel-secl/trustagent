@@ -26,6 +26,7 @@
     </target>
     
     <target name="ready" depends="init">
+		<!-- permissions -->
     </target>
     
     <target name="clean" depends="init">

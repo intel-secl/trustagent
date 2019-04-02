@@ -38,10 +38,16 @@ public class PlatformInfoCollector {
         platformInfoMap.put("tpm-version", context.getTpmVersion());
         platformInfoMap.put("no-of-sockets", context.getNoOfSockets());
         platformInfoMap.put("tpm-enabled", context.getTpmEnabled());
-        platformInfoMap.put("txt-enabled", context.getTxtEnabled());
+        platformInfoMap.put("txt-status", context.getTxtStatus());
+        platformInfoMap.put("tboot-status", context.getTbootStatus());
+        platformInfoMap.put("cbnt-status", context.getCbntStatus());
+        platformInfoMap.put("cbnt-profile", context.getCbntProfile());
+        platformInfoMap.put("suefi-status", context.getSuefiStatus());
+        platformInfoMap.put("mktme-status", context.getMktmeStatus());
+        platformInfoMap.put("mktme-encryption-algorithm", context.getMktmeEncryptionAlgorithm());
+        platformInfoMap.put("mktme-max-keys-per-cpu", context.getMktmeMaxKeysPerCpu());
 
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(platformInfoMap);
         System.out.print(json);
-//        }
     }
 }

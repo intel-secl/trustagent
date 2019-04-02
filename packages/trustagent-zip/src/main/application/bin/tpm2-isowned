@@ -11,9 +11,9 @@ verbose=$1
 
 # Take ownership
 if [[ $verbose == verbose ]]; then
-  tpm2_takeownership -o $ownerPasswd -e $endorsePasswd -l $lockPasswd
+  tpm2_takeownership -o hex:$ownerPasswd -e hex:$endorsePasswd -l hex:$lockPasswd
 else
-  tpm2_takeownership -o $ownerPasswd -e $endorsePasswd -l $lockPasswd > /dev/null
+  tpm2_takeownership -o hex:$ownerPasswd -e hex:$endorsePasswd -l hex:$lockPasswd > /dev/null
 fi
 
 if [[ $? != 0 ]];then
@@ -21,7 +21,7 @@ if [[ $? != 0 ]];then
   echo "1"
 else
   # not owned since we can take the ownership. Clear ownership
-  tpm2_takeownership -O $ownerPasswd -E $endorsePasswd -L $lockPasswd > /dev/null
+  tpm2_takeownership -O hex:$ownerPasswd -E hex:$endorsePasswd -L hex:$lockPasswd > /dev/null
   echo "0"
 fi 
 exit 0

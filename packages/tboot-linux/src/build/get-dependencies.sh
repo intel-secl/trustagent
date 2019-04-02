@@ -1,6 +1,6 @@
 #!/bin/bash
 TBOOT_VERSION="1.9.7"
-TBOOTXM_VERSION="4.2-SNAPSHOT"
+TBOOTXM_VERSION="5.0-SNAPSHOT"
 
 
 yum_detect() {
@@ -62,13 +62,13 @@ maven_get_tboot() {
   #maven_get "${_group_id}" "${_artifact_id}" "${_version}" "${_packaging}" "${_classifier}" "${_destination}"
   maven_get "${_group_id}" "${_artifact_id}" "${_version}" "rpm" "x86_64" "${_destination}-x86_64.rpm"
   if [ $? -ne 0 ]; then echo "WARNING: cannot retrieve tboot RPM package via maven"; fi
-#  maven_get "${_group_id}" "${_artifact_id}" "${_version}" "deb" "amd64" "${_destination}-amd64.deb"
-#  if [ $? -ne 0 ]; then echo "WARNING: cannot retrieve tboot DEB package via maven"; fi
+  maven_get "${_group_id}" "${_artifact_id}" "${_version}" "deb" "amd64" "${_destination}-amd64.deb"
+  if [ $? -ne 0 ]; then echo "WARNING: cannot retrieve tboot DEB package via maven"; fi
 }
 
 maven_get_tbootxm() {
   local _group_id="com.intel.mtwilson.tbootxm.packages"
-  local _artifact_id="tbootxm"
+  local _artifact_id="application-agent"
   local _version="${TBOOTXM_VERSION}"
   local _packaging="bin"
   local _classifier=
@@ -90,4 +90,4 @@ maven_get_tbootxm() {
 
 detect_os
 maven_get_tboot
-#maven_get_tbootxm
+maven_get_tbootxm

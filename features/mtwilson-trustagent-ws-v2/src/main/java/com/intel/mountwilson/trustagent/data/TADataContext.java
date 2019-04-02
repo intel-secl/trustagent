@@ -44,7 +44,7 @@ public class TADataContext {
     private String assetTagHash = null;
     private TpmQuoteResponse tpmQuoteResponse;
     private String sessionId;
-    private String tcbMeasurement;
+    private List<String> tcbMeasurement;
     private List<String> selectedPcrBanks;
 
     public List<String> getSelectedPcrBanks() {
@@ -295,12 +295,16 @@ public class TADataContext {
     public File getTcbMeasurementXmlFile() {
         return new File(Folders.log() + File.separator + "measurement.xml");
     }
-    
-    public String getTcbMeasurement() {
+
+    public File getTcbMeasurementXmlDir() {
+        return new File(Folders.application() + File.separator + "var" + File.separator + "ramfs");
+    }
+
+    public List<String> getTcbMeasurement() {
         return tcbMeasurement;
     }
     
-    public void setTcbMeasurement(String tcbMeasurement) {
+    public void setTcbMeasurement(List<String> tcbMeasurement) {
         this.tcbMeasurement = tcbMeasurement;
     }
     

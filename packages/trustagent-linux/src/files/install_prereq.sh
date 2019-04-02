@@ -14,9 +14,9 @@
 
 # Outline:
 # 1. Install redhat-lsb-core and other redhat-specific packages
-# 2. Install trousers and trousers-devel packages (current is trousers-0.3.13-1.el7.x86_64)
-# 3. Install the patched tpm-tools
-# 4. Install unzip authbind vim-common packages
+# 2. Install unzip authbind vim-common packages
+# 3. Install trousers and trousers-devel packages (current is trousers-0.3.13-1.el7.x86_64)
+# 4. Install the patched tpm-tools
 # 5. Install java
 # 6. Install monit
 
@@ -42,14 +42,17 @@ fi
 # 1. Install redhat-lsb-core and other redhat-specific packages
 install_redhat_packages() {
   if [ "$IS_RPM" != "true" ]; then
-     # Add epel-release-latest-7.noarch repository; required for monit
-     add_package_repository https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-     TRUSTAGENT_REDHAT_YUM_PACKAGES="redhat-lsb net-tools redhat-lsb-core"
-     install_packages "redhat" "TRUSTAGENT_REDHAT"
+    # Add epel-release-latest-7.noarch repository; required for monit
+    add_package_repository https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    TRUSTAGENT_REDHAT_YUM_PACKAGES="redhat-lsb net-tools redhat-lsb-core"
+    install_packages "redhat" "TRUSTAGENT_REDHAT"
   fi
 }
-if [[ "$SKIP_INSTALL_REDHAT_PACKAGES" != "y" && "$SKIP_INSTALL_REDHAT_PACKAGES" != "Y" && "$SKIP_INSTALL_REDHAT_PACKAGES" != "yes" ]]; then
-  install_redhat_packages
+
+if yum_detect; then
+  if [[ "$SKIP_INSTALL_REDHAT_PACKAGES" != "y" && "$SKIP_INSTALL_REDHAT_PACKAGES" != "Y" && "$SKIP_INSTALL_REDHAT_PACKAGES" != "yes" ]]; then
+    install_redhat_packages
+  fi
 fi
 
 install_openssl() {
@@ -61,6 +64,33 @@ fi
   TRUSTAGENT_OPENSSL_ZYPPER_PACKAGES="openssl libopenssl-devel libopenssl1_0_0 openssl-certs"
   install_packages "openssl" "TRUSTAGENT_OPENSSL" > /dev/null 2>&1
 }
+
+# 2. Install unzip authbind vim-common packages
+# make sure unzip is installed
+#java_required_version=1.8
+#Adding redhat-lsb for bug 5289
+#Adding net-tools for bug 5285
+#adding openssl-devel for bug 5284
+TRUSTAGENT_YUM_PACKAGES="unzip vim-common cpuid msr-tools mokutil"
+TRUSTAGENT_APT_PACKAGES="unzip dpkg-dev authbind vim-common cpuid msr-tools mokutil"
+TRUSTAGENT_YAST_PACKAGES="unzip authbind vim-common"
+TRUSTAGENT_ZYPPER_PACKAGES="unzip authbind vim-common"
+
+##### install prereqs can only be done as root
+if [ "$(whoami)" == "root" ]; then
+  install_packages "Installer requirements" "TRUSTAGENT"
+  if [ $? -ne 0 ]; then echo_failure "Failed to install prerequisites through package installer"; exit 1; fi
+else
+  echo_warning "Required packages:"
+  auto_install_preview "TrustAgent requirements" "TRUSTAGENT"
+fi
+
+###### Check if sUEFI enabled #######
+if is_suefi_enabled; then
+  export SUEFI_ENABLED="true"
+  echo_warning "As sUEFI feature is enabled, skipping tboot installation"
+  export SKIP_INSTALL_TBOOT="y"
+fi
 
 # 3. Install trousers and trousers-devel packages (current is trousers-0.3.13-1.el7.x86_64)
 # tpm 1.2
@@ -85,7 +115,21 @@ fi
   TRUSTAGENT_TPMTOOLS_ZYPPER_PACKAGES="tpm-tools"
   install_packages "tpm-tools" "TRUSTAGENT_TPMTOOLS" > /dev/null 2>&1
 }
-
+# tpm 2
+install_tpm2_tools() {
+if [ "$IS_RPM" != "true" ]; then
+  TRUSTAGENT_TPMTOOLS_YUM_PACKAGES="tpm2-tools-3.0.*"
+fi
+  TRUSTAGENT_TPMTOOLS_APT_PACKAGES="tpm2-tools"
+  TRUSTAGENT_TPMTOOLS_YAST_PACKAGES="tpm2-tools"
+  TRUSTAGENT_TPMTOOLS_ZYPPER_PACKAGES="tpm2-tools"
+  install_packages "tpm2-tools" "TRUSTAGENT_TPMTOOLS" > /dev/null 2>&1
+  if [ $? -ne 0 ]; then echo_failure "Failed to install tpm2-tools version 3.0.* through package installer"; exit 1; fi
+  if yum_detect; then
+    # TODO: This can be removed once we upgrade tpm2-tools (https://github.com/tpm2-software/tpm2-abrmd/issues/408)
+    udevadm control --reload-rules && sudo udevadm trigger
+  fi
+}
 # tpm 1.2
 install_patched_tpm_tools() {
   local PATCHED_TPMTOOLS_BIN=`ls -1 patched-*.bin | head -n 1`
@@ -101,7 +145,7 @@ install_tboot() {
 
 if [[ "$SKIP_INSTALL_TBOOT" != "y" && "$SKIP_INSTALL_TBOOT" != "Y" && "$SKIP_INSTALL_TBOOT" != "yes" ]]; then
   install_tboot
-  if [ $? -eq 255 ]; then result=255; fi
+  result=$?
 fi
 install_openssl
 
@@ -109,7 +153,15 @@ install_openssl
 install_tss2_tpmtools2() {
   #install tpm2-tss, tpm2-tools for tpm2
   # (do not install trousers and its dev packages for tpm 2.0)
-  ./mtwilson-trustagent-tpm2-packages-*.bin
+#  ./mtwilson-trustagent-tpm2-packages-*.bin
+  yum -y install tpm2-tools-3.0.*
+  if [ $? -ne 0 ]; then echo_failure "Failed to install tpm2-tools version 3.0.* through package installer"; exit 1; fi
+}
+
+clean_existing_tpm2tools() {
+ if [[ -e "/usr/local/sbin/tpm2_takeownership" ]]; then
+   rm -rf /usr/local/sbin/tpm2_*
+ fi
 }
 
 if [ ${DOCKER} != "true" ]; then
@@ -118,7 +170,10 @@ if [ ${DOCKER} != "true" ]; then
     install_tpm_tools
     #install_patched_tpm_tools
   elif [ "$TPM_VERSION" == "2.0" ]; then
-    install_tss2_tpmtools2
+    clean_existing_tpm2tools
+    install_tpm2_tools
+    service tcsd2 stop >/dev/null 2>&1
+    service tpm2-abrmd start >/dev/null 2>&1
   elif [ -z "$TPM_VERSION" ]; then
     echo "Cannot detect TPM version"
   else
@@ -129,36 +184,19 @@ else
   install_trousers
   install_tpm_tools
   install_tss2_tpmtools2
+  if [[ "$SKIP_INSTALL_TBOOT" != "y" && "$SKIP_INSTALL_TBOOT" != "Y" && "$SKIP_INSTALL_TBOOT" != "yes" ]]; then
+    install_tboot
+  fi
 fi
 
-# 5. Install unzip authbind vim-common packages
-# make sure unzip is installed
-#java_required_version=1.8
-#Adding redhat-lsb for bug 5289
-#Adding net-tools for bug 5285
-#adding openssl-devel for bug 5284
-TRUSTAGENT_YUM_PACKAGES="unzip vim-common"
-TRUSTAGENT_APT_PACKAGES="unzip dpkg-dev authbind vim-common"
-TRUSTAGENT_YAST_PACKAGES="unzip authbind vim-common"
-TRUSTAGENT_ZYPPER_PACKAGES="unzip authbind vim-common"
-
-##### install prereqs can only be done as root
-if [ "$(whoami)" == "root" ]; then
-  install_packages "Installer requirements" "TRUSTAGENT"
-  if [ $? -ne 0 ]; then echo_failure "Failed to install prerequisites through package installer"; exit 1; fi
-else
-  echo_warning "Required packages:"
-  auto_install_preview "TrustAgent requirements" "TRUSTAGENT"
-fi
-
-# 6. Install java
+# 5. Install java
 # Trust Agent requires java 1.8 or later
 echo "Installing Java..."
 if [ "$IS_RPM" != "true" ]; then
   java_install_openjdk
 fi
 
-# 7. Install monit
+# 6. Install monit
 monit_required_version=5.5
 
 # detect the packages we have to install
@@ -196,10 +234,8 @@ fi
 
 monit_src_install() {
   local MONIT_PACKAGE="${1:-monit-5.5-linux-src.tar.gz}"
-#  DEVELOPER_YUM_PACKAGES="make gcc openssl libssl-dev"
-#  DEVELOPER_APT_PACKAGES="dpkg-dev make gcc openssl libssl-dev"
-  DEVELOPER_YUM_PACKAGES="make gcc"
-  DEVELOPER_APT_PACKAGES="dpkg-dev make gcc"
+  DEVELOPER_YUM_PACKAGES="make gcc" #openssl libssl-dev
+  DEVELOPER_APT_PACKAGES="dpkg-dev make gcc" #openssl libssl-dev
   install_packages "Developer tools" "DEVELOPER"
   if [ $? -ne 0 ]; then echo_failure "Failed to install developer tools through package installer"; return 1; fi
   monit_clear; monit_detect;

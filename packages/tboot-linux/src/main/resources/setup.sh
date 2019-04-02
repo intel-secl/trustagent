@@ -17,8 +17,9 @@ install_tboot() {
     fi
   elif aptget_detect; then
     TBOOT_DEB=`ls -1 tboot-*.deb | head -n 1`
+    echo "Installing ${TBOOT_DEB}..."
     if [ -n "$TBOOT_DEB" ]; then
-      dpkg -i $TBOOT_DEB
+      dpkg -i ${TBOOT_DEB}
       apt-get -y install -f >>/tmp/mtwilson-package-install.log 2>&1
     fi
   fi
@@ -144,7 +145,7 @@ is_measured_launch() {
 
 is_reboot_required() {
   local should_reboot=no
-  
+
   if is_txtstat_installed; then
     if ! is_measured_launch; then
       echo "Not in measured launch environment, reboot required"
@@ -153,14 +154,7 @@ is_reboot_required() {
       echo "Already in measured launch environment"
     fi
   fi
-  
-  if ! is_tpm_driver_loaded; then
-    echo "TPM driver is not loaded, reboot required"
-    should_reboot=yes
-  else
-    echo "TPM driver is already loaded"
-  fi
-  
+
   if [ "$should_reboot" == "yes" ]; then
     return 0
   else
@@ -168,14 +162,20 @@ is_reboot_required() {
   fi
 }
 
+install_tboot_prereqs() {
+  if yum_detect; then
+    TBOOT_PREREQ_YUM_PACKAGES="grub2-efi-modules" #redhat-lsb libvirt net-tools redhat-lsb-core
+    install_packages "tboot-prereq" "TBOOT_PREREQ"
+    tpErrorCode=$?
+    if [ $tpErrorCode -ne 0 ]; then
+      echo_failure "grub2-efi-modules installation failed"
+      exit $tpErrorCode
+    fi
+  fi
+}
+
 # install tboot pre-requisites: grub2-efi-modules
-TBOOT_PREREQ_YUM_PACKAGES="grub2-efi-modules" #redhat-lsb libvirt net-tools redhat-lsb-core
-install_packages "tboot-prereq" "TBOOT_PREREQ"
-tpErrorCode=$?
-if [ $tpErrorCode -ne 0 ]; then
-  echo_failure "grub2-efi-modules installation failed"
-  exit $tpErrorCode
-fi
+install_tboot_prereqs
 
 # install tboot
 install_tboot
@@ -190,9 +190,16 @@ fi
 is_reboot_required
 rebootRequired=$?
 
+if ! is_tpm_driver_loaded; then
+  echo "TPM driver is not loaded, reboot required"
+  exit 254
+else
+  echo "TPM driver is already loaded"
+fi
+
 if [[ $tbootReboot -eq 255 ]] || [[ $rebootRequired -eq 0 ]]; then
     echo
-    echo_warning "A reboot is required."
+    echo "A reboot is required."
     echo
     exit 255
 fi
