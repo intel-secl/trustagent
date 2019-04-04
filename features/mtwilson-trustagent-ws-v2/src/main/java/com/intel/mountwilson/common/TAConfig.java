@@ -9,26 +9,15 @@ import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.dcsg.cpg.io.pem.Pem;
 import com.intel.mtwilson.Environment;
 import com.intel.mtwilson.Folders;
-import com.intel.mtwilson.configuration.ConfigurationFactory;
-import com.intel.mtwilson.configuration.ConfigurationProvider;
 import com.intel.mtwilson.configuration.EncryptedConfigurationProvider;
-import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Properties;
 
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.MapConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,24 +46,12 @@ public class TAConfig {
     
     private TAConfig() {
         Properties defaults = new Properties();
-//        defaults.setProperty("app.path", MyFilesystem.getApplicationFilesystem().getApplicationPath());
         defaults.setProperty("debug", "false"); // allowed values: false, true (case insensitive)
-//        defaults.setProperty("nonce.filename", "nonce"); // only used from TADataContext.getNonceFileName by appending to var dir
-//        defaults.setProperty("aikquote.filename", "aikquote"); // only used from TADataContext.getQuoteFileName by appending to var dir
         defaults.setProperty("aikblob.filename", "aik.blob");
         defaults.setProperty("aikcert.filename", "aik.pem"); // issue #878 the aikcert is in PEM format so we label it properly
         defaults.setProperty("ekcert.filename", "ekcert.cer");
         defaults.setProperty("daa.challenge.filename", "daa-challenge");
         defaults.setProperty("daa.response.filename.filename", "daa-response");        
-//        defaults.setProperty("cert.folder", "cert");
-//        defaults.setProperty("data.folder", "data");
-//        defaults.setProperty("secure.port", "9999");
-//        defaults.setProperty("nonsecure.port", "9998");
-//        defaults.setProperty("daa.enabled", "false");
-        // Additional properties to support module attestation
-//        defaults.setProperty("modules.folder", "modules"); 
-//        defaults.setProperty("modulesXml.filename", "measureLog.xml"); // only used from TADataContext.getMeasureLogXmlFile()
-//        defaults.setProperty("modulesScript.filename", "module_analysis.sh");        
         config = gatherConfiguration(defaults);
     }
     

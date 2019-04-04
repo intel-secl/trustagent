@@ -47,10 +47,7 @@ public class SetAssetTag implements ICommand{
     public void execute() throws TAException{
         try {
             log.debug("SetAssetTag execute");
-            //String password = "ffffffffffffffffffffffffffffffffffffffff";  //No longer needed, read it from props file in createIndex()
             String tpmNvramPass = generateRandomPass();
-            //do not log senstive info
-            //log.debug("SetAssetTag generated nvram password {}", tpmNvramPass);
             //create the index if needed
             boolean iExists = indexExists();
             if(iExists){  // if it exists we need to get the password from the service for the nvram
@@ -58,14 +55,10 @@ public class SetAssetTag implements ICommand{
                 releaseIndex();
                 log.debug("Creating new index...");
                 createIndex(tpmNvramPass);
-            }else{ // generate random password 
-                // Just use the same password right now for testing
-                // password =  generateRandomPass();
+            }else{
                 log.debug("Index does not exist. creating it...");
                 createIndex(tpmNvramPass);
             }
-            //do not log senstive info
-            //log.debug("using password " + password + " for index");
             //now index is created, write value to it
             String filename = writeHashToFile();  // store the hash as a binary file
             
@@ -94,8 +87,6 @@ public class SetAssetTag implements ICommand{
     
     private boolean writeHashToNvram(String filename, String NvramPassword) throws TAException, IOException {
         try {
-            //String tpmOwnerPass = TAConfig.getConfiguration().getString("tpm.owner.secret");
-            //String tpmNvramPass = TAConfig.getConfiguration().getString("TpmNvramAuth");
             if (!HexUtil.isHex(NvramPassword)) {
                 log.error("NvramPassword is not in hex format: {}", NvramPassword);
                 throw new IllegalArgumentException(String.format("NvramPassword is not in hex format: %s", NvramPassword));
@@ -176,7 +167,6 @@ public class SetAssetTag implements ICommand{
                 log.error("tpmOwnerPass is not in hex format: {}", tpmOwnerPass);
                 throw new IllegalArgumentException(String.format("tpmOwnerPass is not in hex format: %s", tpmOwnerPass));
             }
-            //String tpmNvramPass = TAConfig.getConfiguration().getString("TpmNvramAuth");
             log.debug("running command tpm_nvdefine -i " + index + " -s 0x14 -x -aXXXX -oXXXX --permissions=AUTHWRITE");
             Map<String, String> variables = new HashMap<>();
             variables.put("tpmOwnerPass", tpmOwnerPass);

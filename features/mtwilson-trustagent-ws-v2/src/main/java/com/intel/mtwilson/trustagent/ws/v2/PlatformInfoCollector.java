@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.trustagent.ws.v2;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.mtwilson.core.common.PlatformInfoException;
 import com.intel.mtwilson.core.platform.info.PlatformInfo;
@@ -42,6 +41,5 @@ public class PlatformInfoCollector {
 
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(platformInfoMap);
         System.out.print(json);
-//        }
     }
 }

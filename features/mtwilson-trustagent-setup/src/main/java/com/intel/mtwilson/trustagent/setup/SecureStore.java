@@ -5,22 +5,15 @@
 package com.intel.mtwilson.trustagent.setup;
 
 import com.intel.dcsg.cpg.crypto.RandomUtil;
-import com.intel.dcsg.cpg.crypto.SimpleKeystore;
-import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.KeyManagementException;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import com.intel.mtwilson.Folders;
 import com.intel.dcsg.cpg.io.Platform;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import com.intel.mtwilson.crypto.password.SecureStoreUtil;
 
 public class SecureStore extends AbstractSetupTask {

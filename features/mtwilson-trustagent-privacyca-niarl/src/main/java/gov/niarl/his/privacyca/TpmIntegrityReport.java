@@ -13,11 +13,6 @@
 
 package gov.niarl.his.privacyca;
 
-
-//import gov.niarl.his.privacyca.TpmUtils.TpmBytestreamResouceException;
-//import gov.niarl.his.privacyca.TpmUtils.TpmUnsignedConversionException;
-
-//import java.io.ByteArrayInputStream;
 import java.security.*;
 import java.security.interfaces.*;
 import java.util.*;
@@ -90,7 +85,6 @@ public class TpmIntegrityReport {
 				bitMask = bitMask/2;
 				if ((bitMask & mask[i])==bitMask){
 					count++;
-					//System.out.println("PCR" + pcrnumber + " is set"); //for testing
 				}
 				pcrnumber++;
 			}
@@ -121,23 +115,15 @@ public class TpmIntegrityReport {
 				SignatureException {
 		//check to see that the PCRs match the hash in the quote
 		PCRlist.trimToSize();
-		//System.out.println(countbits(pcrBitMask));
 		int bitcount = countbits(pcrBitMask);
 		byte[] PCRlongList = new byte[20 * bitcount];
-		//byte[] PCRlongList = new byte[20 * PCRlist.size()]; 
 		// add PCRs to the long list
 		int count = 0;
-		/*while (!PCRlist.isEmpty()) {
-			PCR tempPCR = (PCR)PCRlist.remove(0);
-			System.arraycopy(tempPCR.getBytes(), 0, PCRlongList, (20 * count), 20);
-			count++;
-		}*/
 		for (int i = 0; i < bitcount; i++) {
 			PCR tempPCR = (PCR)PCRlist.remove(0);
 			System.arraycopy(tempPCR.getBytes(), 0, PCRlongList, (20 * count), 20);
 			count++;
 		}
-		//if (pcrBitMask.length != 3) throw new TpmIntegrityReportException("PCR bit mask must be 24 bits (3 byte) long.");
 		short bitMaskLength = (short)pcrBitMask.length;
 		byte[] bitMaskLengthBytes = TpmUtils.shortToByteArray(bitMaskLength);
 		byte[] pcrSelect = new byte[bitMaskLengthBytes.length + pcrBitMask.length]; //should be 5

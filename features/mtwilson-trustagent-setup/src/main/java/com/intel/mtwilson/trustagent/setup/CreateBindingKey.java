@@ -14,7 +14,6 @@ import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import gov.niarl.his.privacyca.TpmCertifyKey;
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import org.apache.commons.io.FileUtils;
 
 /**

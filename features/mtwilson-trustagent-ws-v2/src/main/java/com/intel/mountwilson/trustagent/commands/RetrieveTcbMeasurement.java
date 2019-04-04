@@ -4,12 +4,10 @@
  */
 package com.intel.mountwilson.trustagent.commands;
 
-import com.intel.dcsg.cpg.xml.JAXB;
 import com.intel.mountwilson.common.ErrorCode;
 import com.intel.mountwilson.common.ICommand;
 import com.intel.mountwilson.common.TAException;
 import com.intel.mountwilson.trustagent.data.TADataContext;
-import com.intel.mtwilson.trustagent.measurement.TcbMeasurement;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

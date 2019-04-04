@@ -4,7 +4,6 @@
  */
 package com.intel.mountwilson.trustagent.commands;
 
-import com.intel.mountwilson.common.CommandUtil;
 import com.intel.mountwilson.common.ErrorCode;
 import com.intel.mountwilson.common.ICommand;
 import com.intel.mountwilson.common.TAException;
@@ -12,9 +11,6 @@ import com.intel.mountwilson.trustagent.data.TADataContext;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,21 +31,6 @@ public class ReadIdentityCmd implements ICommand {
 
     @Override
     public void execute() throws TAException {
-        
-        /*
-        File aikCertFile = new File(context.getAikCertFileName());
-        
-        if(aikCertFile.exists()){
-            log.debug( "AIK Certificate To Read - {}", context.getAikCertFileName());
-
-            context.setAIKCertificate(CommandUtil.readCertificate(context.getAikCertFileName())); // this file name is configured ;it is NOT user input
-
-            log.debug("AIK Certificate Read to memory - {}", context.getAikCertFileName());
-        }else{
-            throw new TAException(ErrorCode.CERT_MISSING,"Aik Certificate file is missing.");
-        } 
-        */
-        
         try {
             TrustagentConfiguration configuration = TrustagentConfiguration.loadConfiguration();
             File aikCertificateFile = configuration.getAikCertificateFile();

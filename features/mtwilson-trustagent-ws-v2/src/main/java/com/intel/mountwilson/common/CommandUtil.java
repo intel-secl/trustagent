@@ -10,7 +10,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.regex.Pattern;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -105,7 +104,6 @@ public class CommandUtil {
             try (FileInputStream in = new FileInputStream(new File(fileName))) {
                 pem = IOUtils.toString(in);
             }
-//            X509Certificate certificate = X509Util.decodePemCertificate(pem);
             return pem;
         } catch (Exception e) {
             throw new TAException(ErrorCode.ERROR, "Error while reading AIK Cert", e);

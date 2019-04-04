@@ -6,13 +6,10 @@ package com.intel.mtwilson.trustagent.setup;
 
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.core.tpm.Tpm;
-import com.intel.mtwilson.core.tpm.Tpm.PcrBank;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import gov.niarl.his.privacyca.IdentityOS;
-import gov.niarl.his.privacyca.TpmUtils;
 import java.nio.file.Paths;
-import java.util.Set;
 
 /**
  * 
@@ -29,7 +26,6 @@ public class TakeOwnership extends AbstractSetupTask {
         // tpm owner password must have already been generated
         config = new TrustagentConfiguration(getConfiguration());
         tpmOwnerSecret = config.getTpmOwnerSecretHex();
-//        log.debug("TakeOwnership tpmOwnerSecret = {}", tpmOwnerSecret);
         if (tpmOwnerSecret == null || tpmOwnerSecret.isEmpty()) {
             configuration("TPM owner secret must be configured to take ownership");
         }

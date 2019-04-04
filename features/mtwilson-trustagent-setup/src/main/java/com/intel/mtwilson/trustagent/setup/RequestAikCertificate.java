@@ -103,8 +103,6 @@ public class RequestAikCertificate extends AbstractSetupTask {
                     * need to check later for exceptions
          */
         try {
-            //#5819: Call to static method 'com.intel.mtwilson.trustagent.tpmmodules.Tpm.getTpm' via instance reference.
-            //Tpm tpm = new Tpm();
             ekCert = tpm.getCredential(config.getTpmOwnerSecret(), CredentialType.EC);
             if (ekCert == null || ekCert.length == 0) {
                 configuration("Endorsement Certificate is null or zero-length");
@@ -142,7 +140,6 @@ public class RequestAikCertificate extends AbstractSetupTask {
             SimpleKeystore taKeystore = new SimpleKeystore(new FileResource(taConfig.getTrustagentKeystoreFile()), taConfig.getTrustagentKeystorePassword());
             X509Certificate privacy = taKeystore.getX509Certificate("privacy", SimpleKeystore.CA);
             TpmIdentityRequest encryptedEkCert = new TpmIdentityRequest(ekCert, (RSAPublicKey) privacy.getPublicKey(), false);
-            //boolean shortcut = false;
             IdentityRequest newId = tpm.collateIdentityRequest(taConfig.getTpmOwnerSecret(), taConfig.getAikSecret(), privacy.getPublicKey());
             if (IdentityOS.isWindows()) {
                 /* Call Windows API to get the TPM EK certificate and assign it to "ekCert" */

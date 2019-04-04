@@ -4,10 +4,7 @@
  */
 package com.intel.mtwilson.trustagent.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import java.util.ArrayList;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Sample input:   { "nonce":"base64string", "pcrs": [0,1,2,3,18,19,22] }

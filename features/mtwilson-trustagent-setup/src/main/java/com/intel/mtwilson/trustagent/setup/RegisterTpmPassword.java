@@ -87,12 +87,6 @@ public class RegisterTpmPassword extends AbstractSetupTask {
         //        until that is done, user should always run this setup task
         //        with --force
         
-        /*
-        System.setProperty("javax.net.ssl.trustStore", config.getTrustagentKeystoreFile().getAbsolutePath());
-        System.setProperty("javax.net.ssl.trustStorePassword", config.getTrustagentKeystorePassword());
-        System.setProperty("javax.net.ssl.keyStore", config.getTrustagentKeystoreFile().getAbsolutePath());
-        System.setProperty("javax.net.ssl.keyStorePassword", config.getTrustagentKeystorePassword());
-        */
         log.debug("RegisterTpmPassword.validate creating strict TLS Policy using keystore");
         TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(config.getTrustagentKeystoreFile(), config.getTrustagentKeystorePassword()).build();
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
@@ -103,9 +97,6 @@ public class RegisterTpmPassword extends AbstractSetupTask {
 
         // check if mt wilson already knows the tpm owner secret
         HostTpmPassword client = new HostTpmPassword(clientConfiguration, tlsConnection);
-//        TpmPasswordFilterCriteria criteria = new TpmPasswordFilterCriteria();
-//        criteria.id = hostHardwareId;
-//        TpmPassword tpmPassword = client.retrieveTpmPassword(criteria);
         TpmPassword tpmPassword;
         try {
             tpmPassword = client.retrieveTpmPassword(hostHardwareId);
@@ -114,7 +105,6 @@ public class RegisterTpmPassword extends AbstractSetupTask {
                 return;
             }
         } catch (Exception e) {
-//            log.debug("Error while retrieving tpm password for {}: {}", hostHardwareId, e.getMessage());
             validation(e, "Cannot determine if TPM Owner Secret is registered with Mt Wilson");
             return;
         }
@@ -131,13 +121,6 @@ public class RegisterTpmPassword extends AbstractSetupTask {
 
     @Override
     protected void execute() throws Exception {
-        /*
-        System.setProperty("javax.net.ssl.trustStore", config.getTrustagentKeystoreFile().getAbsolutePath());
-        System.setProperty("javax.net.ssl.trustStorePassword", config.getTrustagentKeystorePassword());
-        System.setProperty("javax.net.ssl.keyStore", config.getTrustagentKeystoreFile().getAbsolutePath());
-        System.setProperty("javax.net.ssl.keyStorePassword", config.getTrustagentKeystorePassword());
-        */
-        
         log.debug("RegisterTpmPassword.execute creating strict TLS policy using keystore");
         TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(config.getTrustagentKeystoreFile(), config.getTrustagentKeystorePassword()).build();
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);

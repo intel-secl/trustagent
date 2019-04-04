@@ -10,11 +10,8 @@ import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import java.io.File;
-import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 
 /**
  *

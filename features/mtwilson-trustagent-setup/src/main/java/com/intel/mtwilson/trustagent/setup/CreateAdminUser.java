@@ -8,8 +8,6 @@ import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.dcsg.cpg.io.Platform;
 import com.intel.dcsg.cpg.validation.ValidationUtil;
 import com.intel.mtwilson.Folders;
-import com.intel.mtwilson.setup.LocalSetupTask;
-import com.intel.mtwilson.crypto.password.PasswordUtil;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.shiro.file.LoginDAO;
 import com.intel.mtwilson.shiro.file.cmd.Password;
@@ -18,7 +16,6 @@ import com.intel.mtwilson.shiro.file.model.UserPermission;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import java.io.File;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 import com.intel.mtwilson.crypto.password.SecureStoreUtil;
 
 

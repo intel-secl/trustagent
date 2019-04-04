@@ -92,19 +92,6 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
         }
 
         keystoreFile = config.getTrustagentKeystoreFile();
-        /*
-        if (keystoreFile.exists()) {
-            keystore = new SimpleKeystore(new FileResource(keystoreFile), config.getTrustagentKeystorePassword());
-            try {
-                X509Certificate endorsementCA = keystore.getX509Certificate("endorsement", SimpleKeystore.CA);
-                log.debug("Endorsement CA {}", Sha1Digest.digestOf(endorsementCA.getEncoded()).toHexString());
-            } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | CertificateEncodingException e) {
-                configuration("Endorsement CA certificate cannot be loaded");
-            }
-        } else {
-            configuration("Keystore file is missing");
-        }
-         */
 
         endorsementAuthoritiesFile = config.getEndorsementAuthoritiesFile();
         if (endorsementAuthoritiesFile == null) {
@@ -140,17 +127,6 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
         } catch (Exception e) {
             validation(e, "Cannot read endorsement certificate");
         }
-
-        /*
-        X509Certificate endorsementCA = keystore.getX509Certificate("endorsement", SimpleKeystore.CA);
-        try {
-            ekCert.verify(endorsementCA.getPublicKey());
-        } catch (SignatureException e) {
-            validation("Known Endorsement CA did not sign TPM EC", e);
-        } catch (CertificateException | NoSuchAlgorithmException | InvalidKeyException | NoSuchProviderException e) {
-            validation("Unable to verify TPM EC", e);
-        }
-         */
         if (!endorsementAuthoritiesFile.exists()) {
             validation("Endorsement authorities file is missing");
         }
@@ -168,21 +144,12 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
                     errorMessage += "EC is also not registered with Mt.Wilson";
                     validation(errorMessage);
                 }
-
-//                validation("Unable to verify TPM EC with %d authorities from %s", endorsementAuthorities.size(), endorsementAuthoritiesFile.getAbsolutePath());
             }
         }
     }
 
     @Override
     protected void execute() throws Exception {
-        /*
-        System.setProperty("javax.net.ssl.trustStore", config.getTrustagentKeystoreFile().getAbsolutePath());
-        System.setProperty("javax.net.ssl.trustStorePassword", config.getTrustagentKeystorePassword());
-        System.setProperty("javax.net.ssl.keyStore", config.getTrustagentKeystoreFile().getAbsolutePath());
-        System.setProperty("javax.net.ssl.keyStorePassword", config.getTrustagentKeystorePassword());
-         */
-
         // try to read the local EC from the TPM ; will set tpmEndorsementCertificate if successful, or leave it null if unsuccessful
         readEndorsementCertificate();
 

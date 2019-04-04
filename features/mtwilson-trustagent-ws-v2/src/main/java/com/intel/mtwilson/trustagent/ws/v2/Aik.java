@@ -21,12 +21,10 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-//import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 /**
@@ -53,8 +51,6 @@ public class Aik {
             TrustagentConfiguration configuration = getConfiguration();
             if (configuration.isDaaEnabled()) {
                 log.debug("daa is currently not supported");
-                //                new CreateIdentityDaaCmd(context).execute();
-                //                new BuildIdentityXMLCmd(context).execute();
                 return null;
             } else {
                 TrustagentRepository repository = new TrustagentRepository(configuration);
@@ -77,8 +73,6 @@ public class Aik {
             File keystoreFile = configuration.getTrustagentKeystoreFile();
             if (!keystoreFile.exists()) {
                 log.error("Missing keystore file: {}", keystoreFile.getAbsolutePath());
-//            response.setStatus(Response.Status.NOT_FOUND.getStatusCode());
-//            return null;
                 throw new WebApplicationException(Response.serverError().header("Error", "Missing CA keystore file").build());
             }
             try {
@@ -88,8 +82,6 @@ public class Aik {
             } catch (KeyManagementException | NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | CertificateEncodingException e) {
                 log.error("Unable to load Privacy CA certificate from keystore file");
                 log.debug("Unable to load Privacy CA certificate from keystore file", e);
-//            response.setStatus(Response.Status.NOT_FOUND.getStatusCode());
-//            return null;
                 throw new WebApplicationException(Response.serverError().header("Error", "Cannot load Privacy CA certificate file").build());
             }
         }

@@ -118,10 +118,7 @@ public class CreateSigningKey extends AbstractSetupTask {
                 TpmCertifyKey tpmCertifyKey = new TpmCertifyKey(certifiedKey.getKeyData());
                 log.debug("TCG Signing Key contents: {} - {}", tpmCertifyKey.getKeyParms().getAlgorithmId(), tpmCertifyKey.getKeyParms().getTrouSerSmode());
             }
-
-            //log.info("Successfully created the signing key TCG certificate and the same has been stored at {}.", signingKeyTCGCertificate.getAbsolutePath());
         } catch (Exception e) {
-            //e.printStackTrace();
             log.error("Failed to create signing key");
             throw e;
         }

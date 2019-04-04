@@ -190,7 +190,6 @@ public class TADataContext {
                 log.error("Error creating data folder {}", path);
             }
         }
-        //return Config.getHomeFolder() + File.separator + Config.getInstance().getProperty("data.folder") + File.separator;
         return path;
     }
 
@@ -248,14 +247,6 @@ public class TADataContext {
         try {
             TrustagentConfiguration configuration = TrustagentConfiguration.loadConfiguration();
             return configuration.getAikSecretHex();
-            /*
-            File aikAuthFile = ResourceFinder.getFile("trustagent.properties");
-            FileInputStream aikAuthFileInput = new FileInputStream(aikAuthFile);
-            Properties tpmOwnerProperties = new Properties();
-            tpmOwnerProperties.load(aikAuthFileInput);
-            aikAuthFileInput.close();
-            return tpmOwnerProperties.getProperty("HisIdentityAuth");
-            */
         }
         catch(IOException e) {
             throw new IllegalStateException("Cannot read trustagent.properties", e);
@@ -283,13 +274,11 @@ public class TADataContext {
     }
     
     public File getMeasureLogLaunchScript() {
-//        return Config.getInstance().getProperty("modulesScript.filename");
-        return new File(Folders.application() + File.separator + "bin" + File.separator + "module_analysis.sh"); // Config.getInstance().getProperty("modulesScript.filename"));
+        return new File(Folders.application() + File.separator + "bin" + File.separator + "module_analysis.sh");
     }
     
     public File getMeasureLogXmlFile() {
-        //return Config.getInstance().getProperty("modulesXml.filename");
-        return new File(Folders.application() + File.separator + "var" + File.separator + "measureLog.xml"); // Config.getInstance().getProperty("modulesXml.filename"));
+        return new File(Folders.application() + File.separator + "var" + File.separator + "measureLog.xml");
     }
     
     public File getTcbMeasurementXmlFile() {

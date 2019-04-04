@@ -39,36 +39,14 @@ public class TAConfig {
     
     private TAConfig() {
         Properties defaults = new Properties();
-//        defaults.setProperty("app.path", MyFilesystem.getApplicationFilesystem().getApplicationPath());
         defaults.setProperty("debug", "false"); // allowed values: false, true (case insensitive)
-//        defaults.setProperty("nonce.filename", "nonce"); // only used from TADataContext.getNonceFileName by appending to var dir
-//        defaults.setProperty("aikquote.filename", "aikquote"); // only used from TADataContext.getQuoteFileName by appending to var dir
         defaults.setProperty("aikblob.filename", "aik.blob");
         defaults.setProperty("aikcert.filename", "aik.pem"); // issue #878 the aikcert is in PEM format so we label it properly
         defaults.setProperty("ekcert.filename", "ekcert.cer");
         defaults.setProperty("daa.challenge.filename", "daa-challenge");
         defaults.setProperty("daa.response.filename.filename", "daa-response");        
-//        defaults.setProperty("cert.folder", "cert");
-//        defaults.setProperty("data.folder", "data");
-//        defaults.setProperty("secure.port", "9999");
-//        defaults.setProperty("nonsecure.port", "9998");
-//        defaults.setProperty("daa.enabled", "false");
-        // Additional properties to support module attestation
-//        defaults.setProperty("modules.folder", "modules"); 
-//        defaults.setProperty("modulesXml.filename", "measureLog.xml"); // only used from TADataContext.getMeasureLogXmlFile()
-//        defaults.setProperty("modulesScript.filename", "module_analysis.sh");        
         config = gatherConfiguration(defaults);
     }
-    
-    /* for troubleshooting
-    private void dumpConfiguration(Configuration c, String label) {
-        String keys[] = new String[] { "debug", "trustagent.http.tls.port", "mtwilson.api.url" };
-        for(String key : keys) {
-            String value = c.getString(key);
-            System.out.println(String.format("TAConfig [%s]: %s=%s", label, key, value));
-        }
-    }
-    */
 
     private Configuration gatherConfiguration(Properties defaults)  {
         try {

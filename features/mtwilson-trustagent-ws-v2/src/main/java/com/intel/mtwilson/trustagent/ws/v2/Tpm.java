@@ -31,7 +31,6 @@ import com.intel.mtwilson.util.exec.ExecUtil;
 import com.intel.mtwilson.util.exec.Result;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
@@ -52,16 +51,6 @@ public class Tpm {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Tpm.class);
     private long t0 = System.currentTimeMillis();
 
-
-    /*
-    @POST
-    @Path("/quote")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public byte[] tpmQuoteBytes(TpmQuoteRequest tpmQuoteRequest, @Context HttpServletRequest request) throws IOException, TAException {
-        return null;
-    }
-     */
     private void logPerformance(String message) {
         long t1 = System.currentTimeMillis();
         log.debug("performance: after {} ms: {}", t1 - t0, message);
@@ -150,7 +139,6 @@ public class Tpm {
         new BuildQuoteXMLCmd(context).execute();
         logPerformance("BuildQuoteXMLCmd");
 
-        // return context.getResponseXML();
         TpmQuoteResponse response = context.getTpmQuoteResponse();
         logPerformance("context.getTpmQuoteResponse()");
 

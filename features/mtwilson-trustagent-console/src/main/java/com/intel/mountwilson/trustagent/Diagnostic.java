@@ -17,39 +17,16 @@ import java.security.SignatureException;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-//import org.bouncycastle.jce.provider.JDKDigestSignature;
-//import org.bouncycastle.jce.provider.JDKDigestSignature.SHA1WithRSAEncryption;
 /**
  *
  * @author jbuhacoff
  */
 public class Diagnostic {
     public static void main(String[] args) {
-        //checkBouncycastlePresent();
-        Security.addProvider(new BouncyCastleProvider());        
+        Security.addProvider(new BouncyCastleProvider());
         checkBouncycastleAlgorithms();
     }
 
-    /*
-    public static void checkBouncycastlePresent() {
-        tryLoadingClass("org.bouncycastle.jce.provider.JDKDigestSignature");
-        tryLoadingClass("org.bouncycastle.jce.provider.JDKDigestSignature$SHA1WithRSAEncryption");
-    }
-    
-    private static void tryLoadingClass(String className) {
-        try {
-            Class.forName(className);
-            System.out.println("Found class: "+className);
-        }
-        catch(ClassNotFoundException e) {
-            System.err.println("Cannot find class: "+className+": "+e.toString());
-        }
-        catch(Exception e) {
-            System.err.println("Cannot load class: "+className+": "+e.toString());
-        }
-    }
-    */
-    
     public static void checkBouncycastleAlgorithms() {
         printAvailableAlgorithms();
         tryMacWithPassword("HmacSHA1", "hello world", "xyzzy");        

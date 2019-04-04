@@ -37,9 +37,7 @@ public class ReadAssetTag implements ICommand {
             if(iExists){  // if it exists we need to get the password from the service for the nvram
                 log.debug("Asset Tag Index {} exists", index);
                 readFromNvram();
-            }else{ // generate random password 
-                // Just use the same password right now for testing
-                // password =  generateRandomPass();
+            }else{
                 log.debug("Asset Tag Index does not exist.");
             }
         } catch (Exception ex) {
