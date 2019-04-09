@@ -62,6 +62,7 @@ public class Host {
             host.setTpmEnabled(hostCntrl.getContext().getTpmEnabled());
             host.setTxtEnabled(hostCntrl.getContext().getTxtEnabled());
             host.setTbootInstalled(hostCntrl.getContext().getTbootInstalled());
+            host.setInstalledComponents(hostCntrl.getContext().getInstalledComponents());
             hostCntrl.getContext().getHardwareFeatures().get(HardwareFeature.TPM).getMeta().put("pcr_banks",StringUtils.join(pcrBanks, '_'));
             host.setHardwareFeatures(hostCntrl.getContext().getHardwareFeatures());
             /*

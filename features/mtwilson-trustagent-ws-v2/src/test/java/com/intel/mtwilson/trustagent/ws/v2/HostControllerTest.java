@@ -6,6 +6,8 @@ package com.intel.mtwilson.trustagent.ws.v2;
 
 //import com.intel.mtwilson.core.platforminfo.HostInfo;
 import com.intel.mtwilson.core.common.model.HostInfo;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -69,6 +71,10 @@ public class HostControllerTest {
         assertEquals("2", host.getNoOfSockets());
         assertEquals("true", host.getTpmEnabled());
         assertEquals("true", host.getTxtEnabled());
+        Set<String> installedComponents = new HashSet<>();
+        installedComponents.add("tagent");
+        installedComponents.add("wlagent");
+        assertEquals(installedComponents, host.getInstalledComponents());
     }
     
     @Test

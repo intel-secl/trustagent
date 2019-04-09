@@ -8,6 +8,7 @@ import com.intel.mtwilson.core.common.PlatformInfoException;
 import com.intel.mtwilson.core.common.model.*;
 import com.intel.mtwilson.core.platform.info.CommandLineRunner;
 //import com.intel.mtwilson.core.platforminfo.HostInfo;
+import com.intel.mtwilson.core.common.model.HostInfo;
 import com.intel.mtwilson.core.common.Command;
 import java.io.IOException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.intel.mtwilson.core.common.model.HardwareFeature.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Get host information from files generated during TA installation
@@ -83,6 +87,7 @@ public class  GetHostInfo implements Command {
             if((isTbootNotInstalled(tbootStatus) || !Boolean.valueOf(txtStatus)) && !suefi.getEnabled()) {
                 throw new PlatformInfoException(ErrorCode.ERROR, "SUEFI should be enabled as tboot is not installed");
             }
+            getInstalledComponents();
         } catch (PlatformInfoException | IOException ex) {
             log.debug("Error while getting Host details", ex);
             throw new PlatformInfoException(ErrorCode.ERROR, "Error while getting Host details.", ex);
@@ -150,6 +155,11 @@ public class  GetHostInfo implements Command {
         if ( txtStatus != null && !txtStatus.equals(FeatureStatus.UNSUPPORTED.getValue())) {
             context.setTxtEnabled(String.valueOf(txtStatus.equals(FeatureStatus.ENABLED.getValue())));
         }
+    }
+    private void getInstalledComponents() throws PlatformInfoException, IOException{
+        String out = (String) map.get("installed-components");
+        Set<String> installedComponents = new HashSet<String>(Arrays.asList(out.split(" ")));
+        context.setInstalledComponents(installedComponents);
     }
 
     private void getTbootInstalled() throws PlatformInfoException, IOException{

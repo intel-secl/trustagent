@@ -10,5 +10,14 @@
   "host-name" : "purva-host",
   "no-of-sockets" : "2",
   "vmm-name" : "",
-  "vmm-version" : ""
+  "vmm-version" : "",
+  "mktme-encryption-algorithm" : "",
+  "tpm-enabled" : "true",
+  "txt-enabled" : "true",
+  "mktme-status" : "UNSUPPORTED",
+  "cbnt-profile" : "",
+  "installed-components" : "tagent wlagent",
+  "suefi-enabled" : "false",
+  "mktme-max-keys-per-cpu" : "0",
+  "cbnt-status" : "UNSUPPORTED"
 }
