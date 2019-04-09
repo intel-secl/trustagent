@@ -170,7 +170,7 @@ public class RequestAikCertificate extends AbstractSetupTask {
             // even thoug hits called TpmIdentityRequest, it's just standard RSA encryption... nothing about it needs to be using TPM structures.
             // this is because we are encrypting using the PrivacyCA's public key. 
             TpmIdentityRequest encryptedChallenge = new TpmIdentityRequest(decrypted1, (RSAPublicKey) privacy.getPublicKey(), false);
-            System.err.println("Create Identity... Calling into HisPriv second time, size of msg = " + encryptedChallenge.toByteArray().length);
+            log.debug("Create Identity... Calling into HisPriv second time, size of msg = {}", encryptedChallenge.toByteArray().length);
 
             IdentityChallengeResponse identityChallengeResponse = new IdentityChallengeResponse();
             identityChallengeResponse.setResponseToChallenge(encryptedChallenge.toByteArray());

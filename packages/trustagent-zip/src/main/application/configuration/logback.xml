@@ -25,7 +25,7 @@
         </encoder>
     </appender>
     <appender name="ConsoleWarn" class="ch.qos.logback.core.ConsoleAppender">
-        <target>System.err</target>
+        <target>System.out</target>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>WARN</level>
             <onMatch>ACCEPT</onMatch>
