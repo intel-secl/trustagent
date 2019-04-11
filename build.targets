@@ -1,16 +1,10 @@
 # A successful build produces the following files:
 packages/trustagent-linux/target/trustagent-linux-4.2-SNAPSHOT.bin
-packages/trustagent-linux/target/trustagent-linux-4.2-SNAPSHOT.bin.README.sig
-packages/trustagent-linux/target/trustagent-linux-4.2-SNAPSHOT.bin.README
 
 features/mtwilson-trustagent-client-jaxrs2/target/mtwilson-trustagent-client-jaxrs2-*-SNAPSHOT.jar
 features/mtwilson-trustagent-client-jaxrs2/target/mtwilson-trustagent-client-jaxrs2-*-SNAPSHOT.zip
 features/mtwilson-trustagent-client-jaxrs2/target/mtwilson-trustagent-client-jaxrs2-*-SNAPSHOT-javadoc.zip
 
 packages/trustagent-docker/target/trustagent-docker-4.2-SNAPSHOT.zip
-packages/trustagent-docker/target/trustagent-docker-4.2-SNAPSHOT.zip.README.sig
-packages/trustagent-docker/target/trustagent-docker-4.2-SNAPSHOT.zip.README
 
 packages/trustagent-tboot-tss-tools-linux/target/trustagent-tboot-tss-tools-linux-4.2-SNAPSHOT.bin
-packages/trustagent-tboot-tss-tools-linux/target/trustagent-tboot-tss-tools-linux-4.2-SNAPSHOT.bin.README.sig
-packages/trustagent-tboot-tss-tools-linux/target/trustagent-tboot-tss-tools-linux-4.2-SNAPSHOT.bin.README
