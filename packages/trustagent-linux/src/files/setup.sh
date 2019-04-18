@@ -78,6 +78,9 @@ export TRUSTAGENT_HOME=${TRUSTAGENT_HOME:-$DEFAULT_TRUSTAGENT_HOME}
 TRUSTAGENT_LAYOUT=${TRUSTAGENT_LAYOUT:-home}
 # PID file needed for startup service registration and as set in tagent.sh
 TRUSTAGENT_PID_FILE=$TRUSTAGENT_HOME/trustagent.pid
+TRUSTAGENT_TMPCLN_INT=${TRUSTAGENT_TMPCLN_INT:-* 0 * * *}
+TRUSTAGENT_TMPCLN_AGE=${TRUSTAGENT_TMPCLN_AGE:-7}
+
 
 # the env directory is not configurable; it is defined as TRUSTAGENT_HOME/env.d and the
 # administrator may use a symlink if necessary to place it anywhere else
@@ -803,7 +806,7 @@ fi
 
 # 33. tagent setup
 tagent setup 
-
+configure_cron add "$TRUSTAGENT_TMPCLN_INT" "find "$TRUSTAGENT_TMP" -mtime +"$TRUSTAGENT_TMPCLN_AGE" -exec /bin/rm -- '{}' \;"
 # 34. tagent start
 tagent start
 

@@ -123,7 +123,8 @@ TRUSTAGENT_ENV=${TRUSTAGENT_ENV:-$TRUSTAGENT_HOME/env.d}
 TRUSTAGENT_VAR=${TRUSTAGENT_VAR:-$TRUSTAGENT_HOME/var}
 TRUSTAGENT_LOGS=${TRUSTAGENT_LOGS:-$TRUSTAGENT_HOME/logs}
 TRUSTAGENT_TMP=${TRUSTAGENT_TMP:-$TRUSTAGENT_HOME/var/tmp}
-
+TRUSTAGENT_TMPCLN_INT=${TRUSTAGENT_TMPCLN_INT:-* 0 * * *}
+TRUSTAGENT_TMPCLN_AGE=${TRUSTAGENT_TMPCLN_AGE:-7}
 ###################################################################################################
 
 # load linux utility
@@ -391,6 +392,7 @@ trustagent_uninstall() {
     remove_startup_script tagent
     rm -rf /opt/tbootxm
 	rm -rf /var/log/trustagent/measurement.*
+    configure_cron remove "$TRUSTAGENT_TMPCLN_INT" "find "$TRUSTAGENT_TMP" -mtime +"$TRUSTAGENT_TMPCLN_AGE" -exec /bin/rm -- '{}' \;"
 }
 
 # stops monit and removes its configuration
