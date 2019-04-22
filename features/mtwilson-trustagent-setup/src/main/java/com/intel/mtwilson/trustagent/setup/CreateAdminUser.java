@@ -8,6 +8,8 @@ import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.dcsg.cpg.io.Platform;
 import com.intel.dcsg.cpg.validation.ValidationUtil;
 import com.intel.mtwilson.Folders;
+import com.intel.mtwilson.setup.LocalSetupTask;
+import com.intel.mtwilson.crypto.password.PasswordUtil;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.shiro.file.LoginDAO;
 import com.intel.mtwilson.shiro.file.cmd.Password;
@@ -16,6 +18,7 @@ import com.intel.mtwilson.shiro.file.model.UserPermission;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import java.io.File;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import com.intel.mtwilson.crypto.password.SecureStoreUtil;
 
 
@@ -109,7 +112,8 @@ public class CreateAdminUser extends AbstractSetupTask {
     @Override
     protected void execute() throws Exception {
         log.info("Starting the process to configure the username and password.");
-        
+
+        File passwordFile = null;        
         Password pwd = new Password();
 	    SecureStoreUtil secureStore = new SecureStoreUtil();
 		TrustagentConfiguration trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
@@ -121,16 +125,17 @@ public class CreateAdminUser extends AbstractSetupTask {
         
         // save the adminPassword to a file so the admin user can read it ; because it shouldn't be stored in the permanent configuration
         File privateDir = new File(Folders.configuration() + File.separator + "private");
+        passwordFile = privateDir.toPath().resolve("securestore.jks").toFile();
+
         if( !privateDir.exists() ) {
             privateDir.mkdirs();
-           File  passwordFile = privateDir.toPath().resolve("securestore.p12").toFile();
-	    SecureStoreUtil.createKeyStore(passwordFile.getAbsolutePath(),trustagentConfiguration.getTrustagentSecureStorePassword());
- }
+        }
+        if(!passwordFile.exists()) {
+           SecureStoreUtil.createKeyStore(passwordFile.getAbsolutePath(),trustagentConfiguration.getTrustagentSecureStorePassword());
+        }        
+
         if( Platform.isUnix() ) {
             Runtime.getRuntime().exec("chmod 700 "+privateDir.getAbsolutePath());
-        }
-        File passwordFile = privateDir.toPath().resolve("securestore.p12").toFile();
-        if( Platform.isUnix() ) {
             Runtime.getRuntime().exec("chmod 600 "+passwordFile.getAbsolutePath());
         }
          secureStore.writeToStore(passwordFile.getAbsolutePath(), trustagentConfiguration.getTrustagentSecureStorePassword(),

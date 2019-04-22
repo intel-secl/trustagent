@@ -145,7 +145,7 @@ public class LoginRegister extends AbstractSetupTask {
 
         log.info("Successfully registered the host access information with attestation service.");
 
-        //FileUtils.deleteQuietly(passwordFile);
+        FileUtils.deleteQuietly(passwordFile);
 
         isRegistered = true;
     }
