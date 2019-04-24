@@ -94,12 +94,6 @@ REM > "%logfile%" echo. %date%
 REM >> "%logfile%" echo. %time%
 Call :tee Trust agent setup: started
 
-REM # 5. Backup old files
-REM # backup configuration directory before unzipping our package
-Call :tee Trust agent setup: Backup configuration directory
-IF EXIST "%intel_conf_dir%\" (
-  xcopy "%intel_conf_dir%" "%intel_conf_dir%.bak" /E /I /Y /Q > nul
-)
 
 REM ## update logback.xml with configured trustagent log directory
   echo. ^<configuration^> > "%TRUSTAGENT_CONF%\logback.xml.edited"
