@@ -112,7 +112,6 @@ public class CreateAdminUser extends AbstractSetupTask {
     @Override
     protected void execute() throws Exception {
         log.info("Starting the process to configure the username and password.");
-
         File passwordFile = null;        
         Password pwd = new Password();
 	    SecureStoreUtil secureStore = new SecureStoreUtil();
