@@ -492,56 +492,56 @@ public class TrustAgentClient extends MtWilsonClient {
                 .post(Entity.entity(manifest, MediaType.APPLICATION_XML), Measurement.class);
     }    
     
-//    /**
-//     * Retrieves the TPM binding key certificate.
-//     * @return X509Certificate object with the TPM binding key certificate.
-//     * @since Mt.Wilson 3.0
-//     * @mtwContentTypeReturned PKIX_CERT/X_PEM_FILE
-//     * @mtwMethodType GET
-//     * @mtwSampleRestCall
-//     * <div style="word-wrap: break-word; width: 1024px"><pre><xmp>
-//     * https://trustagent.server.com:1443/v2/binding-key-certificate
-//     * 
-//     * Output:
-//     * X509Certificate binding key certificate in DER format or PEM format:
-//     * -----BEGIN CERTIFICATE-----
-//     * MIIEWDCCA0CgAwIBAgIJAI0Y5QIDB12/MA0GCSqGSIb3DQEBCwUAMBsxGTAXBgNVBAMTEG10d2ls
-//     * c29uLXBjYS1haWswHhcNMTcwMzMxMDcxOTAyWhcNMjcwMzI5MDcxOTAyWjAlMSMwIQYDVQQDDBpD
-//     * Tj1CaW5kaW5nX0tleV9DZXJ0aWZpY2F0ZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
-//     * AJncMFEbw+MjmDIjc22RIb7s8aFeoyuGwJ+At7mE9NZgZjGQFM5mEgK7Ji4Gk189RFV4UlCXewcs
-//     * /XxWQv/5GHLwBi4g34Atrw3BuOQ7/S71lZikj5ib4KjUi4nfrKx49BAzipRcsrvAAbNoC1uRiexJ
-//     * mNnh2fIEGCI7s+QsQOgzMtwBbowfwPCTeRmLMPxqbdrQ4uCA/AA60e1drMgynOoGEtCtwPveGvuV
-//     * /Xhurp+uUvVmJ9iG+BomR1ymwIUPUIGBlC5r4udwl7QsaPU+jJvWeifZnvPI6orb2O6Z30FP6PEz
-//     * Mwkz467G7DxLuiZvXA7/Oly5Dva2UhxcKNnwuOkCAwEAAaOCAZMwggGPMA4GA1UdDwEB/wQEAwIF
-//     * IDBbBgdVBIEFAwIpBFABAQAAABQAAAAEAQAAAAEAAwABAAAADAAACAAAAAACAAAAAGMjQZMDCqTo
-//     * zatwSQyn9ssOnozzF0upQGO1CFViJssAuwn1lMw/xssAAAAAADCCAQ4GCFUEgQUDAikBBIIBADd8
-//     * ufyT7S4Uh6jWKom59eJ6llZqLmm4Kx94H1fkFSzcmz/+AOkmKJJ7PSVdJurIGHT5KNxu3sqdbc18
-//     * 2eJ/+1USq6tnkOwaD/vix/eKMm8fXg9esKkVcbFFEMTT+1PKV9vT+DftchsyeMikDGIeCquVJNsx
-//     * /8ee//TY785FBFNRUfUwUyGaZ2FjES1S2j+nN+dK2bAFwBVkf8Vi90XzzPagAX15qAJXUe4L0BYL
-//     * fuLbTw+XhG8kVtzaRNWV57zfDtBGAdKquCJfN40nIE8RunKHUPoWH2Y9zQkGeEcrcJl7fzfyzjyw
-//     * wC+T3SUurCs5TVmjrc7cqNhuxJtbJwHH/WMwDgYIVQSBBQMCKQIEAgADMA0GCSqGSIb3DQEBCwUA
-//     * A4IBAQCQ5TILvM2RIBVh54BjRi3kDZNcM3ZQBIligwp5r3cudbDYH4WdcHBuDumaR0f/DTE/9k3D
-//     * jPTd6KLhCqyPZAYaipeX1EGsr5S7FcTAjvE90sLvlTpnkVxhQNqmqWMCNYdk9iEz7QlL31WSxvmp
-//     * x4lDegVQwxcyI8set2KA5YM1xLGqfu8N6opYKMiuDM2/S2F1dCxir+Tz/J/ERESATwnexTkgzoyU
-//     * bap+RfegcAWuEiIzkcgTRbt7RwzhynjIzmusfWhoErKoZMaKelX23DOMuMt/8QEDVO8Q1WEg1+p0
-//     * EnkuguLRqs0CU92uZ8yQMSXHgCr7ExelyZem10UZJsrJ
-//     * -----END CERTIFICATE-----
-//     * </xmp></pre></div>
-//     * @mtwSampleApiCall
-//     * <div style="word-wrap: break-word; width: 1024px"><pre><xmp>
-//     *   TrustAgentClient client = new TrustAgentClient(properties);
-//     *   X509Certificate bindingKey = client.getBindingKeyCertificate();
-//     * </xmp></pre></div>
-//    */
-//    public X509Certificate getBindingKeyCertificate() {
-//        log.debug("target: {}", getTarget().getUri().toString());
-//        X509Certificate aik = getTarget()
-//                .path("/binding-key-certificate")
-//                .request()
-//                .accept(CryptoMediaType.APPLICATION_PKIX_CERT)
-//                .get(X509Certificate.class);
-//        return aik;
-//    }
+    /**
+     * Retrieves the TPM binding key certificate.
+     * @return X509Certificate object with the TPM binding key certificate.
+     * @since Mt.Wilson 3.0
+     * @mtwContentTypeReturned PKIX_CERT/X_PEM_FILE
+     * @mtwMethodType GET
+     * @mtwSampleRestCall
+     * <div style="word-wrap: break-word; width: 1024px"><pre><xmp>
+     * https://trustagent.server.com:1443/v2/binding-key-certificate
+     * 
+     * Output:
+     * X509Certificate binding key certificate in DER format or PEM format:
+     * -----BEGIN CERTIFICATE-----
+     * MIIEWDCCA0CgAwIBAgIJAI0Y5QIDB12/MA0GCSqGSIb3DQEBCwUAMBsxGTAXBgNVBAMTEG10d2ls
+     * c29uLXBjYS1haWswHhcNMTcwMzMxMDcxOTAyWhcNMjcwMzI5MDcxOTAyWjAlMSMwIQYDVQQDDBpD
+     * Tj1CaW5kaW5nX0tleV9DZXJ0aWZpY2F0ZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+     * AJncMFEbw+MjmDIjc22RIb7s8aFeoyuGwJ+At7mE9NZgZjGQFM5mEgK7Ji4Gk189RFV4UlCXewcs
+     * /XxWQv/5GHLwBi4g34Atrw3BuOQ7/S71lZikj5ib4KjUi4nfrKx49BAzipRcsrvAAbNoC1uRiexJ
+     * mNnh2fIEGCI7s+QsQOgzMtwBbowfwPCTeRmLMPxqbdrQ4uCA/AA60e1drMgynOoGEtCtwPveGvuV
+     * /Xhurp+uUvVmJ9iG+BomR1ymwIUPUIGBlC5r4udwl7QsaPU+jJvWeifZnvPI6orb2O6Z30FP6PEz
+     * Mwkz467G7DxLuiZvXA7/Oly5Dva2UhxcKNnwuOkCAwEAAaOCAZMwggGPMA4GA1UdDwEB/wQEAwIF
+     * IDBbBgdVBIEFAwIpBFABAQAAABQAAAAEAQAAAAEAAwABAAAADAAACAAAAAACAAAAAGMjQZMDCqTo
+     * zatwSQyn9ssOnozzF0upQGO1CFViJssAuwn1lMw/xssAAAAAADCCAQ4GCFUEgQUDAikBBIIBADd8
+     * ufyT7S4Uh6jWKom59eJ6llZqLmm4Kx94H1fkFSzcmz/+AOkmKJJ7PSVdJurIGHT5KNxu3sqdbc18
+     * 2eJ/+1USq6tnkOwaD/vix/eKMm8fXg9esKkVcbFFEMTT+1PKV9vT+DftchsyeMikDGIeCquVJNsx
+     * /8ee//TY785FBFNRUfUwUyGaZ2FjES1S2j+nN+dK2bAFwBVkf8Vi90XzzPagAX15qAJXUe4L0BYL
+     * fuLbTw+XhG8kVtzaRNWV57zfDtBGAdKquCJfN40nIE8RunKHUPoWH2Y9zQkGeEcrcJl7fzfyzjyw
+     * wC+T3SUurCs5TVmjrc7cqNhuxJtbJwHH/WMwDgYIVQSBBQMCKQIEAgADMA0GCSqGSIb3DQEBCwUA
+     * A4IBAQCQ5TILvM2RIBVh54BjRi3kDZNcM3ZQBIligwp5r3cudbDYH4WdcHBuDumaR0f/DTE/9k3D
+     * jPTd6KLhCqyPZAYaipeX1EGsr5S7FcTAjvE90sLvlTpnkVxhQNqmqWMCNYdk9iEz7QlL31WSxvmp
+     * x4lDegVQwxcyI8set2KA5YM1xLGqfu8N6opYKMiuDM2/S2F1dCxir+Tz/J/ERESATwnexTkgzoyU
+     * bap+RfegcAWuEiIzkcgTRbt7RwzhynjIzmusfWhoErKoZMaKelX23DOMuMt/8QEDVO8Q1WEg1+p0
+     * EnkuguLRqs0CU92uZ8yQMSXHgCr7ExelyZem10UZJsrJ
+     * -----END CERTIFICATE-----
+     * </xmp></pre></div>
+     * @mtwSampleApiCall
+     * <div style="word-wrap: break-word; width: 1024px"><pre><xmp>
+     *   TrustAgentClient client = new TrustAgentClient(properties);
+     *   X509Certificate bindingKey = client.getBindingKeyCertificate();
+     * </xmp></pre></div>
+    */
+    public X509Certificate getBindingKeyCertificate() {
+        log.debug("target: {}", getTarget().getUri().toString());
+        X509Certificate aik = getTarget()
+                .path("/binding-key-certificate")
+                .request()
+                .accept(CryptoMediaType.APPLICATION_PKIX_CERT)
+                .get(X509Certificate.class);
+        return aik;
+    }
     
 //    /**
 //     * Retrieves a VM attestation status.
