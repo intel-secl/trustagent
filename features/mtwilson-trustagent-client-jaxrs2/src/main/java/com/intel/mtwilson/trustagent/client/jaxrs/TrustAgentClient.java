@@ -12,6 +12,7 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import com.intel.mtwilson.core.common.model.HostInfo;
 /**
  * The Trust Agent resides on physical servers and enables both remote attestation and the extended chain of trust capabilities.
  * The Trust Agent acts as a primary interface between the host, TPM and the host verification server. It maintains ownership 
