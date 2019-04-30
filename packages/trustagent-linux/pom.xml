@@ -68,29 +68,6 @@
                     <type>bin</type>
                 </dependency>
                 <dependency>
-                    <groupId>com.intel.mtwilson.trustagent.features</groupId>
-                    <artifactId>mtwilson-trustagent-tpm2-packages</artifactId>
-                    <version>${project.version}</version>
-                    <type>bin</type>
-                </dependency>
-                <!--
-                <dependency>
-                    <groupId>net.sourceforge.tboot</groupId>
-                    <artifactId>tboot</artifactId>
-                    <version>1.9.7</version>
-                    <classifier>x86_64</classifier>
-                    <type>rpm</type>
-                </dependency>
-                <dependency>
-                    <groupId>net.sourceforge.tboot</groupId>
-                    <artifactId>tboot</artifactId>
-                    <version>1.9.7</version>
-                    <classifier>amd64</classifier>
-                    <type>deb</type>
-                </dependency>
-                -->
-                
-                <dependency>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-api</artifactId>
                 </dependency>
@@ -140,31 +117,6 @@
                                             <type>bin</type>
                                             <outputDirectory>${makeself.directory}</outputDirectory>
                                         </artifactItem>
-                                        <artifactItem>
-                                            <groupId>com.intel.mtwilson.trustagent.features</groupId>
-                                            <artifactId>mtwilson-trustagent-tpm2-packages</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>bin</type>
-                                            <outputDirectory>${makeself.directory}</outputDirectory>
-                                        </artifactItem>
-                                        <!--
-                                        <artifactItem>
-                                            <groupId>net.sourceforge.tboot</groupId>
-                                            <artifactId>tboot</artifactId>
-                                            <version>1.9.7</version>
-                                            <classifier>x86_64</classifier>
-                                            <type>rpm</type>
-                                            <outputDirectory>${makeself.directory}</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>net.sourceforge.tboot</groupId>
-                                            <artifactId>tboot</artifactId>
-                                            <version>1.9.7</version>
-                                            <classifier>amd64</classifier>
-                                            <type>deb</type>
-                                            <outputDirectory>${makeself.directory}</outputDirectory>
-                                        </artifactItem>
-                                        -->
                                     </artifactItems>
                                     <overWriteReleases>false</overWriteReleases>
                                     <overWriteSnapshots>true</overWriteSnapshots>

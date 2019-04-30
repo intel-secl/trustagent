@@ -65,29 +65,6 @@ function detect_host_tpm_version() {
   fi
 }
 
-maybe_clear_tpm2() {
-    local is_owned=$($TRUSTAGENT_HOME/bin/tpm2-isowned)
-    if [ "$is_owned" == "1" ]; then
-        # it's owned, do we have the password?
-        local tpm_passwd="$TPM_OWNER_SECRET"
-        if [ -z "$tpm_passwd" ]; then
-            tpm_passwd=$(tagent config tpm.owner.secret)
-        fi
-        if [ -n "$tpm_passwd" ]; then
-            local is_owner=$($TRUSTAGENT_HOME/bin/tpm2-isowner "$tpm_passwd")
-            if [ "$is_owner" == "0" ]; then
-                # we are not the owner. clear it.
-                tpm2_takeownership -c
-                return $?
-            fi
-        else
-            # we don't have the password. clear it.
-            tpm2_takeownership -c
-            return $?
-        fi
-    fi
-}
-
 function start_tcsd {
     if [ "$TPM_VERSION" == "1.2" ]; then
         # this could be moved into the setup.sh step, but it's ok here for now
@@ -129,11 +106,6 @@ function start_isecl-agent() {
         cd -  &>/dev/null
         echo "Starting TCSD $TPM_VERSION"
         start_tcsd
-
-#        if [ "$TPM_VERSION" == "2.0" ]; then
-#            echo "Attempting to clear TPM 2 Ownership ..."
-#            maybe_clear_tpm2
-#        fi
 
         touch $TPM_STACK_SETUP_FLAG
         echo "Done"
