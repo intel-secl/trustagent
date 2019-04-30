@@ -237,6 +237,14 @@ EXIT /B !errorlevel!
   "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main %*
 EXIT /B !errorlevel!
 
+:trustagent_generate_password
+  >"%TRUSTAGENT_PASSWORD_FILE%" "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main generate-password
+EXIT /B !errorlevel!
+
+:trustagent_export_config
+  "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main %*
+EXIT /B !errorlevel!
+
 :trustagent_java_detect
   echo. Detecting Java on Trust Agent
   echo. %JAVA_HOME%
@@ -272,6 +280,10 @@ EXIT /B !errorlevel!
 :tagent_uninstall
     start /d "%TRUSTAGENT_HOME%" Uninstall.exe
 EXIT /B !errorlevel!
+
+:tagent_uninstall
+    start /d "%TRUSTAGENT_HOME%" Uninstall.exe
+EXIT /B !errrolevel!
 
 :get_status
   REM set TASTATUS=
