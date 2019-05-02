@@ -113,7 +113,7 @@ if [ ${DOCKER} != "true" ]; then
     #install_patched_tpm_tools
   elif [ -z "$TPM_VERSION" ]; then
     echo "Cannot detect TPM version"
-  else
+  elif [ "$TPM_VERSION" != "2.0" ]; then
     echo "Unrecognized TPM version: $TPM_VERSION"
   fi
 else

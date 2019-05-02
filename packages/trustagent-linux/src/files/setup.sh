@@ -35,7 +35,7 @@
 # 27. create TRUSTAGENT_TLS_CERT_IP list of system host addresses
 # 28. update the extensions cache file
 # 29. ensure the trustagent owns all the content created during setup
-# 30. create a trustagent username "mtwilson" with no password and all privileges for mtwilson access
+# 30. update tpm devices permissions to ensure it can be accessed by trustagent
 # 31. tagent start
 # 32. tagent setup
 # 33. register tpm password with mtwilson
@@ -746,6 +746,17 @@ for directory in $TRUSTAGENT_HOME $TRUSTAGENT_CONFIGURATION $TRUSTAGENT_JAVA $TR
   chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $directory
 done
 
+# 30. update tpm devices permissions to ensure it can be accessed by trustagent
+if [ "$(whoami)" == "root" ]; then
+  # tpm devices can only be accessed by the trustagent user but the trustagent
+  # group members can access tpmrm devices
+  chmod 0660 /dev/tpm[0-9]*
+  chown $TRUSTAGENT_USERNAME /dev/tpm[0-9]*
+  chmod 0660 /dev/tpmrm[0-9]*
+  chown $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME /dev/tpmrm[0-9]*
+else
+  echo_warning "Skipping update tpm devices permissions"
+fi
 
 if [ "${LOCALHOST_INTEGRATION}" == "yes" ]; then
   /opt/trustagent/bin/tagent.sh localhost-integration
