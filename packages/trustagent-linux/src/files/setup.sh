@@ -412,6 +412,13 @@ if ! stat $TRUSTAGENT_VAR/manifest_* 1> /dev/null 2>&1; then
   sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
 fi
 
+#Copy default workload software manifest to /opt/trustagent/var/
+if ! stat $TRUSTAGENT_VAR/manifest_wlagent* 1> /dev/null 2>&1; then
+  UUID=$(uuidgen)
+  cp manifest_wlagent.xml $TRUSTAGENT_VAR/manifest_wlagent_"$UUID".xml
+  sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_wlagent_"$UUID".xml
+fi
+
 # 18. migrate any old data to the new locations (v1 - v3)  (should be rewritten in java)
 v1_aik=$TRUSTAGENT_V_1_2_CONFIGURATION/cert
 v2_aik=$TRUSTAGENT_CONFIGURATION
