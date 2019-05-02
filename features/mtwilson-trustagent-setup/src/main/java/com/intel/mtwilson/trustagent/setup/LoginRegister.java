@@ -54,7 +54,7 @@ public class LoginRegister extends AbstractSetupTask {
             configuration("TrustAgent User name is not set. Please run the create-admin-user setup task first.");
         }
         File privateDir = new File(Folders.configuration() + File.separator + "private");
-        passwordFile = privateDir.toPath().resolve("securestore.jks").toFile();
+        passwordFile = privateDir.toPath().resolve("securestore.p12").toFile();
 
         SecureStoreUtil secureStore = new SecureStoreUtil();
         trustagentLoginPassword = secureStore.readFromStore(secureStore.loadKeyStore(passwordFile.getAbsolutePath(), trustagentConfiguration.getTrustagentSecureStorePassword()), 

@@ -25,6 +25,7 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,7 +73,7 @@ public class ReplaceTlsKeyPair extends InteractiveCommand {
         
         String keystorePath = configuration.get(TRUST_AGENT_SSL_KEYSTORE, null);
         if( keystorePath == null ) {
-            keystorePath = Folders.configuration() + File.separator + "trustagent.jks";
+            keystorePath = Folders.configuration() + File.separator + "trustagent.p12";
         }
         File keystoreFile = new File(keystorePath);
         if( !keystoreFile.exists() ) {
@@ -86,7 +87,7 @@ public class ReplaceTlsKeyPair extends InteractiveCommand {
         }
         Password keystorePassword = new Password(keystorePasswordString.getInsPassword());                     
         
-        try (PrivateKeyStore keystore = new PrivateKeyStore("JKS", new FileResource(keystoreFile), keystorePassword)) {
+        try (PrivateKeyStore keystore = new PrivateKeyStore(KeyStore.getDefaultType(), new FileResource(keystoreFile), keystorePassword)) {
             // remove existing keypair from keystore
             if (keystore.contains(TLS_ALIAS)) {
                 try {

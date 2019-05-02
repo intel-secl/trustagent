@@ -99,7 +99,7 @@ public class TrustagentConfiguration {
      * during setup for automatic approval of the mtwilson tls cert when the
      * admin sets the env var MTWILSON_TLS_CERT_SHA1 to be a comma-separated list
      * of valid SHA1 digests. During setup the authorized certificates are 
-     * saved to the trustagent.jks keystore so this env var is not needed 
+     * saved to the trustagent.p12 keystore so this env var is not needed 
      * after setup.
      * 
      * @return 
@@ -274,11 +274,11 @@ public class TrustagentConfiguration {
     }
     
     public File getTrustagentKeystoreFile() {
-        return new File(Folders.configuration() + File.separator + "trustagent.jks");
+        return new File(Folders.configuration() + File.separator + "trustagent.p12");
     }
 	
 	public File getTrustagentSecureStoreFile() {
-        return new File(Folders.configuration() + File.separator + "securestore.jks");
+        return new File(Folders.configuration() + File.separator + "securestore.p12");
     }
 	
     public String getTrustagentKeystorePassword() {

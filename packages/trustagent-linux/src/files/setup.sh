@@ -428,8 +428,8 @@ if [ -d "$v1_conf" ]; then
   KeystorePassword_122=`read_property_from_file trustagent.keystore.password ${v1_conf}/trustagent.properties`
   if [ -n "$KeystorePassword_122" ]; then
     export TRUSTAGENT_KEYSTORE_PASSWORD=$KeystorePassword_122
-    if [ -f "$v1_conf/trustagent.jks" ]; then
-      cp $v1_conf/trustagent.jks $v2_conf
+    if [ -f "$v1_conf/trustagent.p12" ]; then
+      cp $v1_conf/trustagent.p12 $v2_conf
     fi
   fi
 fi

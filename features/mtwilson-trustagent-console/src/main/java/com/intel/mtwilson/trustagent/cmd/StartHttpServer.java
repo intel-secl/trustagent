@@ -9,6 +9,7 @@ import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import java.io.File;
 import java.security.Security;
+import java.security.KeyStore;
 import org.apache.commons.configuration.Configuration;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.jetty.server.Connector;
@@ -102,6 +103,7 @@ public class StartHttpServer implements Command {
         SslContextFactory sslContextFactory = new SslContextFactory();
         sslContextFactory.setKeyStorePath(configuration.getTrustagentKeystoreFile().getAbsolutePath());
         sslContextFactory.setKeyStorePassword(configuration.getTrustagentKeystorePassword());
+        sslContextFactory.setKeyStoreType(KeyStore.getDefaultType());
         sslContextFactory.setTrustStorePath(configuration.getTrustagentKeystoreFile().getAbsolutePath());
         sslContextFactory.setTrustStorePassword(configuration.getTrustagentKeystorePassword());
         sslContextFactory.setExcludeProtocols("SSL", "SSLv2", "SSLv2Hello", "SSLv3");

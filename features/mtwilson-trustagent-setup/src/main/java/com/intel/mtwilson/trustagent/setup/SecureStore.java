@@ -40,7 +40,7 @@ public class SecureStore extends AbstractSetupTask {
         if( Platform.isUnix() ) {
             Runtime.getRuntime().exec("chmod 700 "+privateDir.getAbsolutePath());
         }
-        File keystoreFile = privateDir.toPath().resolve("securestore.jks").toFile();
+        File keystoreFile = privateDir.toPath().resolve("securestore.p12").toFile();
         String keystorePassword = RandomUtil.randomBase64String(8).replace("=","_");
          if(!keystoreFile.exists()) {
              SecureStoreUtil.createKeyStore(keystoreFile.getAbsolutePath(),keystorePassword);    
@@ -50,7 +50,7 @@ public class SecureStore extends AbstractSetupTask {
                FileInputStream fis = new FileInputStream(keystoreFile);) 
           {
             String existingKeystorePassword = trustagentConfiguration.getTrustagentSecureStorePassword();
-            KeyStore keyStore = KeyStore.getInstance("JCEKS");
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
             keyStore.load(fis, existingKeystorePassword.toCharArray());
             keyStore.store(fos, keystorePassword.toCharArray());
           }
