@@ -177,8 +177,6 @@ if [ "$(whoami)" == "root" ]; then
   TRUSTAGENT_USERNAME=${TRUSTAGENT_USERNAME:-$DEFAULT_TRUSTAGENT_USERNAME}
   if ! getent passwd $TRUSTAGENT_USERNAME 2>&1 >/dev/null; then
     useradd --comment "Mt Wilson Trust Agent" --home $TRUSTAGENT_HOME --system --shell /bin/false $TRUSTAGENT_USERNAME
-    chmod 660 /dev/tpm0 /dev/tpmrm0
-    usermod -aG tss $TRUSTAGENT_USERNAME
     usermod --lock $TRUSTAGENT_USERNAME
     # note: to assign a shell and allow login you can run "usermod --shell /bin/bash --unlock $TRUSTAGENT_USERNAME"
   fi
@@ -748,12 +746,10 @@ done
 
 # 30. update tpm devices permissions to ensure it can be accessed by trustagent
 if [ "$(whoami)" == "root" ]; then
-  # tpm devices can only be accessed by the trustagent user but the trustagent
-  # group members can access tpmrm devices
-  chmod 0660 /dev/tpm[0-9]*
-  chown $TRUSTAGENT_USERNAME /dev/tpm[0-9]*
-  chmod 0660 /dev/tpmrm[0-9]*
-  chown $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME /dev/tpmrm[0-9]*
+  # tpm devices can only be accessed by the trustagent user and group
+  echo "KERNEL==\"tpmrm[0-9]*|tpm[0-9]*\", MODE=\"0660\", OWNER=\"$TRUSTAGENT_USERNAME\", GROUP=\"$TRUSTAGENT_USERNAME\"" > /lib/udev/rules.d/tpm-udev.rules
+  /sbin/udevadm control --reload-rules
+  /sbin/udevadm trigger --type=devices --action=change
 else
   echo_warning "Skipping update tpm devices permissions"
 fi
