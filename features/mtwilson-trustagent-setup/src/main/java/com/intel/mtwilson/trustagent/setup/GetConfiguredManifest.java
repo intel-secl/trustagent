@@ -23,7 +23,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.util.Set;
 
-import static com.intel.mtwilson.core.flavor.SoftwareFlavor.DEFAULT_FLAVOR_PREFIX;
+import static com.intel.mtwilson.core.flavor.SoftwareFlavor.DEFAULT_APPLICATION_FLAVOR_PREFIX;
 
 /**
  * @author arijitgh
@@ -125,7 +125,7 @@ public class GetConfiguredManifest extends AbstractSetupTask {
                 flavorUuid = pulledManifest.getUuid();
                 flavorUuidList.add(flavorUuid);
             }
-            if (pulledManifest.getLabel().startsWith(DEFAULT_FLAVOR_PREFIX)){
+            if (pulledManifest.getLabel().startsWith(DEFAULT_APPLICATION_FLAVOR_PREFIX)){
                 log.error("Default flavor's manifest is part of installation, no need to pull default flavor's manifest with UUID : {}", flavorUuid);
                 continue;
             }
@@ -164,7 +164,7 @@ public class GetConfiguredManifest extends AbstractSetupTask {
                 if (file.getName().startsWith("manifest_")) {
                     String readManifest = FileUtils.readFileToString(file, "utf-8");
                     Manifest manifest = ManifestUtils.parseManifestXML(readManifest);
-                    if (manifest.getLabel().startsWith(DEFAULT_FLAVOR_PREFIX)) {
+                    if (manifest.getLabel().startsWith(DEFAULT_APPLICATION_FLAVOR_PREFIX)) {
                         if (!defaultManifestLabel.add(manifest.getLabel())) {
                             duplicateDefaultSoftwareFlavorExists = true;
                             break;

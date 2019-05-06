@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
-import static com.intel.mtwilson.core.flavor.SoftwareFlavor.DEFAULT_FLAVOR_PREFIX;
+import static com.intel.mtwilson.core.flavor.SoftwareFlavor.DEFAULT_APPLICATION_FLAVOR_PREFIX;
 
 /**
  * @author arijitgh
@@ -81,7 +81,7 @@ public class ManifestDeployer {
     }
 
     private void validateDefaultManifest(Manifest manifest){
-        if (manifest.getLabel().startsWith(DEFAULT_FLAVOR_PREFIX)){
+        if (manifest.getLabel().startsWith(DEFAULT_APPLICATION_FLAVOR_PREFIX)){
             log.error("Default flavor's manifest is part of installation, no need to deploy default flavor's manifest");
             throw new WebApplicationException("Default flavor's manifest is part of installation, no need to deploy default flavor's manifest", 400);
         }
