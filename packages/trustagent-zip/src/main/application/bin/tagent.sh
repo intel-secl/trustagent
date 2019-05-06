@@ -218,7 +218,7 @@ trustagent_setup() {
   elif [ "$tasklist" == "--force" ]; then
     tasklist="$TRUSTAGENT_SETUP_TASKS --force"
   fi
-  "$JAVA_CMD" $JAVA_OPTS com.intel.mtwilson.launcher.console.Main setup configure-from-environment $tasklist
+  "$JAVA_CMD" $JAVA_OPTS com.intel.mtwilson.launcher.console.Main setup configure-from-environment $tasklist | grep -v "TPM ERROR:"
 
   return $?
 }
@@ -278,7 +278,7 @@ trustagent_start() {
 
     if [[ ${DOCKER} != "true" ]]; then
         # regenerate Measurement log when trustagent is started, but only if not in Docker, since the Docker entrypoint handles it
-        echo "Running module analsysis ... "
+        echo "Running module analysis ... "
         rm -rf $TRUSTAGENT_HOME/var/measureLog.xml
         $TRUSTAGENT_HOME/bin/module_analysis.sh
     fi
