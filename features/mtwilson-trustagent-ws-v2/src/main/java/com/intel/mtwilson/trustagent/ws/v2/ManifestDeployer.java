@@ -4,7 +4,6 @@ import com.intel.dcsg.cpg.io.UUID;
 import com.intel.mtwilson.jaxrs2.client.MtWilsonClient;
 import com.intel.mtwilson.launcher.ws.ext.V2;
 import com.intel.mtwilson.Folders;
-
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Consumes;
@@ -14,17 +13,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
-
 import com.intel.mtwilson.core.common.utils.ManifestUtils;
 import com.intel.mtwilson.trustagent.util.VSClientCreatorUtil;
 import com.intel.wml.manifest.xml.Manifest;
 import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.io.IOException;
-
-import static com.intel.mtwilson.core.flavor.SoftwareFlavor.DEFAULT_APPLICATION_FLAVOR_PREFIX;
-
+import com.intel.mtwilson.core.common.model.SoftwareFlavorPrefix;
 /**
  * @author arijitgh
  */
@@ -81,7 +76,7 @@ public class ManifestDeployer {
     }
 
     private void validateDefaultManifest(Manifest manifest){
-        if (manifest.getLabel().startsWith(DEFAULT_APPLICATION_FLAVOR_PREFIX)){
+        if (manifest.getLabel().contains(SoftwareFlavorPrefix.DEFAULT_APPLICATION_FLAVOR_PREFIX.getValue())){
             log.error("Default flavor's manifest is part of installation, no need to deploy default flavor's manifest");
             throw new WebApplicationException("Default flavor's manifest is part of installation, no need to deploy default flavor's manifest", 400);
         }

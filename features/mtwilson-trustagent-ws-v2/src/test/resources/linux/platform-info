@@ -16,7 +16,7 @@
   "txt-enabled" : "true",
   "mktme-status" : "UNSUPPORTED",
   "cbnt-profile" : "",
-  "installed-components" : "tagent wlagent",
+  "installed-components" : "tagent,wlagent",
   "suefi-enabled" : "false",
   "mktme-max-keys-per-cpu" : "0",
   "cbnt-status" : "UNSUPPORTED"

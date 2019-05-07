@@ -409,8 +409,10 @@ if ! stat $TRUSTAGENT_VAR/manifest_* 1> /dev/null 2>&1; then
   else
     cp manifest_tpm20.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
   fi
+  sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
   UUID=$(uuidgen)
   cp manifest_wlagent.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
+  sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
 fi
 
 # 18. migrate any old data to the new locations (v1 - v3)  (should be rewritten in java)

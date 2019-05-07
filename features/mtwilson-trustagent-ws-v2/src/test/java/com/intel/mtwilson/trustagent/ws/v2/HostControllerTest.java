@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import com.intel.mtwilson.core.common.model.HostComponents;
 
 /**
  *
@@ -72,8 +73,8 @@ public class HostControllerTest {
         assertEquals("true", host.getTpmEnabled());
         assertEquals("true", host.getTxtEnabled());
         Set<String> installedComponents = new HashSet<>();
-        installedComponents.add("tagent");
-        installedComponents.add("wlagent");
+        installedComponents.add(HostComponents.TAGENT.getValue());
+        installedComponents.add(HostComponents.WLAGENT.getValue());
         assertEquals(installedComponents, host.getInstalledComponents());
     }
     
