@@ -20,7 +20,7 @@ TRUSTAGENT_HOME=${TRUSTAGENT_HOME:-/opt/trustagent}
 TRUSTAGENT_CONFIGURATION=$TRUSTAGENT_HOME/configuration
 TRUSTAGENT_SETUP_LOG=/var/log/tagent_setup.log
 
-# Constatns
+# Constants
 export NETWORK_CALL_SLEEP=${NETWORK_CALL_SLEEP:-30}
 export NETWORK_CALL_RETRIES=${NETWORK_CALL_RETRIES:-20}
 export PROVISION_COMPLETE_FLAG="$TRUSTAGENT_CONFIGURATION/.provisioning_hasrun"
@@ -69,19 +69,9 @@ function start_tcsd {
     if [ "$TPM_VERSION" == "1.2" ]; then
         # this could be moved into the setup.sh step, but it's ok here for now
         ln -s $TRUSTAGENT_HOME/share/tpmtools/sbin/* $TRUSTAGENT_HOME/bin/ &> /dev/null
+        echo "Starting TCSD $TPM_VERSION"
         tcsd
 	sleep 5
-    else
-	while true; do
-        	/usr/local/sbin/resourcemgr > resmgr.log &
-		grep -q -E 'Starting SockServer \(Other CMD\)|failed' <(tail -f resmgr.log)
-	 	if grep --quiet 'failed' resmgr.log; then
-			echo "ResourceMgr failed to start, trying again"
-		elif grep --quiet 'Starting SockServer (Other CMD)' resmgr.log; then
-			echo "ResourceMgr Started"
-			break
-		fi
-	done
     fi
 }
 
@@ -104,14 +94,12 @@ function start_isecl-agent() {
         echo -n "$TPM_VERSION" > $TRUSTAGENT_CONFIGURATION/tpm-version
 
         cd -  &>/dev/null
-        echo "Starting TCSD $TPM_VERSION"
         start_tcsd
 
         touch $TPM_STACK_SETUP_FLAG
         echo "Done"
     else
         cd -  &>/dev/null
-        echo "Starting TCSD $TPM_VERSION"
         start_tcsd
     fi
 
