@@ -123,7 +123,8 @@ public class GetConfiguredManifest extends AbstractSetupTask {
                 flavorUuid = pulledManifest.getUuid();
                 flavorUuidList.add(flavorUuid);
             }
-            if (pulledManifest.getLabel().contains(SoftwareFlavorPrefix.DEFAULT_APPLICATION_FLAVOR_PREFIX.getValue())){
+            if (pulledManifest.getLabel().contains(SoftwareFlavorPrefix.DEFAULT_APPLICATION_FLAVOR_PREFIX.getValue())
+                    || pulledManifest.getLabel().contains(SoftwareFlavorPrefix.DEFAULT_WORKLOAD_FLAVOR_PREFIX.getValue())){
                 log.error("Default flavor's manifest is part of installation, no need to pull default flavor's manifest with UUID : {}", flavorUuid);
                 continue;
             }
@@ -162,7 +163,8 @@ public class GetConfiguredManifest extends AbstractSetupTask {
                 if (file.getName().startsWith("manifest_")) {
                     String readManifest = FileUtils.readFileToString(file, "utf-8");
                     Manifest manifest = ManifestUtils.parseManifestXML(readManifest);
-                    if (manifest.getLabel().contains(SoftwareFlavorPrefix.DEFAULT_APPLICATION_FLAVOR_PREFIX.getValue())) {
+                    if (manifest.getLabel().contains(SoftwareFlavorPrefix.DEFAULT_APPLICATION_FLAVOR_PREFIX.getValue())
+                            || manifest.getLabel().contains(SoftwareFlavorPrefix.DEFAULT_WORKLOAD_FLAVOR_PREFIX.getValue())) {
                         if (!defaultManifestLabel.add(manifest.getLabel())) {
                             duplicateDefaultSoftwareFlavorExists = true;
                             break;

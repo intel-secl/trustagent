@@ -76,7 +76,8 @@ public class ManifestDeployer {
     }
 
     private void validateDefaultManifest(Manifest manifest){
-        if (manifest.getLabel().contains(SoftwareFlavorPrefix.DEFAULT_APPLICATION_FLAVOR_PREFIX.getValue())){
+        if (manifest.getLabel().contains(SoftwareFlavorPrefix.DEFAULT_APPLICATION_FLAVOR_PREFIX.getValue())
+                || manifest.getLabel().contains(SoftwareFlavorPrefix.DEFAULT_WORKLOAD_FLAVOR_PREFIX.getValue())){
             log.error("Default flavor's manifest is part of installation, no need to deploy default flavor's manifest");
             throw new WebApplicationException("Default flavor's manifest is part of installation, no need to deploy default flavor's manifest", 400);
         }
