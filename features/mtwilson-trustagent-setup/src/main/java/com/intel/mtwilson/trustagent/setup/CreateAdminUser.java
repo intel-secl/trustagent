@@ -124,7 +124,7 @@ public class CreateAdminUser extends AbstractSetupTask {
         
         // save the adminPassword to a file so the admin user can read it ; because it shouldn't be stored in the permanent configuration
         File privateDir = new File(Folders.configuration() + File.separator + "private");
-        passwordFile = privateDir.toPath().resolve("securestore.jks").toFile();
+        passwordFile = privateDir.toPath().resolve("securestore.p12").toFile();
 
         if( !privateDir.exists() ) {
             privateDir.mkdirs();
