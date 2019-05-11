@@ -381,10 +381,6 @@ docker_proxy_uninstall() {
 # backs up the configuration directory and removes all trustagent files,
 # except for configuration files which are saved and restored
 trustagent_uninstall() {
-    datestr=`date +%Y-%m-%d.%H%M`
-    mkdir -p /tmp/trustagent.configuration.$datestr
-    chmod 500 /tmp/trustagent.configuration.$datestr
-    cp -r /opt/trustagent/configuration/* /tmp/trustagent.configuration.$datestr
 	rm -f /usr/local/bin/tagent
     if [ -n "$TRUSTAGENT_HOME" ] && [ -d "$TRUSTAGENT_HOME" ]; then
       rm -rf $TRUSTAGENT_HOME
