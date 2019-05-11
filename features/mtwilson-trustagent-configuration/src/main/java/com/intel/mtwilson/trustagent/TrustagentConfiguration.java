@@ -31,6 +31,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import com.intel.mtwilson.crypto.password.GuardedPassword;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  *
@@ -136,7 +137,11 @@ public class TrustagentConfiguration {
     }     
     public byte[] getTpmOwnerSecret() {
         try {
-            return Hex.decodeHex(getTpmOwnerSecretHex().toCharArray());
+            if(SystemUtils.IS_OS_WINDOWS) { // Windows owner secret is not known and not used hence set to null
+                return null;
+            } else {
+                return Hex.decodeHex(getTpmOwnerSecretHex().toCharArray());
+            }
         }
         catch(DecoderException e) {
             throw new IllegalArgumentException("Invalid owner secret", e);
