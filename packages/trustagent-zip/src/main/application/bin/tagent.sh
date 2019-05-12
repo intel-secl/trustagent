@@ -406,7 +406,8 @@ monit_uninstall() {
 }
 
 print_help() {
-    echo "Usage: $0 start|stop|restart|java-detect|fingerprint|status|uninstall|zeroize|version|provision-attestation|create-host|create-host-unique-flavor"
+    echo "Usage: $0 start|stop|restart|java-detect|fingerprint|status|uninstall|zeroize|version|create-host|create-host-unique-flavor"
+    echo "Usage: $0 provision-attestation (only for non-container deployment)"
     echo "Usage: $0 setup [--force|--noexec] [task1 task2 ...]"
     echo "Usage: $0 password [username] [password] --permissions [domain1:action1]"
     echo "Usage: $0 export-config [outfile|--in=infile|--out=outfile|--stdout] [--env-password=PASSWORD_VAR]"
