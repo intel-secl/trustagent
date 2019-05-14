@@ -53,12 +53,22 @@ public class LoginRegister extends AbstractSetupTask {
         if (trustagentLoginUserName == null || trustagentLoginUserName.isEmpty()) {
             configuration("TrustAgent User name is not set. Please run the create-admin-user setup task first.");
         }
+
         File privateDir = new File(Folders.configuration() + File.separator + "private");
         passwordFile = privateDir.toPath().resolve("securestore.p12").toFile();
 
+        if(!privateDir.exists()) {
+           privateDir.mkdirs();
+        }
+
+        if(!passwordFile.exists()) {
+           log.info("TrustAgent password is not set. Please run the create-admin-user setup task first.");
+           return;
+        }
+
         SecureStoreUtil secureStore = new SecureStoreUtil();
         trustagentLoginPassword = secureStore.readFromStore(secureStore.loadKeyStore(passwordFile.getAbsolutePath(), trustagentConfiguration.getTrustagentSecureStorePassword()), 
-        		TrustagentConfiguration.SECURE_STORE_PASSWORD_KEY, TrustagentConfiguration.SECURE_STORE_PASSWORD_ALIAS);
+                TrustagentConfiguration.SECURE_STORE_PASSWORD_KEY, TrustagentConfiguration.SECURE_STORE_PASSWORD_ALIAS);
 
         if (trustagentLoginPassword == null || trustagentLoginPassword.isEmpty()) {
             configuration("TrustAgent password is not set. Please run the create-admin-user setup task first.");
