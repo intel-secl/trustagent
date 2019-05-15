@@ -62,7 +62,7 @@ public class LoginRegister extends AbstractSetupTask {
         }
 
         if(!passwordFile.exists()) {
-           log.info("TrustAgent password is not set. Please run the create-admin-user setup task first.");
+           configuration("TrustAgent password is not set. Please run the create-admin-user setup task first.");
            return;
         }
 
