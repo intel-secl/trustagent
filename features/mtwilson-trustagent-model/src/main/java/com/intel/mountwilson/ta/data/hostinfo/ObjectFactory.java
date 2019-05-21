@@ -18,6 +18,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
+import com.intel.mtwilson.core.common.model.HostInfo;
 
 
 /**
@@ -61,15 +62,4 @@ public class ObjectFactory {
     public JAXBElement<HostInfo> createHostInfo(HostInfo value) {
         return new JAXBElement<HostInfo>(_HostInfo_QNAME, HostInfo.class, null, value);
     }
-    /*
-      public ClientRequestType createClientRequestType() {
-        return new ClientRequestType();
-    }
-
-    @XmlElementDecl(namespace = "", name = "client_request")
-    public JAXBElement<ClientRequestType> createClientRequest(ClientRequestType value) {
-        return new JAXBElement<ClientRequestType>(_ClientRequest_QNAME, ClientRequestType.class, null, value);
-    }
-    */
-
 }

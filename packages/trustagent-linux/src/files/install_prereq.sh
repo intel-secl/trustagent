@@ -149,41 +149,21 @@ if [[ "$SKIP_INSTALL_TBOOT" != "y" && "$SKIP_INSTALL_TBOOT" != "Y" && "$SKIP_INS
 fi
 install_openssl
 
-# tpm 2.0
-install_tss2_tpmtools2() {
-  #install tpm2-tss, tpm2-tools for tpm2
-  # (do not install trousers and its dev packages for tpm 2.0)
-#  ./mtwilson-trustagent-tpm2-packages-*.bin
-  yum -y install tpm2-tools-3.0.*
-  if [ $? -ne 0 ]; then echo_failure "Failed to install tpm2-tools version 3.0.* through package installer"; exit 1; fi
-}
-
-clean_existing_tpm2tools() {
- if [[ -e "/usr/local/sbin/tpm2_takeownership" ]]; then
-   rm -rf /usr/local/sbin/tpm2_*
- fi
-}
 
 if [ ${DOCKER} != "true" ]; then
   if [ "$TPM_VERSION" == "1.2" ]; then
     install_trousers
     install_tpm_tools
     #install_patched_tpm_tools
-  elif [ "$TPM_VERSION" == "2.0" ]; then
-    clean_existing_tpm2tools
-    install_tpm2_tools
-    service tcsd2 stop >/dev/null 2>&1
-    service tpm2-abrmd start >/dev/null 2>&1
   elif [ -z "$TPM_VERSION" ]; then
     echo "Cannot detect TPM version"
-  else
+  elif [ "$TPM_VERSION" != "2.0" ]; then
     echo "Unrecognized TPM version: $TPM_VERSION"
   fi
 else
   # for a Docker image, install tools for both
   install_trousers
   install_tpm_tools
-  install_tss2_tpmtools2
   if [[ "$SKIP_INSTALL_TBOOT" != "y" && "$SKIP_INSTALL_TBOOT" != "Y" && "$SKIP_INSTALL_TBOOT" != "yes" ]]; then
     install_tboot
   fi

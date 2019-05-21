@@ -5,22 +5,15 @@
 package com.intel.mtwilson.trustagent.setup;
 
 import com.intel.dcsg.cpg.crypto.RandomUtil;
-import com.intel.dcsg.cpg.crypto.SimpleKeystore;
-import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.KeyManagementException;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import com.intel.mtwilson.Folders;
 import com.intel.dcsg.cpg.io.Platform;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import com.intel.mtwilson.crypto.password.SecureStoreUtil;
 
 public class SecureStore extends AbstractSetupTask {
@@ -47,7 +40,7 @@ public class SecureStore extends AbstractSetupTask {
         if( Platform.isUnix() ) {
             Runtime.getRuntime().exec("chmod 700 "+privateDir.getAbsolutePath());
         }
-        File keystoreFile = privateDir.toPath().resolve("securestore.jks").toFile();
+        File keystoreFile = privateDir.toPath().resolve("securestore.p12").toFile();
         String keystorePassword = RandomUtil.randomBase64String(8).replace("=","_");
          if(!keystoreFile.exists()) {
              SecureStoreUtil.createKeyStore(keystoreFile.getAbsolutePath(),keystorePassword);    
@@ -57,7 +50,7 @@ public class SecureStore extends AbstractSetupTask {
                FileInputStream fis = new FileInputStream(keystoreFile);) 
           {
             String existingKeystorePassword = trustagentConfiguration.getTrustagentSecureStorePassword();
-            KeyStore keyStore = KeyStore.getInstance("JCEKS");
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
             keyStore.load(fis, existingKeystorePassword.toCharArray());
             keyStore.store(fos, keystorePassword.toCharArray());
           }

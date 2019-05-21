@@ -32,7 +32,6 @@ import org.xml.sax.SAXException;
 public class VMQuote {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-//    private HashMap<String,String> assertionMap;
     private boolean isValid;
     private Exception error;
     private Element documentElement;
@@ -69,7 +68,6 @@ public class VMQuote {
             log.error("Cannot verify trust assertion", e);
             isValid = false;
             error = e;
-//            assertionMap = null;
         }
     }
 

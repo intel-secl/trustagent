@@ -44,7 +44,6 @@ public class BuildQuoteXMLCmd implements ICommand {
             context.setTpmQuoteResponse(tpmQuoteResponse);
         }
         catch(CertificateException e) {
-//            throw new TAException(ErrorCode.ERROR, "Cannot generate tpm quote response", e);
             throw new RuntimeException("Cannot generate tpm quote response", e);
         }
         /*

@@ -171,7 +171,7 @@ policy.ignoreIdentityScope=false
 #
 # Default keystore type.
 #
-keystore.type=jks
+keystore.type=pkcs12
 
 #
 # Controls compatibility mode for the JKS keystore type.

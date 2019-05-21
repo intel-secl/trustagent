@@ -167,6 +167,13 @@
             <artifactId>jackson-dataformat-xml</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <dependency>
+	    <groupId>com.intel.mtwilson.core</groupId>
+            <artifactId>lib-common</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+
     </dependencies>
     
     <properties />

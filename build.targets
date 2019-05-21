@@ -1,15 +1,10 @@
 # A successful build produces the following files:
-packages/trustagent-linux/target/trustagent-linux-5.0-SNAPSHOT.bin
-packages/trustagent-linux/target/trustagent-linux-5.0-SNAPSHOT.bin.README.sig
-packages/trustagent-linux/target/trustagent-linux-5.0-SNAPSHOT.bin.README
+packages/trustagent-linux/target/trustagent-linux-*.bin
+
 features/mtwilson-trustagent-client-jaxrs2/target/mtwilson-trustagent-client-jaxrs2-*-SNAPSHOT.jar
 features/mtwilson-trustagent-client-jaxrs2/target/mtwilson-trustagent-client-jaxrs2-*-SNAPSHOT.zip
 features/mtwilson-trustagent-client-jaxrs2/target/mtwilson-trustagent-client-jaxrs2-*-SNAPSHOT-javadoc.zip
 
-packages/trustagent-docker/target/trustagent-docker-5.0-SNAPSHOT.zip
-packages/trustagent-docker/target/trustagent-docker-5.0-SNAPSHOT.zip.README.sig
-packages/trustagent-docker/target/trustagent-docker-5.0-SNAPSHOT.zip.README
+packages/trustagent-docker/target/trustagent-docker-*.zip
 
-packages/trustagent-tboot-tss-tools-linux/target/trustagent-tboot-tss-tools-linux-5.0-SNAPSHOT.bin
-packages/trustagent-tboot-tss-tools-linux/target/trustagent-tboot-tss-tools-linux-5.0-SNAPSHOT.bin.README.sig
-packages/trustagent-tboot-tss-tools-linux/target/trustagent-tboot-tss-tools-linux-5.0-SNAPSHOT.bin.README
+packages/trustagent-tboot-tss-tools-linux/target/trustagent-tboot-tss-tools-linux-*.bin

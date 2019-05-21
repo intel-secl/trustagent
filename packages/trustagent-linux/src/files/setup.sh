@@ -35,7 +35,7 @@
 # 27. create TRUSTAGENT_TLS_CERT_IP list of system host addresses
 # 28. update the extensions cache file
 # 29. ensure the trustagent owns all the content created during setup
-# 30. create a trustagent username "mtwilson" with no password and all privileges for mtwilson access
+# 30. update tpm devices permissions to ensure it can be accessed by trustagent
 # 31. config logrotate
 # 32. tagent start
 # 33. tagent setup
@@ -79,6 +79,9 @@ export TRUSTAGENT_HOME=${TRUSTAGENT_HOME:-$DEFAULT_TRUSTAGENT_HOME}
 TRUSTAGENT_LAYOUT=${TRUSTAGENT_LAYOUT:-home}
 # PID file needed for startup service registration and as set in tagent.sh
 TRUSTAGENT_PID_FILE=$TRUSTAGENT_HOME/trustagent.pid
+TRUSTAGENT_TMPCLN_INT=${TRUSTAGENT_TMPCLN_INT:-* 0 * * *}
+TRUSTAGENT_TMPCLN_AGE=${TRUSTAGENT_TMPCLN_AGE:-7}
+
 
 # the env directory is not configurable; it is defined as TRUSTAGENT_HOME/env.d and the
 # administrator may use a symlink if necessary to place it anywhere else
@@ -177,7 +180,6 @@ else
   echo_warning "Installing as $TRUSTAGENT_USERNAME into $TRUSTAGENT_HOME"  
 fi
 directory_layout
-
 
 # before we start, clear the install log (directory must already exist; created above)
 mkdir -p $(dirname $INSTALL_LOG_FILE)
@@ -310,12 +312,6 @@ if [ $DOCKER != "true" ]; then
     echo -n "$TPM_VERSION" > $TRUSTAGENT_CONFIGURATION/tpm-version
 fi
 
-# redundant, this is handled in install_prereq.sh
-#if [ "$TPM_VERSION" == "2.0" ]; then
-#  # install tss2 and tpm2-tools for tpm2.0
-#  ./mtwilson-trustagent-tpm2-packages-*.bin
-#fi
-
 # 14. If VIRSH_DEFAULT_CONNECT_URI is defined in environment copy it to env directory (likely from ~/.bashrc)
 # copy it to our new env folder so it will be available to tagent on startup
 if [ -n "$LIBVIRT_DEFAULT_URI" ]; then
@@ -445,8 +441,8 @@ if [ -d "$v1_conf" ]; then
   KeystorePassword_122=`read_property_from_file trustagent.keystore.password ${v1_conf}/trustagent.properties`
   if [ -n "$KeystorePassword_122" ]; then
     export TRUSTAGENT_KEYSTORE_PASSWORD=$KeystorePassword_122
-    if [ -f "$v1_conf/trustagent.jks" ]; then
-      cp $v1_conf/trustagent.jks $v2_conf
+    if [ -f "$v1_conf/trustagent.p12" ]; then
+      cp $v1_conf/trustagent.p12 $v2_conf
     fi
   fi
 fi
@@ -575,26 +571,13 @@ function setup_tpm12_symlinks() {
     ln -s "$TRUSTAGENT_BIN/tpm_signdata" /usr/local/bin/tpm_signdata
 }
 
-function setup_tpm20_symlinks() {
-    #Sym link TPM 2.0 tools into $TRUSTAGEN_BIN/
-    if [[ ! -e "/usr/bin/tpm2_takeownership" ]]; then
-      echo_failure "cannot find command: tpm2_takeownership (from tpm2-tools)"
-      exit 1
-    fi
-#    ln -s /usr/local/sbin/tpm2_* "$TRUSTAGENT_BIN/"
-    ln -s /usr/bin/tpm2_* "$TRUSTAGENT_BIN/"
-}
-
 # 20. create tpm-tools and additional binary symlinks
 # if we are building a docker container, tpm 1.2 tools are installed no matter what
 if [[ ${DOCKER} == "true" ]]; then
     setup_tpm12_symlinks
-    setup_tpm20_symlinks
 else
     if [[ "$TPM_VERSION" == "1.2" ]]; then
         setup_tpm12_symlinks
-    else
-        setup_tpm20_symlinks
     fi
 fi
 
@@ -773,41 +756,20 @@ chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $TRUSTAGENT_LOGS/
 # before running any tagent commands update the extensions cache file
 tagent setup update-extensions-cache-file --force 2>/dev/null
 
-# for tpm2.0, check if we own the tpm and if not just clear ownership here so
-# other setup steps will succeed
-maybe_clear_tpm2() {
-    local is_owned=$($TRUSTAGENT_HOME/bin/tpm2-isowned)
-    if [ "$is_owned" == "1" ]; then
-        # it's owned, do we have the password?
-        local tpm_passwd="$TPM_OWNER_SECRET"
-        if [ -z "$tpm_passwd" ]; then
-            tpm_passwd=$(tagent config tpm.owner.secret)
-        fi
-        if [ -n "$tpm_passwd" ]; then
-            local is_owner=$($TRUSTAGENT_HOME/bin/tpm2-isowner "$tpm_passwd")
-            if [ "$is_owner" == "0" ]; then
-                # we are not the owner. clear it.
-                tpm2_takeownership -c
-                return $?
-            fi
-        else
-            # we don't have the password. clear it.
-            tpm2_takeownership -c
-            return $?
-        fi
-    fi
-}
-
-## we can't access the TPM during a docker image build, skip this
-#if [[ "$TPM_VERSION" == "2.0" && ${DOCKER} != "true" ]]; then
-#    maybe_clear_tpm2
-#fi
-
 # 29. ensure the trustagent owns all the content created during setup
 for directory in $TRUSTAGENT_HOME $TRUSTAGENT_CONFIGURATION $TRUSTAGENT_JAVA $TRUSTAGENT_BIN $TRUSTAGENT_ENV $TRUSTAGENT_REPOSITORY $TRUSTAGENT_LOGS $TRUSTAGENT_TMP; do
   chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $directory
 done
 
+# 30. update tpm devices permissions to ensure it can be accessed by trustagent
+if [ "$(whoami)" == "root" ]; then
+  # tpm devices can only be accessed by the trustagent user and group
+  echo "KERNEL==\"tpmrm[0-9]*|tpm[0-9]*\", MODE=\"0660\", OWNER=\"$TRUSTAGENT_USERNAME\", GROUP=\"$TRUSTAGENT_USERNAME\"" > /lib/udev/rules.d/tpm-udev.rules
+  /sbin/udevadm control --reload-rules
+  /sbin/udevadm trigger --type=devices --action=change
+else
+  echo_warning "Skipping update tpm devices permissions"
+fi
 
 if [ "${LOCALHOST_INTEGRATION}" == "yes" ]; then
   /opt/trustagent/bin/tagent.sh localhost-integration
@@ -881,6 +843,7 @@ fi
 # 32. tagent setup
 tagent setup
 
+configure_cron add "$TRUSTAGENT_TMPCLN_INT" "find "$TRUSTAGENT_TMP" -mtime +"$TRUSTAGENT_TMPCLN_AGE" -exec /bin/rm -- '{}' \;"
 # 33. tagent start
 tagent start
 

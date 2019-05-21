@@ -112,7 +112,7 @@ public class CreateAdminUser extends AbstractSetupTask {
     @Override
     protected void execute() throws Exception {
         log.info("Starting the process to configure the username and password.");
-        
+        File passwordFile = null;        
         Password pwd = new Password();
 	    SecureStoreUtil secureStore = new SecureStoreUtil();
 		TrustagentConfiguration trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
@@ -124,16 +124,17 @@ public class CreateAdminUser extends AbstractSetupTask {
         
         // save the adminPassword to a file so the admin user can read it ; because it shouldn't be stored in the permanent configuration
         File privateDir = new File(Folders.configuration() + File.separator + "private");
+        passwordFile = privateDir.toPath().resolve("securestore.p12").toFile();
+
         if( !privateDir.exists() ) {
             privateDir.mkdirs();
-           File  passwordFile = privateDir.toPath().resolve("securestore.jks").toFile();
-	    SecureStoreUtil.createKeyStore(passwordFile.getAbsolutePath(),trustagentConfiguration.getTrustagentSecureStorePassword());
- }
+        }
+        if(!passwordFile.exists()) {
+           SecureStoreUtil.createKeyStore(passwordFile.getAbsolutePath(),trustagentConfiguration.getTrustagentSecureStorePassword());
+        }        
+
         if( Platform.isUnix() ) {
             Runtime.getRuntime().exec("chmod 700 "+privateDir.getAbsolutePath());
-        }
-        File passwordFile = privateDir.toPath().resolve("securestore.jks").toFile();
-        if( Platform.isUnix() ) {
             Runtime.getRuntime().exec("chmod 600 "+passwordFile.getAbsolutePath());
         }
          secureStore.writeToStore(passwordFile.getAbsolutePath(), trustagentConfiguration.getTrustagentSecureStorePassword(),

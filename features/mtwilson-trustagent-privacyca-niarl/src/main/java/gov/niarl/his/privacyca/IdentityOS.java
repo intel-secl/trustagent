@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 package gov.niarl.his.privacyca;
-import java.util.*;
-import java.net.InetAddress;
 
 /*
  * win : return 0;
@@ -12,20 +10,12 @@ import java.net.InetAddress;
  * other: return -1
  */
 public class IdentityOS {
-	
-//	public static void main(String[] args){
-//		System.out.println("dgag");
-//	}
-	
 	public static int osType(){
 		if(isWindows()){
-//			System.out.println("This is Windows");
 			return 0;
 		}else if(isUnix()){
-//			System.out.println("This is Unix or Linux");
 			return 1;
 		}else{
-//			System.out.println("Your OS is not support!!");
 			return -1;
 		}
 	}

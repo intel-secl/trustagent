@@ -13,7 +13,6 @@
 
 package com.intel.mountwilson.ta.data.daa.response;
 
-import com.intel.mountwilson.ta.data.daa.response.*;
 import javax.xml.bind.annotation.XmlRegistry;
 
 

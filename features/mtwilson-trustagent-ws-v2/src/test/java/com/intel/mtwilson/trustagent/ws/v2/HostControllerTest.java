@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.trustagent.ws.v2;
 
-//import com.intel.mtwilson.core.platforminfo.HostInfo;
 import com.intel.mtwilson.core.common.model.HostInfo;
 import java.util.HashSet;
 import java.util.Set;
@@ -52,8 +51,6 @@ public class HostControllerTest {
         HostInfo host = hostcntrl.getContext();
         assertEquals("RedHatEnterpriseServer", host.getOsName());
         assertEquals("7.3", host.getOsVersion());
-//        assertEquals("Docker", host.getVmmName());
-//        assertEquals("17.04.0-ce", host.getVmmVersion());
         assertEquals("F2 06 03 00 FF FB EB BF", host.getProcessorInfo());
         assertEquals("Intel Corporation", host.getBiosName());
         assertEquals("SE5C610.86B.01.01.1008.031920151331", host.getBiosVersion());
@@ -88,8 +85,6 @@ public class HostControllerTest {
         HostInfo host = hostcntrl.getContext();
         assertEquals("Microsoft Windows 10 Enterprise", host.getOsName().trim().replaceAll("[\u0000-\u001f]", ""));
         assertEquals("10.0.10586", host.getOsVersion().trim().replaceAll("[\u0000-\u001f]", ""));
-//        assertEquals("10.0.10586", host.getVmmName());
-//        assertEquals("10.0.10586", host.getVmmVersion());
         assertEquals("HP", host.getBiosName().trim().replaceAll("[\u0000-\u001f]", ""));
         assertEquals("N75 Ver. 01.13", host.getBiosVersion().trim().replaceAll("[\u0000-\u001f]", ""));
         assertEquals("BFEBFBFF000406E3", host.getProcessorInfo().trim().replaceAll("[\u0000-\u001f]", ""));

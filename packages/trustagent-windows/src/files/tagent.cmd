@@ -144,20 +144,20 @@ if "%wcommand%"=="start" (
     >>"%logfile%" "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main %*
   )
 )
-GOTO:EOF
+EXIT /B !errorlevel!
 
 REM functions
 :trustagent_start
   echo. Starting trustagent service
   sc start trustagent >null
   echo. Trustagent started
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :trustagent_status
   REM set TASTATUS=
   call :get_status
   echo. Trustagent status: %TASTATUS%
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :trustagent_restart
   call :get_status
@@ -169,13 +169,13 @@ GOTO:EOF
     timeout /t 1 /NOBREAK
   )
   call :trustagent_start
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :trustagent_stop
   echo. Stopping the trust agent
   sc stop trustagent > null
   echo. Trustagent stopped
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :trustagent_setup
   echo.  Setup the trust agent
@@ -193,7 +193,7 @@ GOTO:EOF
       set tasklist=%TRUSTAGENT_SETUP_TASKS% --force
   )
   >>"%logfile%" "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main setup configure-from-environment %tasklist%
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :trustagent_authorize
   echo. trustagent authorization
@@ -217,36 +217,44 @@ GOTO:EOF
   REM done
   REM export_vars $authorize_vars
   call:trustagent_setup --force %TRUSTAGENT_AUTHORIZE_TASKS%
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :trustagent_host_register
   set host_register_vars="CURRENT_IP AUTOMATIC_REGISTRATION"
   call:trustagent_setup --force %TRUSTAGENT_REGISTRATION_TASKS%
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :trustagent_create_flavor
   set host_register_vars="CURRENT_IP AUTOMATIC_FLAVOR_CREATION"
   call:trustagent_setup --force %TRUSTAGENT_CREATE_FLAVOR_TASK%
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :trustagent_generate_password
   >"%TRUSTAGENT_PASSWORD_FILE%" "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main generate-password
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :trustagent_export_config
   "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main %*
-GOTO:EOF
+EXIT /B !errorlevel!
+
+:trustagent_generate_password
+  >"%TRUSTAGENT_PASSWORD_FILE%" "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main generate-password
+EXIT /B !errorlevel!
+
+:trustagent_export_config
+  "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main %*
+EXIT /B !errorlevel!
 
 :trustagent_java_detect
   echo. Detecting Java on Trust Agent
   echo. %JAVA_HOME%
   echo. %JAVABIN%
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :trustagent_zeroize
   echo. Shredding Trust Agent configuration
   del /s /q "%TRUSTAGENT_CONF%\" >null
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :trustagent_fingerprint
   echo. TLS Certificate Fingerprint  
@@ -254,7 +262,7 @@ GOTO:EOF
   for /F "delims=" %%a in ('findstr /c:trustagent.tls.cert.sha256 temp.out') do set var=%%a
   echo. %var%
   del /s /q temp.out >null
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :print_help
     REM echo. Usage: %~n0 start^|stop^|authorize^|start-http-server^|version
@@ -267,11 +275,15 @@ GOTO:EOF
     REM echo. %TRUSTAGENT_SETUP_TASKS%
     for %%a in (%TRUSTAGENT_SETUP_TASKS%) do echo. %%a
     echo. register-tpm-password
-GOTO:EOF
+EXIT /B !errorlevel!
 
 :tagent_uninstall
     start /d "%TRUSTAGENT_HOME%" Uninstall.exe
-GOTO:EOF
+EXIT /B !errorlevel!
+
+:tagent_uninstall
+    start /d "%TRUSTAGENT_HOME%" Uninstall.exe
+EXIT /B !errrolevel!
 
 :get_status
   REM set TASTATUS=

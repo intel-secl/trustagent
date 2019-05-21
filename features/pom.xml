@@ -23,7 +23,6 @@
         <module>mtwilson-trustagent-model</module>
         <module>mtwilson-trustagent-privacyca-niarl</module>
         <module>mtwilson-trustagent-setup</module>
-        <module>mtwilson-trustagent-tpm2-packages</module>
         <module>mtwilson-trustagent-tpm-tools</module>
         <module>mtwilson-trustagent-version</module>
         <module>mtwilson-trustagent-vmquote-xml</module>

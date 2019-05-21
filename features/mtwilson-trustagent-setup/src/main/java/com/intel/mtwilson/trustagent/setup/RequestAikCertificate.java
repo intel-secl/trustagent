@@ -103,8 +103,6 @@ public class RequestAikCertificate extends AbstractSetupTask {
                     * need to check later for exceptions
          */
         try {
-            //#5819: Call to static method 'com.intel.mtwilson.trustagent.tpmmodules.Tpm.getTpm' via instance reference.
-            //Tpm tpm = new Tpm();
             ekCert = tpm.getCredential(config.getTpmOwnerSecret(), CredentialType.EC);
             if (ekCert == null || ekCert.length == 0) {
                 configuration("Endorsement Certificate is null or zero-length");
@@ -142,7 +140,6 @@ public class RequestAikCertificate extends AbstractSetupTask {
             SimpleKeystore taKeystore = new SimpleKeystore(new FileResource(taConfig.getTrustagentKeystoreFile()), taConfig.getTrustagentKeystorePassword());
             X509Certificate privacy = taKeystore.getX509Certificate("privacy", SimpleKeystore.CA);
             TpmIdentityRequest encryptedEkCert = new TpmIdentityRequest(ekCert, (RSAPublicKey) privacy.getPublicKey(), false);
-            //boolean shortcut = false;
             IdentityRequest newId = tpm.collateIdentityRequest(taConfig.getTpmOwnerSecret(), taConfig.getAikSecret(), privacy.getPublicKey());
             if (IdentityOS.isWindows()) {
                 /* Call Windows API to get the TPM EK certificate and assign it to "ekCert" */
@@ -170,7 +167,7 @@ public class RequestAikCertificate extends AbstractSetupTask {
             // even thoug hits called TpmIdentityRequest, it's just standard RSA encryption... nothing about it needs to be using TPM structures.
             // this is because we are encrypting using the PrivacyCA's public key. 
             TpmIdentityRequest encryptedChallenge = new TpmIdentityRequest(decrypted1, (RSAPublicKey) privacy.getPublicKey(), false);
-            System.err.println("Create Identity... Calling into HisPriv second time, size of msg = " + encryptedChallenge.toByteArray().length);
+            log.debug("Create Identity... Calling into HisPriv second time, size of msg = {}", encryptedChallenge.toByteArray().length);
 
             IdentityChallengeResponse identityChallengeResponse = new IdentityChallengeResponse();
             identityChallengeResponse.setResponseToChallenge(encryptedChallenge.toByteArray());

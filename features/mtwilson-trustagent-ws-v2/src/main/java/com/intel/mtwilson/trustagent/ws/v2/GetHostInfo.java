@@ -7,7 +7,6 @@ package com.intel.mtwilson.trustagent.ws.v2;
 import com.intel.mtwilson.core.common.PlatformInfoException;
 import com.intel.mtwilson.core.common.model.*;
 import com.intel.mtwilson.core.platform.info.CommandLineRunner;
-//import com.intel.mtwilson.core.platforminfo.HostInfo;
 import com.intel.mtwilson.core.common.model.HostInfo;
 import com.intel.mtwilson.core.common.Command;
 import java.io.IOException;

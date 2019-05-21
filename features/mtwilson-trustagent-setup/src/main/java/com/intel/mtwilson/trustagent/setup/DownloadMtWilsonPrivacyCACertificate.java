@@ -85,12 +85,6 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
 
     @Override
     protected void execute() throws Exception {
-        /*
-        System.setProperty("javax.net.ssl.trustStore", trustagentConfiguration.getTrustagentKeystoreFile().getAbsolutePath());
-        System.setProperty("javax.net.ssl.trustStorePassword", trustagentConfiguration.getTrustagentKeystorePassword());
-        System.setProperty("javax.net.ssl.keyStore", trustagentConfiguration.getTrustagentKeystoreFile().getAbsolutePath());
-        System.setProperty("javax.net.ssl.keyStorePassword", trustagentConfiguration.getTrustagentKeystorePassword());
-        */
         log.debug("Creating TLS policy");
         TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(), trustagentConfiguration.getTrustagentKeystorePassword()).build();
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
@@ -103,10 +97,6 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
         CaCertificates client = new CaCertificates(clientConfiguration, tlsConnection);
         X509Certificate certificate = client.retrieveCaCertificate("privacy");
         keystore.addTrustedCaCertificate(certificate, "privacy");
-        /*
-        X509Certificate endorsementCertificate = client.retrieveCaCertificate("endorsement");
-        keystore.addTrustedCaCertificate(endorsementCertificate, "endorsement");
-        */
         keystore.save();
     }
     

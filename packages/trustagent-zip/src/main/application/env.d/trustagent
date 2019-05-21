@@ -8,7 +8,7 @@ TRUSTAGENT_LOGFILE=/var/log/trustagent/trustagent.log
 TRUSTAGENT_PIDFILE=/var/run/trustagent.pid
 
 # the keystore location and password are stored in trustagent.properties which may be encrypted...
-#-Djavax.net.ssl.trustStore=$intel_conf_dir/trustagent.jks -Djavax.net.ssl.keyStore=$intel_conf_dir/trustagent.jks -Djavax.net.ssl.keyStorePassword=env:TaKeyStorePassword -Dapp.path=$package_dir -Ddebug=true
+#-Djavax.net.ssl.trustStore=$intel_conf_dir/trustagent.p12 -Djavax.net.ssl.keyStore=$intel_conf_dir/trustagent.p12 -Djavax.net.ssl.keyStorePassword=env:TaKeyStorePassword -Dapp.path=$package_dir -Ddebug=true
 
 #JAVA_OPTS="-Dfs.root=$TRUSTAGENT_HOME -Dfs.conf=$TRUSTAGENT_CONF -Dlogback.configurationFile=$TRUSTAGENT_CONF/logback.xml"
 JAVA_OPTS="-Dfs.name=trustagent -Dfs.home=$TRUSTAGENT_HOME -Dfs.conf=$TRUSTAGENT_CONF -Dlogback.configurationFile=$TRUSTAGENT_CONF/logback.xml -Djdk.tls.ephemeralDHKeySize=2048"

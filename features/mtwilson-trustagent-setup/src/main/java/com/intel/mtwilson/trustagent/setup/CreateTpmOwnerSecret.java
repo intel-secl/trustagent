@@ -5,8 +5,6 @@
 package com.intel.mtwilson.trustagent.setup;
 
 import com.intel.dcsg.cpg.crypto.RandomUtil;
-import com.intel.mtwilson.common.CommandResult;
-import com.intel.mtwilson.common.CommandUtil;
 import com.intel.mtwilson.common.TAException;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;

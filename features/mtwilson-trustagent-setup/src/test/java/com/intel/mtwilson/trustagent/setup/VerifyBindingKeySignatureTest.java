@@ -5,8 +5,6 @@
 package com.intel.mtwilson.trustagent.setup;
 
 import com.intel.dcsg.cpg.x509.X509Util;
-import java.io.IOException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;

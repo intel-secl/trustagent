@@ -5,11 +5,7 @@
 package com.intel.mountwilson.common;
 
 import com.intel.mtwilson.Folders;
-import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.LoggerFactory;
@@ -25,7 +21,6 @@ public class Config {
 
     private static Configuration config = TAConfig.getConfiguration();
     private static Config instance = null;
-    //private static String appPath = config.getString("app.path"); // System.getProperty("app.path",".");;
     private static Boolean debug;
 
     private static String homeFolder = "./config";
@@ -42,8 +37,6 @@ public class Config {
 
 
 	static{
-//        TrustagentConfiguration configuration = TrustagentConfiguration.loadConfiguration();
-//		File propFile = new File(MyFilesystem.getApplicationFilesystem().getConfigurationPath() + File.separator + "trustagent.properties");
         homeFolder = Folders.configuration();
         LoggerFactory.getLogger(Config.class.getName()).warn("Home folder. Using " + homeFolder);
     }

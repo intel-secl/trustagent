@@ -15,12 +15,9 @@ import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import com.intel.mtwilson.crypto.password.GuardedPassword;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyPair;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
@@ -91,23 +88,6 @@ public class CreateTlsKeypair extends AbstractSetupTask {
             validation("Key must be recreated");
             return;
         }
-//        catch(NullPointerException e) {
-//            log.debug("Invalid TLS certificate");
-//            validation("Certificate must be recreated");
-//            return;
-//        }
-//        log.debug("credential {}", credential);
-//        log.debug("credential certificate {}", credential.getCertificate());
-//        log.debug("credential certificate encoded {}", credential.getCertificate().getEncoded());
-//        log.debug("credential certificate encoded sha1 {}", Sha1Digest.digestOf(credential.getCertificate().getEncoded()));
-//        log.debug("Keystore contains TLS keypair: ", Sha1Digest.digestOf(credential.getCertificate().getEncoded()).toHexString());
-        /*
-         * Issue #2141 thi
-        if( !dn.equals(credential.getCertificate().getSubjectX500Principal().getName()) ) {
-            log.debug("Certificate DN not the same as configured DN; should recreate certificate");
-            validation("Configured DN does not match certificate DN; should recreate certificate");
-        }
-        */
     }
 
     @Override

@@ -43,7 +43,6 @@ public class IPAddress {
      *
      * @see java.lang.Object#toString()
      */
-//    @JsonValue
     @Override
     public String toString() {
         return address;

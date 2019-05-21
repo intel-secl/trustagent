@@ -35,7 +35,6 @@ public class SetAssetTagWindows implements ICommand {
     public void execute() throws TAException{
         try {
             log.debug("SetAssetTagWindows execute");
-            //String password = "ffffffffffffffffffffffffffffffffffffffff";  //No longer needed, read it from props file in createIndex()
             String tpmNvramPass = generateRandomPass();
             
             log.debug("SetAssetTagWindows generated nvram password {}", tpmNvramPass);
@@ -46,17 +45,11 @@ public class SetAssetTagWindows implements ICommand {
                 releaseIndex();
                 log.debug("Creating new index...");
                 createIndex(tpmNvramPass);
-            }else{ // generate random password 
-                // Just use the same password right now for testing
-                // password =  generateRandomPass();
+            }else{
                 log.debug("Index does not exist. creating it...");
                 createIndex(tpmNvramPass);
             }
-            //do not log senstive info
-            //log.debug("using password " + password + " for index");
-            //now index is created, write value to it
-            //writeHashToFile();  // store the hash as a binary file - Not Needed on Window. pass it as a parameter
-            
+
             if(!writeHashToNvram(tpmNvramPass)) {
                 // need some type of exception here
                 log.error("Error writing hash to NVRAM");
@@ -82,8 +75,6 @@ public class SetAssetTagWindows implements ICommand {
     
     private boolean writeHashToNvram(String NvramPassword) throws TAException, IOException {
         try {
-            //String tpmOwnerPass = TAConfig.getConfiguration().getString("tpm.owner.secret");
-            //String tpmNvramPass = TAConfig.getConfiguration().getString("TpmNvramAuth");
             if (!HexUtil.isHex(NvramPassword)) {
                 log.error("NvramPassword is not in hex format: {}", NvramPassword);
                 throw new IllegalArgumentException(String.format("NvramPassword is not in hex format: %s", NvramPassword));
@@ -98,22 +89,7 @@ public class SetAssetTagWindows implements ICommand {
         }
         return true;
     }
-    
-    //#5824: Private method 'writeHashToFile' is unused.
-    //private void writeHashToFile() throws TAException, IOException {
-    //    try {
-    //        String assetTagHash = context.getAssetTagHash();
-    //        if (!HexUtil.isHex(assetTagHash)) {
-    //            log.error("assetTagHash is not in hex format: {}", assetTagHash);
-    //            throw new IllegalArgumentException(String.format("assetTagHash is not in hex format: %s", assetTagHash));
-    //        }
-    //        CommandUtil.runCommand("/usr/local/bin/hex2bin " + assetTagHash + " /tmp/hash"); //| /usr/local/bin/hex2bin > /tmp/hash");
-    //    }catch(TAException ex) {
-    //            log.error("error writing to nvram, " + ex.getMessage() );
-    //            throw ex;
-    //    }        
-    //}
-    
+
     private boolean createIndex(String NvramPassword) throws TAException, IOException {
         try {
             String tpmOwnerPass = TAConfig.getConfiguration().getString("tpm.owner.secret");
@@ -125,7 +101,6 @@ public class SetAssetTagWindows implements ICommand {
                 log.error("tpmOwnerPass is not in hex format: {}", tpmOwnerPass);
                 throw new IllegalArgumentException(String.format("tpmOwnerPass is not in hex format: %s", tpmOwnerPass));
             }
-            //String tpmNvramPass = TAConfig.getConfiguration().getString("TpmNvramAuth");
             String cmd = "tpmtool.exe nvdefine " + index + " 0x14 " + NvramPassword + " AUTHWRITE";
             log.debug("running command: " + cmd);
             CommandUtil.runCommand(cmd);

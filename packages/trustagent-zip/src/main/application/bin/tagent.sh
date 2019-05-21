@@ -104,7 +104,8 @@ TRUSTAGENT_ENV=${TRUSTAGENT_ENV:-$TRUSTAGENT_HOME/env.d}
 TRUSTAGENT_VAR=${TRUSTAGENT_VAR:-$TRUSTAGENT_HOME/var}
 TRUSTAGENT_LOGS=${TRUSTAGENT_LOGS:-$TRUSTAGENT_HOME/logs}
 TRUSTAGENT_TMP=${TRUSTAGENT_TMP:-$TRUSTAGENT_HOME/var/tmp}
-
+TRUSTAGENT_TMPCLN_INT=${TRUSTAGENT_TMPCLN_INT:-* 0 * * *}
+TRUSTAGENT_TMPCLN_AGE=${TRUSTAGENT_TMPCLN_AGE:-7}
 ###################################################################################################
 
 # load linux utility
@@ -241,7 +242,7 @@ trustagent_setup() {
   elif [ "$tasklist" == "--force" ]; then
     tasklist="$TRUSTAGENT_SETUP_TASKS --force"
   fi
-  "$JAVA_CMD" $JAVA_OPTS com.intel.mtwilson.launcher.console.Main setup configure-from-environment $tasklist
+  "$JAVA_CMD" $JAVA_OPTS com.intel.mtwilson.launcher.console.Main setup configure-from-environment $tasklist | grep -v "TPM ERROR:"
 
   return $?
 }
@@ -301,7 +302,6 @@ trustagent_start() {
 
     if [[ ${DOCKER} != "true" ]]; then
         # regenerate Measurement log when trustagent is started, but only if not in Docker, since the Docker entrypoint handles it
-        # echo "Running module analysis ... "
         rm -rf $TRUSTAGENT_HOME/var/measureLog.xml
         $TRUSTAGENT_HOME/bin/module_analysis.sh 2>/dev/null
     fi
@@ -412,10 +412,6 @@ docker_proxy_uninstall() {
 # backs up the configuration directory and removes all trustagent files,
 # except for configuration files which are saved and restored
 trustagent_uninstall() {
-    datestr=`date +%Y-%m-%d.%H%M`
-    mkdir -p /tmp/trustagent.configuration.$datestr
-    chmod 500 /tmp/trustagent.configuration.$datestr
-    cp -r /opt/trustagent/configuration/* /tmp/trustagent.configuration.$datestr
 	rm -f /usr/local/bin/tagent
     if [ -n "$TRUSTAGENT_HOME" ] && [ -d "$TRUSTAGENT_HOME" ]; then
       rm -rf $TRUSTAGENT_HOME
@@ -423,6 +419,7 @@ trustagent_uninstall() {
     remove_startup_script tagent
     rm -rf /opt/tbootxm
 	rm -rf /var/log/trustagent/measurement.*
+    configure_cron remove "$TRUSTAGENT_TMPCLN_INT" "find "$TRUSTAGENT_TMP" -mtime +"$TRUSTAGENT_TMPCLN_AGE" -exec /bin/rm -- '{}' \;"
 }
 
 # stops monit and removes its configuration
@@ -440,7 +437,8 @@ monit_uninstall() {
 }
 
 print_help() {
-    echo "Usage: $0 start|stop|restart|java-detect|fingerprint|status|uninstall|zeroize|version|provision-attestation|create-host|create-host-unique-flavor"
+    echo "Usage: $0 start|stop|restart|java-detect|fingerprint|status|uninstall|zeroize|version|create-host|create-host-unique-flavor"
+    echo "Usage: $0 provision-attestation (only for non-container deployment)"
     echo "Usage: $0 setup [--force|--noexec] [task1 task2 ...]"
     echo "Usage: $0 password [username] [password] --permissions [domain1:action1]"
     echo "Usage: $0 export-config [outfile|--in=infile|--out=outfile|--stdout] [--env-password=PASSWORD_VAR]"

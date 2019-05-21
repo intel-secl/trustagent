@@ -37,10 +37,6 @@ public class CreateIdentityDaaCmd implements ICommand {
     @Override
     public void execute() throws TAException {
         try {
-            // create the AIK blob and certificate
-//            CommandUtil.runCommand(String.format("identity INTEL %s %s", context.getAikBlobFileName(), context.getAikCertFileName() )); // safe; no arguments involved in this command line
-//            log.log(Level.INFO, "Created AIK Blob and AIK Certificate");
-            
             // extract the EK
             String ekCertFileName = EscapeUtil.doubleQuoteEscapeShellArgument(context.getEKCertFileName());
             CommandLine command1 = new CommandLine("/opt/trustagent/bin/getcert");  // safe; no arguments involved in this command line

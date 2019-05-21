@@ -401,18 +401,8 @@ Section "install"
         Call AddToPath
 
         # Run tasetup.cmd
-        IfFileExists $TEMP\TrustAgent_Backup\*.* restore fresh
-        restore:
-                ExecWait '$INSTDIR\bin\taupgrade.cmd'
-                RMDir /r "$INSTDIR\configuration"
-                CopyFiles "$TEMP\TrustAgent_Backup\java.security" "$INSTDIR\jre\lib\java.security"
-                CopyFiles "$TEMP\TrustAgent_Backup\configuration" "$INSTDIR"
-                CopyFiles "$TEMP\TrustAgent_Backup\trustagent.env" "$INSTDIR"
-                RMDir /r "$TEMP\TrustAgent_Backup"
-                Goto setupcomplete
-        fresh:
-               nsExec::ExecToLog '$INSTDIR\bin\tasetup.cmd'
-               Goto setupcomplete
+        nsExec::ExecToLog '$INSTDIR\bin\tasetup.cmd'
+        Goto setupcomplete
         setupcomplete:
                       ReadRegStr $0 HKLM "Software\Microsoft\Windows NT\CurrentVersion" "ProductName"
                       StrCpy $6 "Hyper-V Server 2012 R2"
@@ -503,10 +493,6 @@ Function .onInit
                  Abort
         uninst:
                ClearErrors
-               CreateDirectory $TEMP\TrustAgent_Backup
-               CopyFiles "$INSTDIR\configuration" "$TEMP\TrustAgent_Backup\configuration"
-               CopyFiles "$INSTDIR\trustagent.env" "$TEMP\TrustAgent_Backup\trustagent.env"
-               CopyFiles "$INSTDIR\java.security" "$TEMP\TrustAgent_Backup\java.security"
                ExecWait $INSTDIR\Uninstall.exe
 
 

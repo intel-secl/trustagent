@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.codec.DecoderException;
@@ -32,7 +31,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import com.intel.mtwilson.crypto.password.GuardedPassword;
-import java.security.GeneralSecurityException;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  *
@@ -96,25 +95,14 @@ public class TrustagentConfiguration {
     }
     public TrustagentConfiguration(Configuration configuration) {
         this.conf = configuration;
-//        initEnvironmentConfiguration(configuration);
     }
-    /*
-    private void initEnvironmentConfiguration(Configuration given) {
-        // using the environment configuration 
-        // allows the MTWILSON_API_USERNAME and MTWILSON_API_PASSWORD to be set
-        // in the environment instead of in trustagent.properties
-        Configuration env = new KeyTransformerConfiguration(new AllCapsNamingStrategy(), new EnvironmentConfiguration()); // transforms mtwilson.ssl.cert.sha1 to MTWILSON_SSL_CERT_SHA1 
-        Configuration configuration = new CompositeConfiguration(given, env);        
-        setConfiguration(configuration);
-    }
-    */
-    
+
     /**
      * NOTE: this comes from an environment variable and would only be used
      * during setup for automatic approval of the mtwilson tls cert when the
      * admin sets the env var MTWILSON_TLS_CERT_SHA1 to be a comma-separated list
      * of valid SHA1 digests. During setup the authorized certificates are 
-     * saved to the trustagent.jks keystore so this env var is not needed 
+     * saved to the trustagent.p12 keystore so this env var is not needed 
      * after setup.
      * 
      * @return 
@@ -127,13 +115,7 @@ public class TrustagentConfiguration {
         return Arrays.asList(fingerprintCsv.split("\\s*,\\s*"));
             
     }
-    
-    /*
-    public File getWebAppContextFile() {
-        return new File(MyFilesystem.getApplicationFilesystem().getConfigurationPath() + File.separator + "web.xml");
-    }
-    */
-    
+
     public String getCurrentIp() {
         return conf.get(CURRENT_IP, null);// intentionally no default - this must be configured during setup
     }
@@ -163,7 +145,11 @@ public class TrustagentConfiguration {
     }     
     public byte[] getTpmOwnerSecret() {
         try {
-            return Hex.decodeHex(getTpmOwnerSecretHex().toCharArray());
+            if(SystemUtils.IS_OS_WINDOWS) { // Windows owner secret is not known and not used hence set to null
+                return null;
+            } else {
+                return Hex.decodeHex(getTpmOwnerSecretHex().toCharArray());
+            }
         }
         catch(DecoderException e) {
             throw new IllegalArgumentException("Invalid owner secret", e);
@@ -199,14 +185,6 @@ public class TrustagentConfiguration {
         return conf.get(AIK_HANDLE); // intentionally no default - this must be generated during setup
     }
     public String getAikHandle() {
-        /*
-        try {
-            return Hex.decodeHex(getAikHandleHex().toCharArray());
-        }
-        catch(DecoderException e) {
-            throw new IllegalArgumentException("Invalid AIK Handle", e);
-        }
-        */
         try {
             if ( getTpmVersion().equals("1.2") ) {
                 return conf.get(AIK_INDEX, "1");                
@@ -228,14 +206,6 @@ public class TrustagentConfiguration {
         return conf.get(EK_HANDLE); // intentionally no default - this must be generated during setup
     }
     public String getEkHandle() {
-            /*
-            try {
-            return Hex.decodeHex(getEkHandleHex().toCharArray());
-            }
-            catch(DecoderException e) {
-            throw new IllegalArgumentException("Invalid EK Handle", e);
-            }
-            */
         try {
             return readFromFile(Folders.configuration() + File.separator + "ekhandle");
         } catch (IOException ex) {
@@ -249,14 +219,6 @@ public class TrustagentConfiguration {
     }
    
     public String getAikName() {
-            /*
-            try {
-            return Hex.decodeHex(getEkHandleHex().toCharArray());
-            }
-            catch(DecoderException e) {
-            throw new IllegalArgumentException("Invalid EK Handle", e);
-            }
-            */
         try {
             return readFromFile(Folders.configuration() + File.separator + "aikname");
         } catch (IOException ex) {
@@ -289,7 +251,6 @@ public class TrustagentConfiguration {
         return conf.get(TRUSTAGENT_TLS_CERT_IP, "");
     }
     public String[] getTrustagentTlsCertIpArray() throws SocketException {
-//        return conf.getString(TRUSTAGENT_TLS_CERT_IP, "127.0.0.1").split(",");
         String[] TlsCertIPs = conf.get(TRUSTAGENT_TLS_CERT_IP, "").split(",");
         if (TlsCertIPs != null && !TlsCertIPs[0].isEmpty()) {
             log.debug("Retrieved IPs from trust agent configuration: {}", (Object[])TlsCertIPs);
@@ -308,7 +269,6 @@ public class TrustagentConfiguration {
         return conf.get(TRUSTAGENT_TLS_CERT_DNS, "");
     }
     public String[] getTrustagentTlsCertDnsArray() throws SocketException {
-//        return conf.getString(TRUSTAGENT_TLS_CERT_DNS, "localhost").split(",");
         String[] TlsCertDNs = conf.get(TRUSTAGENT_TLS_CERT_DNS, "").split(",");
         if (TlsCertDNs != null && !TlsCertDNs[0].isEmpty()) {
             log.debug("Retrieved Domain Names trust agent from configuration: {}", (Object[])TlsCertDNs);
@@ -327,11 +287,11 @@ public class TrustagentConfiguration {
     }
     
     public File getTrustagentKeystoreFile() {
-        return new File(Folders.configuration() + File.separator + "trustagent.jks");
+        return new File(Folders.configuration() + File.separator + "trustagent.p12");
     }
 	
 	public File getTrustagentSecureStoreFile() {
-        return new File(Folders.configuration() + File.separator + "securestore.jks");
+        return new File(Folders.configuration() + File.separator + "securestore.p12");
     }
 	
     public String getTrustagentKeystorePassword() {
@@ -449,7 +409,6 @@ public class TrustagentConfiguration {
         return Integer.valueOf(conf.get(BINDING_KEY_INDEX, "3")); 
     }
     public File getBindingKeyNameFile() {
-        //return new File(Folders.configuration() + File.separator + "bindingkey.nam");        
         return new File("/tmp/outputfilename.tmp");
     }
 

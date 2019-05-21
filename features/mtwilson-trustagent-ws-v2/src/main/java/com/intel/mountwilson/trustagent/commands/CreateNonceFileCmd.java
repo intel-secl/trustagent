@@ -4,7 +4,6 @@
  */
 package com.intel.mountwilson.trustagent.commands;
 
-import com.intel.dcsg.cpg.io.ByteArray;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -15,9 +14,6 @@ import com.intel.mountwilson.common.ErrorCode;
 import com.intel.mountwilson.common.ICommand;
 import com.intel.mountwilson.common.TAException;
 import com.intel.mountwilson.trustagent.data.TADataContext;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

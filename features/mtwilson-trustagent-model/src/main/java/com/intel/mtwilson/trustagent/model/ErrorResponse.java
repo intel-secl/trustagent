@@ -19,16 +19,4 @@ public class ErrorResponse {
     public InternetAddress clientIp;
     public ErrorCode errorCode;
     public String errorMessage;
-/*
-    public String generateErrorResponse(ErrorCode errorCode) {
-
-        String responseXML =
-                "<client_request> "
-                + "<timestamp>" + new Date(System.currentTimeMillis()).toString() + "</timestamp>"
-                + "<clientIp>" + CommandUtil.getHostIpAddress() + "</clientIp>"
-                + "<error_code>" + errorCode.getErrorCode() + "</error_code>"
-                + "<error_message>" + errorCode.getMessage() + "</error_message>"
-                + "</client_request>";
-        return responseXML;
-    }    */
 }

@@ -4,11 +4,7 @@
  */
 package com.intel.mtwilson.trustagent.shell;
 
-import com.intel.mtwilson.Folders;
-import com.intel.mtwilson.util.exec.ExecUtil;
-import com.intel.mtwilson.util.exec.Result;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
