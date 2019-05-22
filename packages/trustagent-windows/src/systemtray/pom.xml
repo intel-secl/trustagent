@@ -3,7 +3,7 @@
     
     <groupId>com.intel.mtwilson.trustagent.packages.windows</groupId>
     <artifactId>trustagent-windows-system-tray</artifactId>
-    <version>5.0-SNAPSHOT</version>
+    <version>4.5-SNAPSHOT</version>
     
     <packaging>pom</packaging>
     
