@@ -864,6 +864,7 @@ if [[ "$PROVISION_ATTESTATION" == "y" || "$PROVISION_ATTESTATION" == "Y" || "$PR
 fi
 
 # install workload agent
+INSTALL_WORKLOAD_AGENT="n"
 if [[ "$INSTALL_WORKLOAD_AGENT" != "n" && "$INSTALL_WORKLOAD_AGENT" != "N" && "$INSTALL_WORKLOAD_AGENT" != "no" ]]; then
   # make sure that we have exported the TRUSTAGENT_CONFIGURATION and TRUSTAGENT_USERNAME as these are required by
   # the workload_agent installer
