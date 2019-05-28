@@ -8,7 +8,7 @@ package com.intel.mtwilson.trustagent.setup;
 import com.intel.dcsg.cpg.configuration.Configuration;
 import com.intel.dcsg.cpg.console.InteractiveCommand;
 import com.intel.dcsg.cpg.crypto.RsaUtil;
-import com.intel.dcsg.cpg.crypto.Sha256Digest;
+import com.intel.dcsg.cpg.crypto.Sha384Digest;
 import com.intel.dcsg.cpg.crypto.key.password.Password;
 import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.dcsg.cpg.x509.X509Util;
@@ -48,7 +48,7 @@ public class ReplaceTlsKeyPair extends InteractiveCommand {
     private static final String TRUST_AGENT_TLS_CERT_DN = "trustagent.tls.cert.dn";
     private static final String TRUST_AGENT_TLS_CERT_IP = "trustagent.tls.cert.ip";
     private static final String TRUST_AGENT_TLS_CERT_DNS = "trustagent.tls.cert.dns";
-    private static final String TRUST_AGENT_TLS_CERT_SHA256 = "trustagent.tls.cert.sha256";
+    private static final String TRUST_AGENT_TLS_CERT_SHA384 = "trustagent.tls.cert.sha384";
     private static final String TRUST_AGENT_SSL_KEYSTORE = "trustagent.keystore";
     private static final String TRUST_AGENT_SSL_KEYSTOREPASSWORD = "trustagent.keystore.password";
     
@@ -104,7 +104,7 @@ public class ReplaceTlsKeyPair extends InteractiveCommand {
         }
         
         // save the settings in configuration
-        configuration.set(TRUST_AGENT_TLS_CERT_SHA256, Sha256Digest.digestOf(publicKeyCert.getEncoded()).toString());
+        configuration.set(TRUST_AGENT_TLS_CERT_SHA384, Sha384Digest.digestOf(publicKeyCert.getEncoded()).toString());
         configuration.set(TRUST_AGENT_TLS_CERT_DN, dn);
         if (ip != null && !ip.isEmpty()) {
             configuration.set(TRUST_AGENT_TLS_CERT_IP, ip);

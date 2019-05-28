@@ -40,7 +40,7 @@ public class ConfigureFromEnvironment extends AbstractSetupTask {
             TrustagentConfiguration.MTWILSON_API_URL,
             TrustagentConfiguration.MTWILSON_API_USERNAME, // NOTE: excluded from storing in trustagent.properties by com.intel.mtwilson.trustagent.cmd.Setup beforeStore
             TrustagentConfiguration.MTWILSON_API_PASSWORD, // NOTE: excluded from storing in trustagent.properties by com.intel.mtwilson.trustagent.cmd.Setup beforeStore
-            TrustagentConfiguration.MTWILSON_TLS_CERT_SHA256,
+            TrustagentConfiguration.MTWILSON_TLS_CERT_SHA384,
             TrustagentConfiguration.TPM_QUOTE_IPV4,
             TrustagentConfiguration.TPM_OWNER_SECRET,
             TrustagentConfiguration.TPM_SRK_SECRET,
@@ -54,7 +54,7 @@ public class ConfigureFromEnvironment extends AbstractSetupTask {
             TrustagentConfiguration.DAA_ENABLED,
             TrustagentConfiguration.HARDWARE_UUID,
             TrustagentConfiguration.CURRENT_IP,
-            TrustagentConfiguration.TRUSTAGENT_TLS_CERT_SHA256
+            TrustagentConfiguration.TRUSTAGENT_TLS_CERT_SHA384
         };
         allcaps = new AllCapsNamingStrategy();
         env = new KeyTransformerConfiguration(allcaps, new EnvironmentConfiguration()); // transforms mtwilson.ssl.cert.sha1 to MTWILSON_SSL_CERT_SHA1

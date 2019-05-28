@@ -190,8 +190,8 @@ GOTO:EOF
   )
   echo. HARDWARE_UUID: %HARDWARE_UUID%
 
-  REM set authorize_vars="TPM_OWNER_SECRET TPM_SRK_SECRET MTWILSON_API_URL MTWILSON_API_USERNAME MTWILSON_API_PASSWORD MTWILSON_TLS_CERT_SHA256"
-  set authorize_vars="CURRENT_IP MTWILSON_API_URL MTWILSON_API_USERNAME MTWILSON_API_PASSWORD MTWILSON_TLS_CERT_SHA256"
+  REM set authorize_vars="TPM_OWNER_SECRET TPM_SRK_SECRET MTWILSON_API_URL MTWILSON_API_USERNAME MTWILSON_API_PASSWORD MTWILSON_TLS_CERT_SHA384"
+  set authorize_vars="CURRENT_IP MTWILSON_API_URL MTWILSON_API_USERNAME MTWILSON_API_PASSWORD MTWILSON_TLS_CERT_SHA384"
 
   REM local default_value
   REM for v in $authorize_vars
@@ -235,7 +235,7 @@ GOTO:EOF
 :trustagent_fingerprint
   set HTTPS_PROPERTIES_FILE="%TRUSTAGENT_HOME%"\configuration\https.properties
   echo. TLS Certificate Fingerprint  
-  for /F "delims=" %%a in ('findstr /c:tls.cert.sha256 %HTTPS_PROPERTIES_FILE%') do set var=%%a
+  for /F "delims=" %%a in ('findstr /c:tls.cert.sha384 %HTTPS_PROPERTIES_FILE%') do set var=%%a
   echo. %var%
 GOTO:EOF
 

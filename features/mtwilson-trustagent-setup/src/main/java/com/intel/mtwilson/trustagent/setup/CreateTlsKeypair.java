@@ -6,7 +6,7 @@ package com.intel.mtwilson.trustagent.setup;
 
 import com.intel.dcsg.cpg.crypto.RsaCredentialX509;
 import com.intel.dcsg.cpg.crypto.RsaUtil;
-import com.intel.dcsg.cpg.crypto.Sha256Digest;
+import com.intel.dcsg.cpg.crypto.Sha384Digest;
 import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.dcsg.cpg.x509.X509Builder;
@@ -96,7 +96,7 @@ public class CreateTlsKeypair extends AbstractSetupTask {
         GuardedPassword keystoreGuardedPassword = new GuardedPassword();
         keystoreGuardedPassword.setPassword(trustagentConfiguration.getTrustagentKeystorePassword());
         // create the keypair
-        KeyPair keypair = RsaUtil.generateRsaKeyPair(2048);
+        KeyPair keypair = RsaUtil.generateRsaKeyPair(3072);
         X509Builder builder = X509Builder.factory()
                 .selfSigned(dn, keypair)
                 .expires(3650, TimeUnit.DAYS) 
@@ -145,9 +145,9 @@ public class CreateTlsKeypair extends AbstractSetupTask {
         if( dns != null ) {
             getConfiguration().set(TrustagentConfiguration.TRUSTAGENT_TLS_CERT_DNS, StringUtils.join(dns, ","));
         }
-        String tlsCertSha256 = Sha256Digest.digestOf(tlscert.getEncoded()).toString();
-        if(tlsCertSha256 != null){
-            getConfiguration().set(TrustagentConfiguration.TRUSTAGENT_TLS_CERT_SHA256, tlsCertSha256);
+        String tlsCertSha384 = Sha384Digest.digestOf(tlscert.getEncoded()).toString();
+        if(tlsCertSha384 != null){
+            getConfiguration().set(TrustagentConfiguration.TRUSTAGENT_TLS_CERT_SHA384, tlsCertSha384);
         }
         
     }

@@ -35,7 +35,7 @@ public class Tag {
     @Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
     public void writeTag(TagWriteRequest tagInfo, @Context HttpServletResponse response) throws IOException, TAException {
         try {
-            log.debug("writeTag uuid {} sha256 {}", tagInfo.getHardwareUuid(), Hex.encodeHexString(tagInfo.getTag()));
+            log.debug("writeTag uuid {} sha384 {}", tagInfo.getHardwareUuid(), Hex.encodeHexString(tagInfo.getTag()));
             TrustagentConfiguration config = new TrustagentConfiguration(TAConfig.getConfiguration());
             Tpm tpm = Tpm.open(Paths.get(Folders.application(), "bin"));
             tpm.setAssetTag(config.getTpmOwnerSecret(), tagInfo.getTag());

@@ -105,7 +105,7 @@
                            <configuration>
                               <target>
                                  <mkdir dir="${project.build.directory}/application/yum.repos.d" />
-                                 <chmod perm="+x" file="${project.build.directory}/application/get_tls_sha256" />
+                                 <chmod perm="+x" file="${project.build.directory}/application/get_tls_sha384" />
                                  <zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip">
                                     <fileset dir="${project.build.directory}/application" />
                                  </zip>

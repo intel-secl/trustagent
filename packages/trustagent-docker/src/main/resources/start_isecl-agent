@@ -128,17 +128,17 @@ function start_isecl-agent() {
 
         # echo "Restarting the container from saved volumes"
         # Check if all the required parameters are passed
-        if [ -z "$MTWILSON_IP_ADDRESS" ] || [ -z "$MTWILSON_API_USERNAME" ] || [ -z "$MTWILSON_API_PASSWORD" ] || [ -z "$CURRENT_IP" ] || [ -z "$MTWILSON_TLS_CERT_SHA256" ] || [ -z "$TRUSTAGENT_ADMIN_PASSWORD" ]; then
-            echo -e "\033[0;31m Insufficient argument provided , reguired :- MTWILSON_IP_ADDRESS, MTWILSON_API_USERNAME , MTWILSON_API_PASSWORD, MTWILSON_TLS_CERT_SHA256, CURRENT_IP TRUSTAGENT_ADMIN_PASSWORD"
+        if [ -z "$MTWILSON_IP_ADDRESS" ] || [ -z "$MTWILSON_API_USERNAME" ] || [ -z "$MTWILSON_API_PASSWORD" ] || [ -z "$CURRENT_IP" ] || [ -z "$MTWILSON_TLS_CERT_SHA384" ] || [ -z "$TRUSTAGENT_ADMIN_PASSWORD" ]; then
+            echo -e "\033[0;31m Insufficient argument provided , reguired :- MTWILSON_IP_ADDRESS, MTWILSON_API_USERNAME , MTWILSON_API_PASSWORD, MTWILSON_TLS_CERT_SHA384, CURRENT_IP TRUSTAGENT_ADMIN_PASSWORD"
             exit 1
         fi
 
         # Running this out of the setup loop to ensure that AHUB always comes up after Verification service is up
         get_master_cert || return 1
-        fingerprint=$(openssl x509 -noout -in /tmp/trustagent.pem -fingerprint -sha256 | awk -F= '$1="Var"{print $2}' | sed -r 's/[:]+//g' | tr '[:upper:]' '[:lower:]')
+        fingerprint=$(openssl x509 -noout -in /tmp/trustagent.pem -fingerprint -sha384 | awk -F= '$1="Var"{print $2}' | sed -r 's/[:]+//g' | tr '[:upper:]' '[:lower:]')
 
-        if [ "$fingerprint" != "$MTWILSON_TLS_CERT_SHA256" ]; then
-            echo -e "\033[0;31m Provided MTWILSON_TLS_CERT_SHA256 does not match the hosts TLS Cert of the Host"
+        if [ "$fingerprint" != "$MTWILSON_TLS_CERT_SHA384" ]; then
+            echo -e "\033[0;31m Provided MTWILSON_TLS_CERT_SHA384 does not match the hosts TLS Cert of the Host"
             exit
         fi
 

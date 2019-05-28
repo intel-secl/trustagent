@@ -274,7 +274,7 @@ trustagent_encrypt_config() {
 
 trustagent_authorize() {
   export HARDWARE_UUID=$(trustagent_system_info "hardware-uuid")
-  local authorize_vars="MTWILSON_API_URL MTWILSON_TLS_CERT_SHA256 MTWILSON_API_USERNAME "
+  local authorize_vars="MTWILSON_API_URL MTWILSON_TLS_CERT_SHA384 MTWILSON_API_USERNAME "
   local default_value
   for v in $authorize_vars
   do
@@ -488,8 +488,8 @@ trousers_detect_and_run() {
 }
 
 tagent_tls_fingerprint() {
-  local sha256=`$TRUSTAGENT_BIN/tagent config trustagent.tls.cert.sha256`
-  echo "SHA256: $sha256"
+  local sha384=`$TRUSTAGENT_BIN/tagent config trustagent.tls.cert.sha384`
+  echo "SHA384: $sha384"
 }
 
 ###################################################################################################

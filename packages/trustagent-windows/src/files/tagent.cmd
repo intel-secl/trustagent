@@ -206,8 +206,8 @@ EXIT /B !errorlevel!
   )
   echo. HARDWARE_UUID: %HARDWARE_UUID%
 
-  REM set authorize_vars="TPM_OWNER_SECRET TPM_SRK_SECRET MTWILSON_API_URL MTWILSON_API_USERNAME MTWILSON_API_PASSWORD MTWILSON_TLS_CERT_SHA256"
-  set authorize_vars="CURRENT_IP MTWILSON_API_URL MTWILSON_API_USERNAME MTWILSON_API_PASSWORD MTWILSON_TLS_CERT_SHA256"
+  REM set authorize_vars="TPM_OWNER_SECRET TPM_SRK_SECRET MTWILSON_API_URL MTWILSON_API_USERNAME MTWILSON_API_PASSWORD MTWILSON_TLS_CERT_SHA384"
+  set authorize_vars="CURRENT_IP MTWILSON_API_URL MTWILSON_API_USERNAME MTWILSON_API_PASSWORD MTWILSON_TLS_CERT_SHA384"
 
   REM local default_value
   REM for v in $authorize_vars
@@ -259,7 +259,7 @@ EXIT /B !errorlevel!
 :trustagent_fingerprint
   echo. TLS Certificate Fingerprint  
   >"temp.out" "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main export-config --stdout 
-  for /F "delims=" %%a in ('findstr /c:trustagent.tls.cert.sha256 temp.out') do set var=%%a
+  for /F "delims=" %%a in ('findstr /c:trustagent.tls.cert.sha384 temp.out') do set var=%%a
   echo. %var%
   del /s /q temp.out >null
 EXIT /B !errorlevel!

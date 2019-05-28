@@ -102,12 +102,12 @@ Running the container
         MTWILSON_API_PASSWORD=<ISecL user password>
         TPM_OWNER_SECRET=<OPTIONAL: TPM owner secret>
         CURRENT_IP=<IP of the host on which the agent container is running>
-        MTWILSON_TLS_CERT_SHA256=<Verification Service CERT SHA256>
+        MTWILSON_TLS_CERT_SHA384=<Verification Service CERT SHA384>
         http_proxy=<proxy server address, if behind a proxy>
         https_proxy=<proxy server address, if behind a proxy>
 
-     A helper script (get_tls_sha256) is provided along with the package. This script
-     would retrieve the tls sha256 from the server. Please source the above env file 
+     A helper script (get_tls_sha384) is provided along with the package. This script
+     would retrieve the tls sha384 from the server. Please source the above env file
      before invoking the helper script.
 
     * **Exposing host OS version on the container** *

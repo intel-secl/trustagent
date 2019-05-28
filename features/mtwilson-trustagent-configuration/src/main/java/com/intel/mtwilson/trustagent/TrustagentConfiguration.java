@@ -48,7 +48,7 @@ public class TrustagentConfiguration {
     // provide the username and password when connecting to Trust Agent.
     
     public final static String MTWILSON_API_URL = "mtwilson.api.url";
-    public final static String MTWILSON_TLS_CERT_SHA256 = "mtwilson.tls.cert.sha256";
+    public final static String MTWILSON_TLS_CERT_SHA384 = "mtwilson.tls.cert.sha384";
     public final static String MTWILSON_API_USERNAME = "mtwilson.api.username"; // NOTE: MUST NOT STORE THE VALUE
     public final static String MTWILSON_API_PASSWORD = "mtwilson.api.password"; // NOTE: MUST NOT STORE THE VALUE
     public final static String FLAVOR_UUIDS = "flavor.uuids";
@@ -78,7 +78,7 @@ public class TrustagentConfiguration {
     public final static String JETTY_THREAD_MIN = "jetty.thread.min";
     public final static String JETTY_THREAD_MAX = "jetty.thread.max";
     public final static String CURRENT_IP = "current.ip";
-    public final static String TRUSTAGENT_TLS_CERT_SHA256 = "trustagent.tls.cert.sha256";
+    public final static String TRUSTAGENT_TLS_CERT_SHA384 = "trustagent.tls.cert.sha384";
     public final static String CLIENT_CONNECT_TIMEOUT = "mtwilson.config.client.connectTimeout";
     public final static String CLIENT_READ_TIMEOUT = "mtwilson.config.client.readTimeout";
     public final static String SECURE_STORE_PASSWORD_KEY = "secure_store_password_key";
@@ -108,7 +108,7 @@ public class TrustagentConfiguration {
      * @return 
      */
     public List<String> getMtWilsonTlsCertificateFingerprints() {        
-        String fingerprintCsv = conf.get(MTWILSON_TLS_CERT_SHA256, null);
+        String fingerprintCsv = conf.get(MTWILSON_TLS_CERT_SHA384, null);
         if( fingerprintCsv == null || fingerprintCsv.isEmpty() ) {
             return Collections.EMPTY_LIST;
         }
@@ -335,8 +335,8 @@ public class TrustagentConfiguration {
         return new File(Folders.log() + File.separator + "measurement.xml");
     }
 
-    public String getMtwilsonTlsPolicyCertificateSha256() {
-        return conf.get("mtwilson.tls.cert.sha256", null);
+    public String getMtwilsonTlsPolicyCertificateSha384() {
+        return conf.get("mtwilson.tls.cert.sha384", null);
     }
     
     public Properties getMtWilsonClientProperties() {
@@ -346,8 +346,8 @@ public class TrustagentConfiguration {
         properties.setProperty("mtwilson.api.password", getMtWilsonApiPassword());
         properties.setProperty("mtwilson.api.tls.policy.certificate.keystore.file", getTrustagentKeystoreFile().getAbsolutePath());
         properties.setProperty("mtwilson.api.tls.policy.certificate.keystore.password", getTrustagentKeystorePassword());
-        properties.setProperty("mtwilson.api.tls.policy.certificate.sha256", getMtwilsonTlsPolicyCertificateSha256());
-        properties.setProperty("mtwilson.tls.cert.sha256", getMtwilsonTlsPolicyCertificateSha256());
+        properties.setProperty("mtwilson.api.tls.policy.certificate.sha384", getMtwilsonTlsPolicyCertificateSha384());
+        properties.setProperty("mtwilson.tls.cert.sha384", getMtwilsonTlsPolicyCertificateSha384());
         return properties;
     }
     
@@ -487,8 +487,8 @@ public class TrustagentConfiguration {
         return conf.get(TRUSTAGENT_ADMIN_USERNAME); // intentionally no default - this must be generated during setup
     }
     
-    public String getTrustAgentTlsPolicyCertificateSha256() {
-        return conf.get(TRUSTAGENT_TLS_CERT_SHA256, null);// intentionally no default - this must be configured during setup
+    public String getTrustAgentTlsPolicyCertificateSha384() {
+        return conf.get(TRUSTAGENT_TLS_CERT_SHA384, null);// intentionally no default - this must be configured during setup
     }
 
     public static String getTpmVersion() throws IOException {

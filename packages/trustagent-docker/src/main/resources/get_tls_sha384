@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#####
+#Copyright © 2019 Intel Corporation
+#SPDX-License-Identifier: BSD-3-Clause
+#####
+
+# https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
+set -e
+set -o pipefail
+
+# Constatns
+export NETWORK_CALL_SLEEP=${NETWORK_CALL_SLEEP:-30}
+export NETWORK_CALL_RETRIES=${NETWORK_CALL_RETRIES:-20}
+
+function cmd_exec_and_retry() {
+    for (( c=0; c<=NETWORK_CALL_RETRIES; c++ )); do
+        # shellcheck disable=SC2068
+        result=$(echo "GET /" | $@ 2>/dev/null)
+        # shellcheck disable=SC2181
+        if [[ $? == 0 ]]; then
+            echo "$result"
+            return 0
+        fi
+        echo "Sleeping"
+        sleep "$NETWORK_CALL_SLEEP"
+    done
+    return 1
+}
+
+function get_master_cert () {
+    CERT=$(cmd_exec_and_retry "openssl s_client -showcerts -connect ${MTWILSON_IP_ADDRESS}:8443") || return 1
+    echo -e "$CERT" | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/trustagent.pem || return 1
+    return 0
+}
+
+if [ -z "$MTWILSON_IP_ADDRESS" ]; then
+    echo "Insufficient argument provided , reguired :- MTWILSON_IP_ADDRESS, MTWILSON_PORT"
+else
+   get_master_cert || return 1
+   fingerprint=$(openssl x509 -noout -in /tmp/trustagent.pem -fingerprint -sha384 | awk -F= '$1="Var"{print $2}' | sed -r 's/[:]+//g' | tr '[:upper:]' '[:lower:]')
+   echo $fingerprint
+fi

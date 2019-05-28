@@ -29,7 +29,7 @@ public class Diagnostic {
 
     public static void checkBouncycastleAlgorithms() {
         printAvailableAlgorithms();
-        tryMacWithPassword("HmacSHA1", "hello world", "xyzzy");        
+        tryMacWithPassword("HmacSHA256", "hello world", "xyzzy");
         trySignature();
     }
     
@@ -62,7 +62,7 @@ public class Diagnostic {
     }
     
     private static void trySignature() {
-        String algorithmName = "SHA1withRSA";
+        String algorithmName = "SHA384withRSA";
         try {
             // generate keypair
             KeyPair keyPair = KeyPairGenerator.getInstance("RSA", "BC").generateKeyPair(); // NoSuchAlgorithmException, NoSuchProviderException
@@ -70,12 +70,12 @@ public class Diagnostic {
             String plaintext = "This is the message being signed";
 
             // generate signature
-            Signature instance = Signature.getInstance("SHA1withRSA", "BC"); // NoSuchAlgorithmException, NoSuchProviderException
+            Signature instance = Signature.getInstance("SHA384withRSA", "BC"); // NoSuchAlgorithmException, NoSuchProviderException
             instance.initSign(privateKey); // InvalidKeyException
             instance.update((plaintext).getBytes()); // SignatureException
             byte[] signature = instance.sign();
 
-            System.out.println("Generated SHA1 with RSA signature of length: "+signature.length);
+            System.out.println("Generated SHA384 with RSA signature of length: "+signature.length);
         }
         catch(NoSuchProviderException e) {
             System.err.println("Cannot use provider: BC: "+e.toString());
