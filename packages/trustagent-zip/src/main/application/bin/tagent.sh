@@ -103,10 +103,6 @@ fi
 # - 'restart' requires root access as it calls trustagent_update_system_info to update system information
 if [ -n "$TRUSTAGENT_USERNAME" ] && [ "$TRUSTAGENT_USERNAME" != "root" ] && [ $(whoami) == "root" ] && [ -z "$TRUSTAGENT_SUDO" ] && [ "$1" != "uninstall" ] && [ "$1" != "update-system-info" ] && [ "$1" != "restart" ] && [[ "$1" != "replace-"* ]]; then
 
-  # before we switch to non-root, check if tcsd is running and start it if necessary
-  trousers=$(which tcsd 2>/dev/null)
-  if [ -n "$trousers" ]; then $trousers; fi
-
   export TRUSTAGENT_SUDO=true
   sudo -u $TRUSTAGENT_USERNAME -H -E $TRUSTAGENT_BIN/tagent $*
   exit $?
@@ -343,41 +339,6 @@ trustagent_stop() {
   fi
 }
 
-vrtm_uninstall() {
-  VRTM_UNINSTALL_SCRIPT="/opt/vrtm/bin/vrtm-uninstall.sh"
-  if [ -f "$VRTM_UNINSTALL_SCRIPT" ]; then
-    "$VRTM_UNINSTALL_SCRIPT"
-  fi
-}
-
-tbootxm_uninstall() {
-  TBOOTXM_UNINSTALL_SCRIPT="/opt/tbootxm/bin/tboot-xm-uninstall.sh"
-  if [ -f "$TBOOTXM_UNINSTALL_SCRIPT" ]; then
-    "$TBOOTXM_UNINSTALL_SCRIPT"
-  fi
-}
-
-policyagent_uninstall() {
-  POLICYAGENT_UNINSTALL_SCRIPT="/opt/policyagent/bin/policyagent.py"
-  if [ -f "$POLICYAGENT_UNINSTALL_SCRIPT" ]; then
-    "$POLICYAGENT_UNINSTALL_SCRIPT" uninstall
-  fi
-}
-
-openstack_extensions_uninstall() {
-  OPENSTACK_EXTENSIONS_UNINSTALL_SCRIPT="/opt/openstack-ext/bin/mtwilson-openstack-node-uninstall.sh"
-  if [ -f "$OPENSTACK_EXTENSIONS_UNINSTALL_SCRIPT" ]; then
-    "$OPENSTACK_EXTENSIONS_UNINSTALL_SCRIPT"
-  fi
-}
-
-docker_proxy_uninstall() {
-  DOCKER_PROXY_UNINSTALL_SCRIPT="/opt/docker-proxy/bin/docker-proxy.sh"
-  if [ -f "$DOCKER_PROXY_UNINSTALL_SCRIPT" ]; then
-    "$DOCKER_PROXY_UNINSTALL_SCRIPT" uninstall --purge
-  fi
-}
-
 # backs up the configuration directory and removes all trustagent files,
 # except for configuration files which are saved and restored
 trustagent_uninstall() {
@@ -449,25 +410,6 @@ trustagent_system_info() {
     return $?
 }
 
-trousers_detect_and_run() {
-  # non-root users typically don't have /usr/sbin in their path, so append it
-  # here;  does not affect root user who would have /usr/sbin earlier in the PATH,
-  # and also this change only affects our process
-  PATH=$PATH:/usr/sbin
-
-  TPM_VERSION=`cat $TRUSTAGENT_CONFIGURATION/tpm-version`
-  if [ "TPM_VERSION" == "1.2" ]; then 
-    trousers=`which tcsd 2>/dev/null`
-    if [ -z "$trousers" ]; then
-      #echo_failure "trousers installation is required for trust agent to run successfully."
-      echo "trousers is required for trust agent to run"
-      exit -1
-    else
-      $trousers
-    fi
-  fi
-}
-
 tagent_tls_fingerprint() {
   local sha256=`$TRUSTAGENT_BIN/tagent config trustagent.tls.cert.sha256`
   echo "SHA256: $sha256"
@@ -483,8 +425,6 @@ case "$1" in
     print_help
     ;;
   start)
-    # need to start trousers before we can run tagent
-    trousers_detect_and_run
 
     # run setup before starting trust agent to allow taking ownership again if
     # the tpm has been cleared, or re-initializing the keystore if the server
@@ -497,7 +437,6 @@ case "$1" in
     trustagent_stop
     ;;
   restart)
-    #trousers_detect_and_run
 #    trustagent_stop
 #    $TRUSTAGENT_BIN
     $TRUSTAGENT_BIN/tagent stop
@@ -515,7 +454,6 @@ case "$1" in
     tagent_tls_fingerprint
     ;;
   authorize)
-    trousers_detect_and_run
     if trustagent_authorize; then
       trustagent_stop
       trustagent_start
@@ -539,7 +477,6 @@ case "$1" in
     trustagent_system_info $*
     ;;
   setup)
-    trousers_detect_and_run
 
     shift
     trustagent_setup $*
@@ -607,11 +544,6 @@ case "$1" in
     ;;
   uninstall)
     trustagent_stop
-	policyagent_uninstall
-    vrtm_uninstall
-	tbootxm_uninstall    
-    openstack_extensions_uninstall
-	docker_proxy_uninstall
     trustagent_uninstall
     groupdel trustagent > /dev/null 2>&1
     userdel trustagent > /dev/null 2>&1
@@ -622,7 +554,6 @@ case "$1" in
       print_help
     else
       #echo "args: $*"
-      trousers_detect_and_run
       "$JAVA_CMD" $JAVA_OPTS com.intel.mtwilson.launcher.console.Main $*
     fi
     ;;

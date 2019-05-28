@@ -331,7 +331,6 @@
                                 <require>vim-common</require>
                                 <require>make</require>
                                 <require>gcc</require>
-                                <require>tpm-tools</require>
                             </requires>
                             <mappings>
                                 <mapping>

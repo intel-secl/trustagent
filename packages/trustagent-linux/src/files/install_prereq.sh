@@ -14,11 +14,9 @@
 
 # Outline:
 # 1. Install redhat-lsb-core and other redhat-specific packages
-# 2. Install trousers and trousers-devel packages (current is trousers-0.3.13-1.el7.x86_64)
-# 3. Install the patched tpm-tools
-# 4. Install unzip authbind vim-common packages
-# 5. Install java
-# 6. Install monit
+# 2. Install unzip authbind vim-common packages
+# 3. Install java
+# 4. Install monit
 
 if [[ ${container} == "docker" ]]; then
     DOCKER=true
@@ -62,39 +60,6 @@ fi
   install_packages "openssl" "TRUSTAGENT_OPENSSL" > /dev/null 2>&1
 }
 
-# 3. Install trousers and trousers-devel packages (current is trousers-0.3.13-1.el7.x86_64)
-# tpm 1.2
-install_trousers() {
-if [ "$IS_RPM" != "true" ]; then
-  TRUSTAGENT_TROUSERS_YUM_PACKAGES="trousers trousers-devel"
-fi
-  TRUSTAGENT_TROUSERS_APT_PACKAGES="trousers trousers-dbg libtspi-dev libtspi1"
-  TRUSTAGENT_TROUSERS_YAST_PACKAGES="trousers trousers-devel"
-  TRUSTAGENT_TROUSERS_ZYPPER_PACKAGES="trousers trousers-devel"
-  install_packages "trousers" "TRUSTAGENT_TROUSERS" > /dev/null 2>&1
-}
-
-# 4. Install the patched tpm-tools
-# tpm 1.2
-install_tpm_tools() {
-if [ "$IS_RPM" != "true" ]; then
-  TRUSTAGENT_TPMTOOLS_YUM_PACKAGES="tpm-tools"
-fi
-  TRUSTAGENT_TPMTOOLS_APT_PACKAGES="tpm-tools"
-  TRUSTAGENT_TPMTOOLS_YAST_PACKAGES="tpm-tools"
-  TRUSTAGENT_TPMTOOLS_ZYPPER_PACKAGES="tpm-tools"
-  install_packages "tpm-tools" "TRUSTAGENT_TPMTOOLS" > /dev/null 2>&1
-}
-
-# tpm 1.2
-install_patched_tpm_tools() {
-  local PATCHED_TPMTOOLS_BIN=`ls -1 patched-*.bin | head -n 1`
-  if [ -n "$PATCHED_TPMTOOLS_BIN" ]; then
-    chmod +x $PATCHED_TPMTOOLS_BIN
-    ./$PATCHED_TPMTOOLS_BIN
-  fi
-}
-
 install_tboot() {
   ./tboot-linux-*.bin
 }
@@ -106,23 +71,7 @@ fi
 install_openssl
 
 
-if [ ${DOCKER} != "true" ]; then
-  if [ "$TPM_VERSION" == "1.2" ]; then
-    install_trousers
-    install_tpm_tools
-    #install_patched_tpm_tools
-  elif [ -z "$TPM_VERSION" ]; then
-    echo "Cannot detect TPM version"
-  elif [ "$TPM_VERSION" != "2.0" ]; then
-    echo "Unrecognized TPM version: $TPM_VERSION"
-  fi
-else
-  # for a Docker image, install tools for both
-  install_trousers
-  install_tpm_tools
-fi
-
-# 5. Install unzip authbind vim-common packages
+# 2. Install unzip authbind vim-common packages
 # make sure unzip is installed
 #java_required_version=1.8
 #Adding redhat-lsb for bug 5289
@@ -142,14 +91,14 @@ else
   auto_install_preview "TrustAgent requirements" "TRUSTAGENT"
 fi
 
-# 6. Install java
+# 3. Install java
 # Trust Agent requires java 1.8 or later
 echo "Installing Java..."
 if [ "$IS_RPM" != "true" ]; then
   java_install_openjdk
 fi
 
-# 7. Install monit
+# 4. Install monit
 monit_required_version=5.5
 
 # detect the packages we have to install
