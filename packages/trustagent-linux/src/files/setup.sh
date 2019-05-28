@@ -762,7 +762,7 @@ for directory in $TRUSTAGENT_HOME $TRUSTAGENT_CONFIGURATION $TRUSTAGENT_JAVA $TR
 done
 
 # 30. update tpm devices permissions to ensure it can be accessed by trustagent
-if [ "$(whoami)" == "root" ]; then
+if [[ "$(whoami)" == "root" && $TPM_VERSION == "2.0" ]]; then
   # tpm devices can only be accessed by the trustagent user and group
   echo "KERNEL==\"tpmrm[0-9]*|tpm[0-9]*\", MODE=\"0660\", OWNER=\"$TRUSTAGENT_USERNAME\", GROUP=\"$TRUSTAGENT_USERNAME\"" > /lib/udev/rules.d/tpm-udev.rules
   /sbin/udevadm control --reload-rules
