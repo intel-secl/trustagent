@@ -545,6 +545,12 @@ echo "# Installed Trust Agent on ${datestr}" > $package_version_filename
 echo "TRUSTAGENT_VERSION=${VERSION}" >> $package_version_filename
 echo "TRUSTAGENT_RELEASE=\"${BUILD}\"" >> $package_version_filename
 
+if [[ "$(whoami)" == "root" && ${DOCKER} == "false" ]]; then
+  echo "Registering tagent in start up"
+  register_startup_script $TRUSTAGENT_BIN/tagent tagent $TRUSTAGENT_PID_FILE 21 >>$logfile 2>&1
+else
+  echo_warning "Skipping startup script registration"
+fi
 
 fix_existing_aikcert() {
   local aikdir=$TRUSTAGENT_CONFIGURATION/cert
