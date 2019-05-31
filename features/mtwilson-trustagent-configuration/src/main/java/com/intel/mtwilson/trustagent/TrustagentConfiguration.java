@@ -145,7 +145,7 @@ public class TrustagentConfiguration {
     }     
     public byte[] getTpmOwnerSecret() {
         try {
-            if(SystemUtils.IS_OS_WINDOWS) { // Windows owner secret is not known and not used hence set to null
+            if(SystemUtils.IS_OS_WINDOWS && getTpmVersion().equals("2.0")) { // Windows owner secret is not known and not used hence set to null
                 return null;
             } else {
                 return Hex.decodeHex(getTpmOwnerSecretHex().toCharArray());
@@ -153,6 +153,8 @@ public class TrustagentConfiguration {
         }
         catch(DecoderException e) {
             throw new IllegalArgumentException("Invalid owner secret", e);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("TPM version file missing", e);
         }
     }
     public String getTpmSrkSecretHex() {
