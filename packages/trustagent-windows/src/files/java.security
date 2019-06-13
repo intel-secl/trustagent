@@ -601,8 +601,8 @@ jdk.jar.disabledAlgorithms=MD2, RSA keySize < 1024
 # Example:
 #   jdk.tls.disabledAlgorithms=MD5, SSLv3, DSA, RSA keySize < 2048
 
-# Do not disable ECDHE to avoid DH vulnerabilities; ISECL-2188, ISECL-2188, ISECL-3482
-jdk.tls.disabledAlgorithms=SSLv3, RC4, MD5withRSA, EC, ECDH, DHE keySize < 2048, ECDHE keySize < 2048, RSA keySize < 3072
+# Do not disable ECDHE to avoid DH vulnerabilities; ISECL-2188, ISECL-2188, ISECL-3482 
+jdk.tls.disabledAlgorithms=ECC, ECDH, ECDHE keySize < 2048
 
 # Legacy algorithms for Secure Socket Layer/Transport Layer Security (SSL/TLS)
 # processing in JSSE implementation.
