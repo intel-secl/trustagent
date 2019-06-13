@@ -22,9 +22,17 @@ ShowInstDetails show
 var mylabel
 var vcr1Flag
 var dialog
-var label1
+var ENV_PAGE_LBL
 var /Global text1
 var /Global INIFILE
+var /Global ENVPATH
+var /Global HENVPATH
+var /Global HENVFILE
+var /Global L_URL
+var /Global L_USERNAME
+var /Global L_PASSWORD
+var /Global L_SHA256
+var /Global L_SHA1
 var /Global MTWILSON_API_URL
 var /Global MTWILSON_API_USERNAME
 var /Global MTWILSON_API_PASSWORD
@@ -571,63 +579,37 @@ Function EnvCustomPage
         continue:
                 !insertmacro MUI_HEADER_TEXT $(INSTALL_PREREQ_TITLE) $(ENV_SUBTITLE)
                 nsDialogs::Create 1018
-				Pop $dialog
-	        
-                ReadINIStr $MTWILSON_API_URL "$INIFILE" "TRUST_AGENT" "MTWILSON_API_URL"
-                ReadINIStr $MTWILSON_API_USERNAME "$INIFILE" "TRUST_AGENT" "MTWILSON_API_USERNAME"
-                ReadINIStr $MTWILSON_API_PASSWORD "$INIFILE" "TRUST_AGENT" "MTWILSON_API_PASSWORD"
-                ReadINIStr $MTWILSON_TLS_CERT_SHA1 "$INIFILE" "TRUST_AGENT" "MTWILSON_TLS_CERT_SHA1"
-	        ReadINIStr $MTWILSON_TLS_CERT_SHA256 "$INIFILE" "TRUST_AGENT" "MTWILSON_TLS_CERT_SHA256"
-	        ReadINIStr $MTWILSON_TLS_CERT_SHA384 "$INIFILE" "TRUST_AGENT" "MTWILSON_TLS_CERT_SHA384"
-                ReadINIStr $CURRENT_IP "$INIFILE" "TRUST_AGENT" "CURRENT_IP"
-                ReadINIStr $PROVISION_ATTESTATION "$INIFILE" "TRUST_AGENT" "PROVISION_ATTESTATION"
-                ReadINIStr $AUTOMATIC_REGISTRATION "$INIFILE" "TRUST_AGENT" "AUTOMATIC_REGISTRATION"
-                ReadINIStr $AUTOMATIC_FLAVOR_CREATION "$INIFILE" "TRUST_AGENT" "AUTOMATIC_FLAVOR_CREATION"
-                ReadINIStr $TRUSTAGENT_ADMIN_USERNAME "$INIFILE" "TRUST_AGENT" "TRUSTAGENT_ADMIN_USERNAME"
-                ReadINIStr $TRUSTAGENT_ADMIN_PASSWORD "$INIFILE" "TRUST_AGENT" "TRUSTAGENT_ADMIN_PASSWORD"
+                Pop $dialog
 
 			
                 ${NSD_CreateLabel} 0 0 100% 20% "MTWILSON_API_URL : $MTWILSON_API_URL"
+                Pop $L_URL
                 ${NSD_CreateLabel} 0 10% 100% 20% "MTWILSON_API_USERNAME : $MTWILSON_API_USERNAME"
+                Pop $L_USERNAME
                 ${NSD_CreateLabel} 0 20% 100% 20% "MTWILSON_API_PASSWORD : $MTWILSON_API_PASSWORD"
-	        ${IfNot} $MTWILSON_TLS_CERT_SHA384 == ""
-			${NSD_CreateLabel} 0 30% 100% 20% "MTWILSON_TLS_CERT_SHA384 : $MTWILSON_TLS_CERT_SHA384"
-		${ElseIfNot} $MTWILSON_TLS_CERT_SHA256 == ""
-			${NSD_CreateLabel} 0 30% 100% 20% "MTWILSON_TLS_CERT_SHA256 : $MTWILSON_TLS_CERT_SHA256"
-		${Else}
-		    ${NSD_CreateLabel} 0 30% 100% 20% "MTWILSON_TLS_CERT_SHA1 : $MTWILSON_TLS_CERT_SHA1"
+                Pop $L_PASSWORD
+                ${If} $MTWILSON_TLS_CERT_SHA1 == ""
+                        ${NSD_CreateLabel} 0 30% 100% 20% "MTWILSON_TLS_CERT_SHA256 : $MTWILSON_TLS_CERT_SHA256"
+                        Pop $L_SHA256
+                ${ELSE}
+                        ${NSD_CreateLabel} 0 30% 100% 20% "MTWILSON_TLS_CERT_SHA1 : $MTWILSON_TLS_CERT_SHA1"
+                        Pop $L_SHA1
                 ${EndIf}
+        
+                IfFileExists $INIFILE readenv selectenv
+                readenv:
+                        Call ReadEnvFile
+                selectenv:
+                        ${NSD_CreateGroupBox} 0 50% 100% 36u "Select the Environment Settings File"
+                        ${NSD_CreateText} 10 60% 72% 12u "$ENVPATH"
+                        pop $HENVPATH
+                        ${NSD_CreateBrowseButton} 76% 60% 20% 14u "Browse"
+                        pop $HENVFILE
+                        ${NSD_OnClick} $HENVFILE SelectEnvFile
 
-                StrCpy $text1 ""
-                StrCpy $R1 ""
-                StrCpy $R1 "MTWILSON_API_URL=$MTWILSON_API_URL"
-                StrCpy $R1 "$R1$\r$\nCURRENT_IP=$CURRENT_IP"
-                StrCpy $R1 "$R1$\r$\nPROVISION_ATTESTATION=$PROVISION_ATTESTATION"
-                StrCpy $R1 "$R1$\r$\nAUTOMATIC_REGISTRATION=$AUTOMATIC_REGISTRATION"
-                StrCpy $R1 "$R1$\r$\nAUTOMATIC_FLAVOR_CREATION=$AUTOMATIC_FLAVOR_CREATION"
-                StrCpy $R1 "$R1$\r$\nTRUSTAGENT_ADMIN_USERNAME=$TRUSTAGENT_ADMIN_USERNAME"
-                StrCpy $R1 "$R1$\r$\nTRUSTAGENT_ADMIN_PASSWORD=$TRUSTAGENT_ADMIN_PASSWORD"
-                StrCpy $R1 "$R1$\r$\nMTWILSON_API_USERNAME=$MTWILSON_API_USERNAME"
-                StrCpy $R1 "$R1$\r$\nMTWILSON_API_PASSWORD=$MTWILSON_API_PASSWORD"
-
-		${IfNot} $MTWILSON_TLS_CERT_SHA384 == ""
-                	StrCpy $R1 "$R1$\r$\nMTWILSON_TLS_CERT_SHA384=$MTWILSON_TLS_CERT_SHA384"
-                ${ElseIfNot} $MTWILSON_TLS_CERT_SHA256 == ""
-                	StrCpy $R1 "$R1$\r$\nMTWILSON_TLS_CERT_SHA256=$MTWILSON_TLS_CERT_SHA256"
-                ${Else}
-                    StrCpy $R1 "$R1$\r$\nMTWILSON_TLS_CERT_SHA1=$MTWILSON_TLS_CERT_SHA1"
-                ${EndIf}
-
-                StrCpy $text1 $R1
-
-                ${NSD_CreateLabel} 0% 85% 100% 15% "Above settings will be saved in $INSTDIR\trustagent.env."
-		Pop $label1
-		ShowWindow $label1 ${SW_SHOW}
-
-		Pop $R2
-		Pop $R1
-		Pop $R0
-
+                        ${NSD_CreateLabel} 0% 85% 100% 15% "Above settings will be saved in $INSTDIR\trustagent.env."
+                        Pop $ENV_PAGE_LBL
+                        ShowWindow $ENV_PAGE_LBL ${SW_SHOW}
         nsDialogs::Show
 FunctionEnd
 
@@ -650,6 +632,62 @@ Function EnvCustomLeave
         exitfunc:
                 Pop $R1
                 Pop $R0
+FunctionEnd
+
+Function SelectEnvFile
+        pop $1
+        nsDialogs::SelectFileDialog open $EXEDIR "Install Options Files (*.ini)|*.ini|All Files (*.*)|*.*"
+        pop $ENVPATH
+        ${NSD_SetText} $HENVPATH $ENVPATH
+        StrCpy $INIFILE $ENVPATH
+        Call ReadEnvFile
+FunctionEnd
+
+Function ReadEnvFile
+        ReadINIStr $MTWILSON_API_URL "$INIFILE" "TRUST_AGENT" "MTWILSON_API_URL"
+        ReadINIStr $MTWILSON_API_USERNAME "$INIFILE" "TRUST_AGENT" "MTWILSON_API_USERNAME"
+        ReadINIStr $MTWILSON_API_PASSWORD "$INIFILE" "TRUST_AGENT" "MTWILSON_API_PASSWORD"
+        ReadINIStr $MTWILSON_TLS_CERT_SHA1 "$INIFILE" "TRUST_AGENT" "MTWILSON_TLS_CERT_SHA1"
+        ReadINIStr $MTWILSON_TLS_CERT_SHA256 "$INIFILE" "TRUST_AGENT" "MTWILSON_TLS_CERT_SHA256"
+        ReadINIStr $CURRENT_IP "$INIFILE" "TRUST_AGENT" "CURRENT_IP"
+        ReadINIStr $PROVISION_ATTESTATION "$INIFILE" "TRUST_AGENT" "PROVISION_ATTESTATION"
+        ReadINIStr $AUTOMATIC_REGISTRATION "$INIFILE" "TRUST_AGENT" "AUTOMATIC_REGISTRATION"
+        ReadINIStr $AUTOMATIC_FLAVOR_CREATION "$INIFILE" "TRUST_AGENT" "AUTOMATIC_FLAVOR_CREATION"
+        ReadINIStr $TRUSTAGENT_ADMIN_USERNAME "$INIFILE" "TRUST_AGENT" "TRUSTAGENT_ADMIN_USERNAME"
+        ReadINIStr $TRUSTAGENT_ADMIN_PASSWORD "$INIFILE" "TRUST_AGENT" "TRUSTAGENT_ADMIN_PASSWORD"
+
+        ${NSD_SetText} $L_URL "MTWILSON_API_URL : $MTWILSON_API_URL"
+        ${NSD_SetText} $L_USERNAME "MTWILSON_API_USERNAME : $MTWILSON_API_USERNAME"
+        ${NSD_SetText} $L_PASSWORD "MTWILSON_API_PASSWORD : $MTWILSON_API_PASSWORD"
+        ${If} $MTWILSON_TLS_CERT_SHA1 == ""
+                ${NSD_SetText} $L_SHA256 "MTWILSON_TLS_CERT_SHA256 : $MTWILSON_TLS_CERT_SHA256"
+        ${ELSE}
+                ${NSD_SetText} $L_SHA1 "MTWILSON_TLS_CERT_SHA1 : $MTWILSON_TLS_CERT_SHA1"
+        ${EndIf}
+
+        StrCpy $text1 ""
+        StrCpy $R1 ""
+        StrCpy $R1 "MTWILSON_API_URL=$MTWILSON_API_URL"
+        StrCpy $R1 "$R1$\r$\nCURRENT_IP=$CURRENT_IP"
+        StrCpy $R1 "$R1$\r$\nPROVISION_ATTESTATION=$PROVISION_ATTESTATION"
+        StrCpy $R1 "$R1$\r$\nAUTOMATIC_REGISTRATION=$AUTOMATIC_REGISTRATION"
+        StrCpy $R1 "$R1$\r$\nAUTOMATIC_FLAVOR_CREATION=$AUTOMATIC_FLAVOR_CREATION"
+        StrCpy $R1 "$R1$\r$\nTRUSTAGENT_ADMIN_USERNAME=$TRUSTAGENT_ADMIN_USERNAME"
+        StrCpy $R1 "$R1$\r$\nTRUSTAGENT_ADMIN_PASSWORD=$TRUSTAGENT_ADMIN_PASSWORD"
+        StrCpy $R1 "$R1$\r$\nMTWILSON_API_USERNAME=$MTWILSON_API_USERNAME"
+        StrCpy $R1 "$R1$\r$\nMTWILSON_API_PASSWORD=$MTWILSON_API_PASSWORD"
+
+        ${If} $MTWILSON_TLS_CERT_SHA1 == ""
+                StrCpy $R1 "$R1$\r$\nMTWILSON_TLS_CERT_SHA256=$MTWILSON_TLS_CERT_SHA256"
+        ${ELSE}
+                StrCpy $R1 "$R1$\r$\nMTWILSON_TLS_CERT_SHA1=$MTWILSON_TLS_CERT_SHA1"
+        ${EndIf}
+
+        StrCpy $text1 $R1
+
+        Pop $R2
+        Pop $R1
+        Pop $R0
 FunctionEnd
 
 ; ----------------------------------------------------------
