@@ -54,7 +54,7 @@ public class TrustagentRepository {
             X509Certificate bkCertificate = X509Util.decodePemCertificate(bkPem);
             return bkCertificate;
         } catch (IOException | CertificateException e) {
-            log.debug("Cannot load Binding Key certificate", e);
+            log.warn("Cannot load Binding Key certificate : {}", e.getMessage());
             return null;
         }
     }
