@@ -683,12 +683,6 @@ Function ReadEnvFile
         StrCpy $R1 "$R1$\r$\nMTWILSON_API_USERNAME=$MTWILSON_API_USERNAME"
         StrCpy $R1 "$R1$\r$\nMTWILSON_API_PASSWORD=$MTWILSON_API_PASSWORD"
 
-        ${If} $MTWILSON_TLS_CERT_SHA1 == ""
-                StrCpy $R1 "$R1$\r$\nMTWILSON_TLS_CERT_SHA256=$MTWILSON_TLS_CERT_SHA256"
-        ${ELSE}
-                StrCpy $R1 "$R1$\r$\nMTWILSON_TLS_CERT_SHA1=$MTWILSON_TLS_CERT_SHA1"
-        ${EndIf}
-
         ${IfNot} $MTWILSON_TLS_CERT_SHA384 == ""
                StrCpy $R1 "$R1$\r$\nMTWILSON_TLS_CERT_SHA384=$MTWILSON_TLS_CERT_SHA384"
         ${ElseIfNot} $MTWILSON_TLS_CERT_SHA256 == ""
