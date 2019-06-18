@@ -326,7 +326,6 @@
                                 <require>unzip</require>
                                 <require>vim-common</require>
                                 <require>grub2-efi-modules</require>
-                                <require>monit</require>
                                 <require>java</require>
                                 <require>vim-common</require>
                                 <require>make</require>

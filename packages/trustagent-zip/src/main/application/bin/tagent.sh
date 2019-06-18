@@ -422,19 +422,7 @@ trustagent_uninstall() {
     configure_cron remove "$TRUSTAGENT_TMPCLN_INT" "find "$TRUSTAGENT_TMP" -mtime +"$TRUSTAGENT_TMPCLN_AGE" -exec /bin/rm -- '{}' \;"
 }
 
-# stops monit and removes its configuration
-monit_uninstall() {
-  echo "Stopping Monit service..."
-  service monit stop &> /dev/null
-  #if [ -f /etc/monit/monitrc ]; then
-    ##remove monit config so when it starts back up it has nothing to monitor
-    #rm -rf /etc/monit/monitrc
-  #fi
-  if [ -d /etc/monit/conf.d ]; then
-    # remove only the trust agent monit config
-    rm -f /etc/monit/conf.d/ta.monit*
-  fi
-}
+
 
 print_help() {
     echo "Usage: $0 start|stop|restart|java-detect|fingerprint|status|uninstall|zeroize|version|create-host|create-host-unique-flavor"
@@ -589,7 +577,6 @@ case "$1" in
     trustagent_setup
     
     if trustagent_authorize; then
-      #service monit restart
       trustagent_stop
       trustagent_start
     fi
@@ -632,7 +619,6 @@ case "$1" in
     trustagent_uninstall
     groupdel trustagent > /dev/null 2>&1
     userdel trustagent > /dev/null 2>&1
-    monit_uninstall
     ;;
   *)
     if [ -z "$*" ]; then

@@ -14,33 +14,31 @@
 # 5. define application directory layout
 # 6. install pre-required packages
 # 7. determine if we are installing as root or non-root, create groups and users accordingly
-# 9. remove tagent from the monit config, stop tagent and restart monit
-# 10. backup current configuration and data, if they exist
-# 11. store directory layout in env file
-# 12. store trustagent username in env file
-# 13. store log level in env file, if it's set
-# 14. If VIRSH_DEFAULT_CONNECT_URI is defined in environment copy it to env directory
-# 15. extract trustagent zip
-# 16. symlink tagent
-# 17. install application agent
-# 18. migrate any old data to the new locations (v1 - v3)
-# 19. setup authbind to allow non-root trustagent to listen on ports 80 and 443
-# 20. create tpm-tools and additional binary symlinks
-# 21. copy utilities script file to application folder
-# 22. delete existing dependencies from java folder, to prevent duplicate copies
-# 23. fix_libcrypto for RHEL
-# 24. create trustagent-version file
-# 25. fix_existing_aikcert
-# 26. configure monit
-# 27. create TRUSTAGENT_TLS_CERT_IP list of system host addresses
-# 28. update the extensions cache file
-# 29. ensure the trustagent owns all the content created during setup
-# 30. update tpm devices permissions to ensure it can be accessed by trustagent
-# 31. config logrotate
-# 32. tagent start
-# 33. tagent setup
-# 34. register tpm password with mtwilson
-# 35. restart monit
+# 8. create application directories (chown will be repeated near end of this script, after setup)
+# 9. backup current configuration and data, if they exist
+# 10. store directory layout in env file
+# 11. store trustagent username in env file
+# 12. store log level in env file, if it's set
+# 13. If VIRSH_DEFAULT_CONNECT_URI is defined in environment copy it to env directory
+# 14. extract trustagent zip
+# 15. symlink tagent
+# 16. install application agent
+# 17. migrate any old data to the new locations (v1 - v3)
+# 18. setup authbind to allow non-root trustagent to listen on ports 80 and 443
+# 19. create tpm-tools and additional binary symlinks
+# 20. copy utilities script file to application folder
+# 21. delete existing dependencies from java folder, to prevent duplicate copies
+# 22. fix_libcrypto for RHEL
+# 23. create trustagent-version file
+# 24. fix_existing_aikcert
+# 25. create TRUSTAGENT_TLS_CERT_IP list of system host addresses
+# 26. update the extensions cache file
+# 27. ensure the trustagent owns all the content created during setup
+# 28. update tpm devices permissions to ensure it can be accessed by trustagent
+# 29. config logrotate
+# 30. tagent setup
+# 31. tagent start
+# 32. register tpm password with mtwilson
 
 
 #####
@@ -221,16 +219,6 @@ profile_name=$profile_dir/$(basename $(getUserProfileFile))
 
 appendToUserProfileFile "export TRUSTAGENT_HOME=$TRUSTAGENT_HOME" $profile_name
 
-# 9. remove tagent from the monit config, stop tagent and restart monit
-# if there's a monit configuration for trustagent, remove it to prevent
-# monit from trying to restart trustagent while we are setting up
-if [ "$(whoami)" == "root" ] && [ -f /etc/monit/conf.d/ta.monit ]; then
-  datestr=`date +%Y%m%d.%H%M`
-  backupdir=$TRUSTAGENT_BACKUP/monit.configuration.$datestr
-  mkdir -p $backupdir
-  mv /etc/monit/conf.d/ta.monit $backupdir
-  service monit restart
-fi
 
 # if an existing tagent is already running, stop it while we install
 existing_tagent=`which tagent 2>/dev/null`
@@ -265,11 +253,11 @@ trustagent_backup_repository() {
   fi
 }
 
-# 10. backup current configuration and data, if they exist
+# 9. backup current configuration and data, if they exist
 trustagent_backup_configuration
 #trustagent_backup_repository
 
-# 11. store directory layout in env file
+# 10. store directory layout in env file
 echo "# $(date)" > $TRUSTAGENT_ENV/trustagent-layout
 echo "TRUSTAGENT_HOME=$TRUSTAGENT_HOME" >> $TRUSTAGENT_ENV/trustagent-layout
 echo "TRUSTAGENT_CONFIGURATION=$TRUSTAGENT_CONFIGURATION" >> $TRUSTAGENT_ENV/trustagent-layout
@@ -279,11 +267,11 @@ echo "TRUSTAGENT_REPOSITORY=$TRUSTAGENT_REPOSITORY" >> $TRUSTAGENT_ENV/trustagen
 echo "TRUSTAGENT_LOGS=$TRUSTAGENT_LOGS" >> $TRUSTAGENT_ENV/trustagent-layout
 echo "TRUSTAGENT_TMP=$TRUSTAGENT_TMP" >> $TRUSTAGENT_ENV/trustagent-layout
 
-# 12. store trustagent username in env file
+# 11. store trustagent username in env file
 echo "# $(date)" > $TRUSTAGENT_ENV/trustagent-username
 echo "TRUSTAGENT_USERNAME=$TRUSTAGENT_USERNAME" >> $TRUSTAGENT_ENV/trustagent-username
 
-# 13. store log level in env file, if it's set
+# 12. store log level in env file, if it's set
 if [ -n "$TRUSTAGENT_LOG_LEVEL" ]; then
   echo "# $(date)" > $TRUSTAGENT_ENV/trustagent-logging
   echo "TRUSTAGENT_LOG_LEVEL=$TRUSTAGENT_LOG_LEVEL" >> $TRUSTAGENT_ENV/trustagent-logging
@@ -312,7 +300,7 @@ if [ $DOCKER != "true" ]; then
     echo -n "$TPM_VERSION" > $TRUSTAGENT_CONFIGURATION/tpm-version
 fi
 
-# 14. If VIRSH_DEFAULT_CONNECT_URI is defined in environment copy it to env directory (likely from ~/.bashrc)
+# 13. If VIRSH_DEFAULT_CONNECT_URI is defined in environment copy it to env directory (likely from ~/.bashrc)
 # copy it to our new env folder so it will be available to tagent on startup
 if [ -n "$LIBVIRT_DEFAULT_URI" ]; then
   echo "LIBVIRT_DEFAULT_URI=$LIBVIRT_DEFAULT_URI" > $TRUSTAGENT_ENV/virsh
@@ -328,7 +316,7 @@ if [ -d $TRUSTAGENT_HOME/java ]; then
   rm -f $TRUSTAGENT_HOME/java/*.jar 2>/dev/null
 fi
 
-# 15. extract trustagent zip  (trustagent-zip-0.1-SNAPSHOT.zip)
+# 14. extract trustagent zip  (trustagent-zip-0.1-SNAPSHOT.zip)
 echo "Extracting application..."
 TRUSTAGENT_ZIPFILE=`ls -1 trustagent-*.zip 2>/dev/null | head -n 1`
 unzip -oq $TRUSTAGENT_ZIPFILE -d $TRUSTAGENT_HOME
@@ -361,7 +349,7 @@ fi
 chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $TRUSTAGENT_HOME
 chmod 755 $TRUSTAGENT_BIN/*
 
-# 16. symlink tagent
+# 15. symlink tagent
 # if prior version had control script in /usr/local/bin, delete it
 if [ "$(whoami)" == "root" ] && [ -f /usr/local/bin/tagent ]; then
   rm /usr/local/bin/tagent
@@ -376,7 +364,7 @@ if [[ ! -h $TRUSTAGENT_BIN/tagent ]]; then
   ln -s $TRUSTAGENT_BIN/tagent.sh $TRUSTAGENT_BIN/tagent
 fi
 
-#17. install application agent
+#16. install application agent
 if [ "$TBOOTXM_INSTALL" != "N" ] && [ "$TBOOTXM_INSTALL" != "No" ] && [ "$TBOOTXM_INSTALL" != "n" ] && [ "$TBOOTXM_INSTALL" != "no" ]; then 
 #  ### INSTALL MEASUREMENT AGENT --comment out for now for cit 2.2
   echo "Installing application agent..."
@@ -411,7 +399,7 @@ if ! stat $TRUSTAGENT_VAR/manifest_* 1> /dev/null 2>&1; then
   sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
 fi
 
-# 18. migrate any old data to the new locations (v1 - v3)  (should be rewritten in java)
+# 17. migrate any old data to the new locations (v1 - v3)  (should be rewritten in java)
 v1_aik=$TRUSTAGENT_V_1_2_CONFIGURATION/cert
 v2_aik=$TRUSTAGENT_CONFIGURATION
 v1_conf=$TRUSTAGENT_V_1_2_CONFIGURATION
@@ -450,7 +438,7 @@ fi
 # Redefine the variables to the new locations
 package_config_filename=$TRUSTAGENT_CONFIGURATION/trustagent.properties
 
-# 19. setup authbind to allow non-root trustagent to listen on ports 80, 443 and 1443
+# 18. setup authbind to allow non-root trustagent to listen on ports 80, 443 and 1443
 # setup authbind to allow non-root trustagent to listen on port 1443
 mkdir -p /etc/authbind/byport
 if [ ! -f /etc/authbind/byport/1443 ]; then
@@ -571,7 +559,7 @@ function setup_tpm12_symlinks() {
     ln -s "$TRUSTAGENT_BIN/tpm_signdata" /usr/local/bin/tpm_signdata
 }
 
-# 20. create tpm-tools and additional binary symlinks
+# 19. create tpm-tools and additional binary symlinks
 # if we are building a docker container, tpm 1.2 tools are installed no matter what
 if [[ ${DOCKER} == "true" ]]; then
     setup_tpm12_symlinks
@@ -587,7 +575,7 @@ if [ -z "$hex2bin" ]; then
   exit 1
 fi
 
-# 21. copy utilities script file to application folder
+# 20. copy utilities script file to application folder
 mkdir -p "$TRUSTAGENT_HOME"/share/scripts
 cp version "$TRUSTAGENT_HOME"/share/scripts/version.sh
 cp functions "$TRUSTAGENT_HOME"/share/scripts/functions.sh
@@ -595,7 +583,7 @@ chmod -R 700 "$TRUSTAGENT_HOME"/share/scripts
 chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME "$TRUSTAGENT_HOME"/share/scripts
 chmod +x $TRUSTAGENT_BIN/*
 
-# 22. delete existing dependencies from java folder, to prevent duplicate copies ## DD: Move configs to one place
+# 21. delete existing dependencies from java folder, to prevent duplicate copies ## DD: Move configs to one place
 JAVA_CMD=$(type -p java | xargs readlink -f)
 JAVA_HOME=$(dirname $JAVA_CMD | xargs dirname | xargs dirname)
 JAVA_REQUIRED_VERSION=$(java -version 2>&1 | head -n 1 | awk -F '"' '{print $2}')
@@ -611,7 +599,7 @@ if [ -f "${JAVA_HOME}/jre/lib/security/java.security" ]; then
   cp java.security "${JAVA_HOME}/jre/lib/security/java.security"
 fi
 
-# 23. fix_libcrypto for RHEL
+# 22. fix_libcrypto for RHEL
 # REDHAT ISSUE:
 # After installing libcrypto via the package manager, the library cannot be
 # found for linking. Solution is to create a missing symlink in /usr/lib64.
@@ -653,7 +641,7 @@ fi
 chmod 755 openssl.sh
 cp openssl.sh $TRUSTAGENT_HOME/bin
 
-# 24. create trustagent-version file
+# 23. create trustagent-version file
 package_version_filename=$TRUSTAGENT_ENV/trustagent-version
 datestr=`date +%Y-%m-%d.%H%M`
 touch $package_version_filename
@@ -698,32 +686,12 @@ fix_existing_aikcert() {
     fi
   fi
 }
-# 25. fix_existing_aikcert
+# 24. fix_existing_aikcert
 fix_existing_aikcert
 
-# 26. configure monit
-if [ "$(whoami)" == "root" ]; then
-  mkdir -p /etc/monit/conf.d
-  # ta.monit is already backed up at the beginning of setup.sh
-  # not using backup_file /etc/monit/conf.d/ta.monit because we want it in a different folder to prevent monit from reading the new ta.monit AND all the backups and complaining about duplicates
-  cp ta.monit /etc/monit/conf.d/ta.monit
 
-  if [ -f /etc/monit/monitrc ]; then
-    backupdir=$TRUSTAGENT_BACKUP/monitrc.$backupdate
-    mkdir -p $backupdir
-    cp /etc/monit/monitrc $backupdir
-  fi
-  cp monitrc /etc/monit/monitrc
-  chmod 700 /etc/monit/monitrc
 
-  if ! grep -q "include /etc/monit/conf.d/*" /etc/monit/monitrc; then 
-   echo "include /etc/monit/conf.d/*" >> /etc/monit/monitrc
-  fi
-else
-  echo_warning "Skipping monit configuration"
-fi
-
-# 27. create TRUSTAGENT_TLS_CERT_IP list of system host addresses
+# 25. create TRUSTAGENT_TLS_CERT_IP list of system host addresses
 # collect all the localhost ip addresses and make the list available as the
 # default if the user has not already set the TRUSTAGENT_TLS_CERT_IP variable
 #DEFAULT_TRUSTAGENT_TLS_CERT_IP=`hostaddress_list_csv`
@@ -752,16 +720,16 @@ fi
 # Make the logs dir owned by tagent user
 chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $TRUSTAGENT_LOGS/
 
-# 28. update the extensions cache file
+# 26. update the extensions cache file
 # before running any tagent commands update the extensions cache file
 tagent setup update-extensions-cache-file --force 2>/dev/null
 
-# 29. ensure the trustagent owns all the content created during setup
+# 27. ensure the trustagent owns all the content created during setup
 for directory in $TRUSTAGENT_HOME $TRUSTAGENT_CONFIGURATION $TRUSTAGENT_JAVA $TRUSTAGENT_BIN $TRUSTAGENT_ENV $TRUSTAGENT_REPOSITORY $TRUSTAGENT_LOGS $TRUSTAGENT_TMP; do
   chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $directory
 done
 
-# 30. update tpm devices permissions to ensure it can be accessed by trustagent
+# 28. update tpm devices permissions to ensure it can be accessed by trustagent
 if [[ "$(whoami)" == "root" && $TPM_VERSION == "2.0" ]]; then
   # tpm devices can only be accessed by the trustagent user and group
   echo "KERNEL==\"tpmrm[0-9]*|tpm[0-9]*\", MODE=\"0660\", OWNER=\"$TRUSTAGENT_USERNAME\", GROUP=\"$TRUSTAGENT_USERNAME\"" > /lib/udev/rules.d/tpm-udev.rules
@@ -807,7 +775,7 @@ fi
 #tagent start >>$logfile  2>&1
 
 ########################################################################################################################
-# 31. config logrotate
+# 29. config logrotate
 mkdir -p /etc/logrotate.d
 
 if [ ! -a /etc/logrotate.d/trustagent ]; then
@@ -840,11 +808,11 @@ if [[ $ipResult -eq 254 ]]; then
   exit 254
 fi
 
-# 32. tagent setup
+# 30. tagent setup
 tagent setup
 
 configure_cron add "$TRUSTAGENT_TMPCLN_INT" "find "$TRUSTAGENT_TMP" -mtime +"$TRUSTAGENT_TMPCLN_AGE" -exec /bin/rm -- '{}' \;"
-# 33. tagent start
+# 31. tagent start
 tagent start
 
 if [[ "$PROVISION_ATTESTATION" == "y" || "$PROVISION_ATTESTATION" == "Y" || "$PROVISION_ATTESTATION" == "yes" ]]; then
@@ -910,7 +878,7 @@ fi
 
 #exit
 
-# 34. register tpm password with mtwilson
+# 32. register tpm password with mtwilson
 # optional: register tpm password with mtwilson so pull provisioning can
 #           be accomplished with less reboots (no ownership transfer)
 #           default is not to register the password.
@@ -924,18 +892,6 @@ fi
 #  tagent setup register-tpm-password
 #fi
 
-# 35. restart monit
-# NOTE:  monit should only be restarted AFTER trustagent is up and running
-#        so that it doesn't try to start it before we're done with our setup
-#        tasks.
-#if [ "$(whoami)" == "root" ]; then
-#  tagent status > /dev/null
-#  if [ $? ]; then
-#    service monit restart
-#  else
-#    echo "Trust agent not running; skipping monit restart"
-#  fi
-#fi
 
 # remove the temporary setup env file
 #rm -f $TRUSTAGENT_ENV/trustagent-setup
