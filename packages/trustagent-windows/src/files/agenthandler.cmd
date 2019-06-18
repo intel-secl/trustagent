@@ -31,7 +31,6 @@ set TRUSTAGENT_PID_FILE=%TRUSTAGENT_VAR%\run\trustagent.pid
 set TRUSTAGENT_HTTP_LOG_FILE=%TRUSTAGENT_LOGS%\http.log
 set TRUSTAGENT_AUTHORIZE_TASKS=download-mtwilson-tls-certificate download-mtwilson-privacy-ca-certificate download-mtwilson-saml-certificate request-endorsement-certificate request-aik-certificate
 set TRUSTAGENT_REGISTRATION_TASKS=attestation-registration
-set TRUSTAGENT_CREATE_FLAVOR_TASK=create-host-unique-flavor
 set TRUSTAGENT_TPM_TASKS=create-tpm-owner-secret create-tpm-srk-secret create-aik-secret take-ownership
 set TRUSTAGENT_START_TASKS=secure-store create-keystore-password create-tls-keypair take-ownership
 REM set TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS=create-binding-key certify-binding-key create-signing-key certify-signing-key
@@ -120,9 +119,7 @@ if "%wcommand%"=="start" (
   call:trustagent_zeroize
 ) ELSE IF "%wcommand%"=="create-host" (
   call:trustagent_host_register
-) ELSE IF "%wcommand%"=="create-host-unique-flavor" (
-  call:trustagent_create_flavor
-) ELSE IF "%wcommand%"=="start-http-server" (
+)  ELSE IF "%wcommand%"=="start-http-server" (
   call:trustagent_start
 ) ELSE IF "%wcommand%"=="help" (
   call:print_help
@@ -206,11 +203,6 @@ GOTO:EOF
 :trustagent_host_register
   set host_register_vars="CURRENT_IP AUTOMATIC_REGISTRATION"
   call:trustagent_setup --force %TRUSTAGENT_REGISTRATION_TASKS%
-GOTO:EOF
-
-:trustagent_create_flavor
-  set host_register_vars="CURRENT_IP AUTOMATIC_FLAVOR_CREATION"
-  call:trustagent_setup --force %TRUSTAGENT_CREATE_FLAVOR_TASK%
 GOTO:EOF
 
 :trustagent_generate_password

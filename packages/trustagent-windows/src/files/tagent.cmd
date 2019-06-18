@@ -33,7 +33,6 @@ set TRUSTAGENT_PROPERTY_FILE=%TRUSTAGENT_CONF%\trustagent.properties
 set TRUSTAGENT_HTTP_LOG_FILE=%TRUSTAGENT_LOGS%\http.log
 set TRUSTAGENT_AUTHORIZE_TASKS=download-mtwilson-tls-certificate download-mtwilson-privacy-ca-certificate download-mtwilson-saml-certificate request-endorsement-certificate request-aik-certificate
 set TRUSTAGENT_REGISTRATION_TASKS=attestation-registration
-set TRUSTAGENT_CREATE_FLAVOR_TASK=create-host-unique-flavor
 set TRUSTAGENT_TPM_TASKS=create-tpm-owner-secret create-tpm-srk-secret create-aik-secret take-ownership
 set TRUSTAGENT_START_TASKS=secure-store create-keystore-password create-tls-keypair take-ownership
 REM set TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS=create-binding-key certify-binding-key create-signing-key certify-signing-key
@@ -114,8 +113,6 @@ if "%wcommand%"=="start" (
   call:trustagent_authorize
 ) ELSE IF "%wcommand%"=="create-host" (
   call:trustagent_host_register
-) ELSE IF "%wcommand%"=="create-host-unique-flavor" (
-  call:trustagent_create_flavor
 ) ELSE IF "%wcommand%"=="start-http-server" (
   call:trustagent_start
 ) ELSE IF "%wcommand%"=="java-detect" (
@@ -224,10 +221,6 @@ EXIT /B !errorlevel!
   call:trustagent_setup --force %TRUSTAGENT_REGISTRATION_TASKS%
 EXIT /B !errorlevel!
 
-:trustagent_create_flavor
-  set host_register_vars="CURRENT_IP AUTOMATIC_FLAVOR_CREATION"
-  call:trustagent_setup --force %TRUSTAGENT_CREATE_FLAVOR_TASK%
-EXIT /B !errorlevel!
 
 :trustagent_generate_password
   >"%TRUSTAGENT_PASSWORD_FILE%" "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main generate-password
