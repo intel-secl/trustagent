@@ -31,9 +31,7 @@ var /Global HENVFILE
 var /Global L_URL
 var /Global L_USERNAME
 var /Global L_PASSWORD
-var /Global L_SHA384
-var /Global L_SHA256
-var /Global L_SHA1
+var /Global L_SHA
 var /Global MTWILSON_API_URL
 var /Global MTWILSON_API_USERNAME
 var /Global MTWILSON_API_PASSWORD
@@ -588,16 +586,8 @@ Function EnvCustomPage
                 Pop $L_USERNAME
                 ${NSD_CreateLabel} 0 20% 100% 20% "MTWILSON_API_PASSWORD : $MTWILSON_API_PASSWORD"
                 Pop $L_PASSWORD
-                ${IfNot} $MTWILSON_TLS_CERT_SHA384 == ""
-                       ${NSD_CreateLabel} 0 30% 100% 20% "MTWILSON_TLS_CERT_SHA384 : $MTWILSON_TLS_CERT_SHA384"
-                       Pop $L_SHA384
-                ${ElseIfNot} $MTWILSON_TLS_CERT_SHA256 == ""
-                       ${NSD_CreateLabel} 0 30% 100% 20% "MTWILSON_TLS_CERT_SHA256 : $MTWILSON_TLS_CERT_SHA256"
-                       Pop $L_SHA256
-                ${Else}
-                       ${NSD_CreateLabel} 0 30% 100% 20% "MTWILSON_TLS_CERT_SHA1 : $MTWILSON_TLS_CERT_SHA1"
-                       Pop $L_SHA1
-                ${EndIf}
+                ${NSD_CreateLabel} 0 30% 100% 20% "MTWILSON_TLS_CERT_SHA384 : $MTWILSON_TLS_CERT_SHA384"
+                Pop $L_SHA
         
                 IfFileExists $INIFILE readenv selectenv
                 readenv:
@@ -664,11 +654,11 @@ Function ReadEnvFile
         ${NSD_SetText} $L_USERNAME "MTWILSON_API_USERNAME : $MTWILSON_API_USERNAME"
         ${NSD_SetText} $L_PASSWORD "MTWILSON_API_PASSWORD : $MTWILSON_API_PASSWORD"
         ${IfNot} $MTWILSON_TLS_CERT_SHA384 == ""
-               ${NSD_SetText} $L_SHA384 "MTWILSON_TLS_CERT_SHA384 : $MTWILSON_TLS_CERT_SHA384"
+               ${NSD_SetText} $L_SHA "MTWILSON_TLS_CERT_SHA384 : $MTWILSON_TLS_CERT_SHA384"
         ${ElseIfNot} $MTWILSON_TLS_CERT_SHA256 == ""
-               ${NSD_SetText} $L_SHA256 "MTWILSON_TLS_CERT_SHA256 : $MTWILSON_TLS_CERT_SHA256"
+               ${NSD_SetText} $L_SHA "MTWILSON_TLS_CERT_SHA256 : $MTWILSON_TLS_CERT_SHA256"
         ${Else}
-               ${NSD_SetText} $L_SHA1 "MTWILSON_TLS_CERT_SHA1 : $MTWILSON_TLS_CERT_SHA1"
+               ${NSD_SetText} $L_SHA "MTWILSON_TLS_CERT_SHA1 : $MTWILSON_TLS_CERT_SHA1"
         ${EndIf}
 
         StrCpy $text1 ""
