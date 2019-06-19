@@ -57,8 +57,6 @@ else
     DOCKER=false
 fi
 
-echo "Dockerized install is: $DOCKER"
-
 JAVA_REQUIRED_VERSION=${JAVA_REQUIRED_VERSION:-1.8}
 
 # default settings
@@ -144,6 +142,13 @@ export INSTALL_LOG_FILE=$TRUSTAGENT_LOGS/install.log
 directory_layout
 
 detect_tpm_version
+
+if [ $TPM_VERSION == "1.2" ]; then
+  echo
+  echo "Trust Agent: TPM1.2 is Not Supported in this release. TrustAgent could not be installed."
+  echo
+  exit 1
+fi
 
 # 6. install pre-required packages
 chmod +x install_prereq.sh
@@ -476,99 +481,6 @@ if [[ "$(whoami)" == "root" && ${DOCKER} != "true" && "$SKIP_INSTALL_TBOOT" != "
   fi
 fi
 
-
-function setup_tpm12_symlinks() {
-### symlinks
-    #tpm_nvinfo
-    tpmnvinfo=`which tpm_nvinfo 2>/dev/null`
-    if [ -z "$tpmnvinfo" ]; then
-      echo_failure "cannot find command: tpm_nvinfo (from tpm-tools)"
-      exit 1
-    else
-      if [[ ! -h "$TRUSTAGENT_BIN/tpm_nvinfo" ]]; then
-        ln -s "$tpmnvinfo" "$TRUSTAGENT_BIN"
-      fi
-    fi
-
-    #tpm_nvrelease
-    tpmnvrelease=`which tpm_nvrelease 2>/dev/null`
-    if [ -z "$tpmnvrelease" ]; then
-      echo_failure "cannot find command: tpm_nvrelease (from tpm-tools)"
-      exit 1
-    else
-      if [[ ! -h "$TRUSTAGENT_BIN/tpm_nvrelease" ]]; then
-        ln -s "$tpmnvrelease" "$TRUSTAGENT_BIN"
-      fi
-    fi
-
-    #tpm_nvwrite
-    tpmnvwrite=`which tpm_nvwrite 2>/dev/null`
-    if [ -z "$tpmnvwrite" ]; then
-      echo_failure "cannot find command: tpm_nvwrite (from tpm-tools)"
-      exit 1
-    else
-      if [[ ! -h "$TRUSTAGENT_BIN/tpm_nvwrite" ]]; then
-        ln -s "$tpmnvwrite" "$TRUSTAGENT_BIN"
-      fi
-    fi
-
-    #tpm_nvread
-    tpmnvread=`which tpm_nvread 2>/dev/null`
-    if [ -z "$tpmnvread" ]; then
-      echo_failure "cannot find command: tpm_nvread (from tpm-tools)"
-      exit 1
-    else
-      if [[ ! -h "$TRUSTAGENT_BIN/tpm_nvread" ]]; then
-        ln -s "$tpmnvread" "$TRUSTAGENT_BIN"
-      fi
-    fi
-
-    #tpm_nvdefine
-    tpmnvdefine=`which tpm_nvdefine 2>/dev/null`
-    if [ -z "$tpmnvdefine" ]; then
-      echo_failure "cannot find command: tpm_nvdefine (from tpm-tools)"
-      exit 1
-    else
-      if [[ ! -h "$TRUSTAGENT_BIN/tpm_nvdefine" ]]; then
-        ln -s "$tpmnvdefine" "$TRUSTAGENT_BIN"
-      fi
-    fi
-
-    #tpm_bindaeskey
-    if [ -h "/usr/local/bin/tpm_bindaeskey" ]; then
-      rm -f "/usr/local/bin/tpm_bindaeskey"
-    fi
-    ln -s "$TRUSTAGENT_BIN/tpm_bindaeskey" /usr/local/bin/tpm_bindaeskey
-
-    #tpm_unbindaeskey
-    if [ -h "/usr/local/bin/tpm_unbindaeskey" ]; then
-      rm -f "/usr/local/bin/tpm_unbindaeskey"
-    fi
-    ln -s "$TRUSTAGENT_BIN/tpm_unbindaeskey" /usr/local/bin/tpm_unbindaeskey
-
-    #tpm_createkey
-    if [ -h "/usr/local/bin/tpm_createkey" ]; then
-      rm -f "/usr/local/bin/tpm_createkey"
-    fi
-    ln -s "$TRUSTAGENT_BIN/tpm_createkey" /usr/local/bin/tpm_createkey
-
-    #tpm_signdata
-    if [ -h "/usr/local/bin/tpm_signdata" ]; then
-      rm -f "/usr/local/bin/tpm_signdata"
-    fi
-    ln -s "$TRUSTAGENT_BIN/tpm_signdata" /usr/local/bin/tpm_signdata
-}
-
-# 19. create tpm-tools and additional binary symlinks
-# if we are building a docker container, tpm 1.2 tools are installed no matter what
-if [[ ${DOCKER} == "true" ]]; then
-    setup_tpm12_symlinks
-else
-    if [[ "$TPM_VERSION" == "1.2" ]]; then
-        setup_tpm12_symlinks
-    fi
-fi
-
 hex2bin=`which hex2bin 2>/dev/null`
 if [ -z "$hex2bin" ]; then
   echo_failure "cannot find command: hex2bin"
@@ -651,25 +563,9 @@ echo "# Installed Trust Agent on ${datestr}" > $package_version_filename
 echo "TRUSTAGENT_VERSION=${VERSION}" >> $package_version_filename
 echo "TRUSTAGENT_RELEASE=\"${BUILD}\"" >> $package_version_filename
 
-# during a Docker image build, we don't know if 1.2 is going to be used, defer this until Docker startup script.
 if [[ "$(whoami)" == "root" && ${DOCKER} == "false" ]]; then
-  if [ "$TPM_VERSION" == "1.2" ]; then
-    tcsdBinary=$(which tcsd)
-    if [ -z "$tcsdBinary" ]; then
-      echo_failure "Not able to resolve trousers binary location. trousers installed?"
-      exit 1
-    fi
-    # systemd enable trousers for RHEL 7.2 startup
-    systemctlCommand=`which systemctl 2>/dev/null`
-    if [ -d "/etc/systemd/system" ] && [ -n "$systemctlCommand" ]; then
-      echo "systemctl enabling trousers service..."
-      "$systemctlCommand" enable tcsd.service 2>/dev/null
-      "$systemctlCommand" start tcsd.service 2>/dev/null
-    fi
-  fi
   echo "Registering tagent in start up"
   register_startup_script $TRUSTAGENT_BIN/tagent tagent $TRUSTAGENT_PID_FILE 21 >>$logfile 2>&1
-  # trousers has N=20 startup number, need to lookup and do a N+1
 else
   echo_warning "Skipping startup script registration"
 fi

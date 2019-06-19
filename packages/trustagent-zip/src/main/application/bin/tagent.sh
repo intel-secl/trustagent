@@ -456,25 +456,6 @@ trustagent_system_info() {
     return $?
 }
 
-trousers_detect_and_run() {
-  # non-root users typically don't have /usr/sbin in their path, so append it
-  # here;  does not affect root user who would have /usr/sbin earlier in the PATH,
-  # and also this change only affects our process
-  PATH=$PATH:/usr/sbin
-
-  TPM_VERSION=`cat $TRUSTAGENT_CONFIGURATION/tpm-version`
-  if [ "TPM_VERSION" == "1.2" ]; then 
-    trousers=`which tcsd 2>/dev/null`
-    if [ -z "$trousers" ]; then
-      #echo_failure "trousers installation is required for trust agent to run successfully."
-      echo "trousers is required for trust agent to run"
-      exit -1
-    else
-      $trousers
-    fi
-  fi
-}
-
 tagent_tls_fingerprint() {
   local sha384=`$TRUSTAGENT_BIN/tagent config trustagent.tls.cert.sha384`
   echo "SHA384: $sha384"
@@ -490,8 +471,6 @@ case "$1" in
     print_help
     ;;
   start)
-    # need to start trousers before we can run tagent
-    trousers_detect_and_run
 
     # run setup before starting trust agent to allow taking ownership again if
     # the tpm has been cleared, or re-initializing the keystore if the server
@@ -516,7 +495,6 @@ case "$1" in
     tagent_tls_fingerprint
     ;;
   authorize)
-    trousers_detect_and_run
     if trustagent_authorize; then
       trustagent_stop
       trustagent_start
@@ -540,7 +518,6 @@ case "$1" in
     trustagent_system_info $*
     ;;
   setup)
-    trousers_detect_and_run
 
     shift
     trustagent_setup $*
@@ -625,7 +602,6 @@ case "$1" in
       print_help
     else
       #echo "args: $*"
-      trousers_detect_and_run
       "$JAVA_CMD" $JAVA_OPTS com.intel.mtwilson.launcher.console.Main $*
     fi
     ;;
