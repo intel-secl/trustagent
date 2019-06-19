@@ -68,8 +68,8 @@ fi
 #Adding redhat-lsb for bug 5289
 #Adding net-tools for bug 5285
 #adding openssl-devel for bug 5284
-TRUSTAGENT_YUM_PACKAGES="unzip vim-common cpuid msr-tools mokutil"
-TRUSTAGENT_APT_PACKAGES="unzip dpkg-dev authbind vim-common cpuid msr-tools mokutil"
+TRUSTAGENT_YUM_PACKAGES="unzip vim-common cpuid msr-tools"
+TRUSTAGENT_APT_PACKAGES="unzip dpkg-dev authbind vim-common cpuid msr-tools"
 TRUSTAGENT_YAST_PACKAGES="unzip authbind vim-common"
 TRUSTAGENT_ZYPPER_PACKAGES="unzip authbind vim-common"
 
