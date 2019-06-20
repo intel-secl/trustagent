@@ -77,6 +77,7 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
             }
         }
         catch(NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | CertificateEncodingException e) {
+            log.debug("Cannot load Saml certificate");
             validation("Cannot load Saml certificate", e);
         }
     }
