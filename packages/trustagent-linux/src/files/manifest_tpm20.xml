@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Manifest xmlns="lib:wml:manifests:1.0" Label="ISecL_Default_Application_Flavor_v2.0_TPM2.0" Uuid="" DigestAlg="SHA384">
+<Manifest xmlns="lib:wml:manifests:1.0" Label="ISecL_Default_Application_Flavor_v1.5_TPM2.0" Uuid="" DigestAlg="SHA384">
    <Dir Exclude="" FilterType="regex" Include=".*" Path="/opt/tbootxm/bin"/>
    <Dir Exclude="" FilterType="regex" Include=".*" Path="/opt/tbootxm/dracut_files"/>
    <Dir Exclude="" FilterType="regex" Include=".*" Path="/opt/tbootxm/initrd_hooks"/>
@@ -18,34 +18,12 @@
    <Dir Exclude="" FilterType="regex" Include=".*" Path="/opt/trustagent/java"/>
    <Dir Exclude="" FilterType="regex" Include=".*" Path="/opt/trustagent/share"/>
    <Symlink Path="/opt/trustagent/bin/tagent"/>
-   <File Path="/opt/trustagent/bin/NIARL_TPM_Module"/>
    <File Path="/opt/trustagent/bin/.*\.sh" SearchType="regex"/>
-   <File Path="/opt/trustagent/bin/tpm2-.*" SearchType="regex"/>
-   <Symlink Path="/opt/trustagent/bin/tpm2_.*" SearchType="regex"/>
    <File Path="/opt/trustagent/hypertext/index.html"/>
    <Dir Exclude="" FilterType="regex" Include=".*" Path="/opt/trustagent/hypertext/WEB-INF"/>
    <File Path="/opt/trustagent/hypertext/WEB-INF/web.xml"/>
    <File Path="/opt/trustagent/java/.*" SearchType="regex"/>
    <Dir Exclude="" FilterType="regex" Include=".*" Path="/opt/trustagent/share/.*" SearchType="regex"/>
    <File Path="/opt/trustagent/share/hex2bin/bin/hex2bin"/>
-   <File Path="/opt/trustagent/share/niarl/bin/NIARL_TPM_Module"/>
-   <File Path="/opt/trustagent/share/openssl/openssl.cnf"/>
-   <File Path="/opt/trustagent/share/openssl/bin/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/openssl/include/openssl/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/openssl/lib/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/openssl/lib/engines/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/openssl/lib/pkgconfig/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/openssl/misc/.*" SearchType="regex"/>
    <File Path="/opt/trustagent/share/scripts/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/tpmagent/bin/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/tpmquote/bin/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/tpmtools/bin/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/tpmtools/include/tpm_tools/tpm_unseal.h"/>
-   <File Path="/opt/trustagent/share/tpmtools/lib/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/tpmtools/sbin/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/trousers/etc/tcsd.conf"/>
-   <File Path="/opt/trustagent/share/trousers/include/trousers/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/trousers/include/tss/.*"  SearchType="regex"/>
-   <File Path="/opt/trustagent/share/trousers/lib/.*" SearchType="regex"/>
-   <File Path="/opt/trustagent/share/trousers/sbin/tcsd"/>
 </Manifest>

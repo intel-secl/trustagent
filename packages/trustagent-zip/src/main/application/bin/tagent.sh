@@ -207,10 +207,6 @@ if [ -n "$TRUSTAGENT_USERNAME" ] && [ "$TRUSTAGENT_USERNAME" != "root" ] && [ $(
   service tcsd2 stop >/dev/null 2>&1
   service tpm2-abrmd start >/dev/null 2>&1
 
-  # before we switch to non-root, check if tcsd is running and start it if necessary
-  trousers=$(which tcsd 2>/dev/null)
-  if [ -n "$trousers" ]; then $trousers; fi
-
   export TRUSTAGENT_SUDO=true
   sudo -u $TRUSTAGENT_USERNAME -H -E $TRUSTAGENT_BIN/tagent $*
   exit $?

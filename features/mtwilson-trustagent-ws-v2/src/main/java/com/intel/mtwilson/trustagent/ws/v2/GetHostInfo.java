@@ -157,8 +157,10 @@ public class  GetHostInfo implements Command {
     }
     private void getInstalledComponents() throws PlatformInfoException, IOException{
         String out = (String) map.get("installed-components");
-        Set<String> installedComponents = new HashSet(Arrays.asList(out.split(",")));
-        context.setInstalledComponents(installedComponents);
+        if (out != null) {
+            Set<String> installedComponents = new HashSet(Arrays.asList(out.split(",")));
+            context.setInstalledComponents(installedComponents);
+        }
     }
 
     private void getTbootInstalled() throws PlatformInfoException, IOException{
