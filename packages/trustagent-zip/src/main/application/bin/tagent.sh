@@ -306,13 +306,6 @@ trustagent_start() {
         $TRUSTAGENT_HOME/bin/module_analysis.sh 2>/dev/null
     fi
 
-    # check if we need to use authbind or if we can start java directly
-    prog="$JAVA_CMD"
-    if [ -n "$TRUSTAGENT_USERNAME" ] && [ "$TRUSTAGENT_USERNAME" != "root" ] && [ $(whoami) != "root" ] && [ -n "$(which authbind 2>/dev/null)" ]; then
-      prog="authbind $JAVA_CMD"
-      JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
-    fi
-
     # the subshell allows the java process to have a reasonable current working
     # directory without affecting the user's working directory. 
     # the last background process pid $! must be stored from the subshell.

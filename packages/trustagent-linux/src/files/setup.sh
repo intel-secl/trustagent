@@ -24,21 +24,19 @@
 # 15. symlink tagent
 # 16. install application agent
 # 17. migrate any old data to the new locations (v1 - v3)
-# 18. setup authbind to allow non-root trustagent to listen on ports 80 and 443
-# 19. create tpm-tools and additional binary symlinks
-# 20. copy utilities script file to application folder
-# 21. delete existing dependencies from java folder, to prevent duplicate copies
-# 22. fix_libcrypto for RHEL
-# 23. create trustagent-version file
-# 24. fix_existing_aikcert
-# 25. create TRUSTAGENT_TLS_CERT_IP list of system host addresses
-# 26. update the extensions cache file
-# 27. ensure the trustagent owns all the content created during setup
-# 28. update tpm devices permissions to ensure it can be accessed by trustagent
-# 29. config logrotate
-# 30. tagent setup
-# 31. tagent start
-# 32. register tpm password with mtwilson
+# 18. create tpm-tools and additional binary symlinks
+# 19. copy utilities script file to application folder
+# 20. delete existing dependencies from java folder, to prevent duplicate copies
+# 21. fix_libcrypto for RHEL
+# 22. create trustagent-version file
+# 23. fix_existing_aikcert
+# 24. create TRUSTAGENT_TLS_CERT_IP list of system host addresses
+# 25. update the extensions cache file
+# 26. ensure the trustagent owns all the content created during setup
+# 27. update tpm devices permissions to ensure it can be accessed by trustagent
+# 28. config logrotate
+# 29. tagent setup
+# 30. tagent start
 
 
 #####
@@ -443,27 +441,6 @@ fi
 # Redefine the variables to the new locations
 package_config_filename=$TRUSTAGENT_CONFIGURATION/trustagent.properties
 
-# 18. setup authbind to allow non-root trustagent to listen on ports 80, 443 and 1443
-# setup authbind to allow non-root trustagent to listen on port 1443
-mkdir -p /etc/authbind/byport
-if [ ! -f /etc/authbind/byport/1443 ]; then
-  if [ "$(whoami)" == "root" ]; then
-    if [ -n "$TRUSTAGENT_USERNAME" ] && [ "$TRUSTAGENT_USERNAME" != "root" ] && [ -d /etc/authbind/byport ]; then
-      touch /etc/authbind/byport/1443
-     chmod 500 /etc/authbind/byport/1443
-      chown $TRUSTAGENT_USERNAME /etc/authbind/byport/1443
-    fi
-  else
-    echo_warning "You must be root to setup authbind configuration"
-  fi
-fi
-# setup authbind to allow non-root trustagent to listen on ports 80 and 443
-if [ -n "$TRUSTAGENT_USERNAME" ] && [ "$TRUSTAGENT_USERNAME" != "root" ] && [ -d /etc/authbind/byport ]; then
-  touch /etc/authbind/byport/80 /etc/authbind/byport/443
-  chmod 500 /etc/authbind/byport/80 /etc/authbind/byport/443
-  chown $TRUSTAGENT_USERNAME /etc/authbind/byport/80 /etc/authbind/byport/443
-fi
-
 if is_suefi_enabled; then
   export SKIP_INSTALL_TBOOT="y"
 fi
@@ -487,7 +464,7 @@ if [ -z "$hex2bin" ]; then
   exit 1
 fi
 
-# 20. copy utilities script file to application folder
+# 19. copy utilities script file to application folder
 mkdir -p "$TRUSTAGENT_HOME"/share/scripts
 cp version "$TRUSTAGENT_HOME"/share/scripts/version.sh
 cp functions "$TRUSTAGENT_HOME"/share/scripts/functions.sh
@@ -495,7 +472,7 @@ chmod -R 700 "$TRUSTAGENT_HOME"/share/scripts
 chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME "$TRUSTAGENT_HOME"/share/scripts
 chmod +x $TRUSTAGENT_BIN/*
 
-# 21. delete existing dependencies from java folder, to prevent duplicate copies ## DD: Move configs to one place
+# 20. delete existing dependencies from java folder, to prevent duplicate copies ## DD: Move configs to one place
 JAVA_CMD=$(type -p java | xargs readlink -f)
 JAVA_HOME=$(dirname $JAVA_CMD | xargs dirname | xargs dirname)
 JAVA_REQUIRED_VERSION=$(java -version 2>&1 | head -n 1 | awk -F '"' '{print $2}')
@@ -511,7 +488,7 @@ if [ -f "${JAVA_HOME}/jre/lib/security/java.security" ]; then
   cp java.security "${JAVA_HOME}/jre/lib/security/java.security"
 fi
 
-# 22. fix_libcrypto for RHEL
+# 21. fix_libcrypto for RHEL
 # REDHAT ISSUE:
 # After installing libcrypto via the package manager, the library cannot be
 # found for linking. Solution is to create a missing symlink in /usr/lib64.
@@ -553,7 +530,7 @@ fi
 chmod 755 openssl.sh
 cp openssl.sh $TRUSTAGENT_HOME/bin
 
-# 23. create trustagent-version file
+# 22. create trustagent-version file
 package_version_filename=$TRUSTAGENT_ENV/trustagent-version
 datestr=`date +%Y-%m-%d.%H%M`
 touch $package_version_filename
@@ -582,12 +559,12 @@ fix_existing_aikcert() {
     fi
   fi
 }
-# 24. fix_existing_aikcert
+# 23. fix_existing_aikcert
 fix_existing_aikcert
 
 
 
-# 25. create TRUSTAGENT_TLS_CERT_IP list of system host addresses
+# 24. create TRUSTAGENT_TLS_CERT_IP list of system host addresses
 # collect all the localhost ip addresses and make the list available as the
 # default if the user has not already set the TRUSTAGENT_TLS_CERT_IP variable
 #DEFAULT_TRUSTAGENT_TLS_CERT_IP=`hostaddress_list_csv`
@@ -616,16 +593,16 @@ fi
 # Make the logs dir owned by tagent user
 chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $TRUSTAGENT_LOGS/
 
-# 26. update the extensions cache file
+# 25. update the extensions cache file
 # before running any tagent commands update the extensions cache file
 tagent setup update-extensions-cache-file --force 2>/dev/null
 
-# 27. ensure the trustagent owns all the content created during setup
+# 26. ensure the trustagent owns all the content created during setup
 for directory in $TRUSTAGENT_HOME $TRUSTAGENT_CONFIGURATION $TRUSTAGENT_JAVA $TRUSTAGENT_BIN $TRUSTAGENT_ENV $TRUSTAGENT_REPOSITORY $TRUSTAGENT_LOGS $TRUSTAGENT_TMP; do
   chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $directory
 done
 
-# 28. update tpm devices permissions to ensure it can be accessed by trustagent
+# 27. update tpm devices permissions to ensure it can be accessed by trustagent
 if [[ "$(whoami)" == "root" && $TPM_VERSION == "2.0" ]]; then
   # tpm devices can only be accessed by the trustagent user and group
   echo "KERNEL==\"tpmrm[0-9]*|tpm[0-9]*\", MODE=\"0660\", OWNER=\"$TRUSTAGENT_USERNAME\", GROUP=\"$TRUSTAGENT_USERNAME\"" > /lib/udev/rules.d/tpm-udev.rules
@@ -671,7 +648,7 @@ fi
 #tagent start >>$logfile  2>&1
 
 ########################################################################################################################
-# 29. config logrotate
+# 28. config logrotate
 mkdir -p /etc/logrotate.d
 
 if [ ! -a /etc/logrotate.d/trustagent ]; then
@@ -704,11 +681,11 @@ if [[ $ipResult -eq 254 ]]; then
   exit 254
 fi
 
-# 30. tagent setup
+# 29. tagent setup
 tagent setup
 
 configure_cron add "$TRUSTAGENT_TMPCLN_INT" "find "$TRUSTAGENT_TMP" -mtime +"$TRUSTAGENT_TMPCLN_AGE" -exec /bin/rm -- '{}' \;"
-# 31. tagent start
+# 30. tagent start
 tagent start
 
 if [[ "$PROVISION_ATTESTATION" == "y" || "$PROVISION_ATTESTATION" == "Y" || "$PROVISION_ATTESTATION" == "yes" ]]; then

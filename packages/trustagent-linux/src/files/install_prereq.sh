@@ -14,7 +14,7 @@
 
 # Outline:
 # 1. Install redhat-lsb-core and other redhat-specific packages
-# 2. Install unzip authbind vim-common packages
+# 2. Install unzip vim-common packages
 # 3. Install java
 
 if [[ ${container} == "docker" ]]; then
@@ -62,16 +62,16 @@ fi
   install_packages "openssl" "TRUSTAGENT_OPENSSL" > /dev/null 2>&1
 }
 
-# 2. Install unzip authbind vim-common packages
+# 2. Install unzip vim-common packages
 # make sure unzip is installed
 #java_required_version=1.8
 #Adding redhat-lsb for bug 5289
 #Adding net-tools for bug 5285
 #adding openssl-devel for bug 5284
 TRUSTAGENT_YUM_PACKAGES="unzip vim-common cpuid msr-tools"
-TRUSTAGENT_APT_PACKAGES="unzip dpkg-dev authbind vim-common cpuid msr-tools"
-TRUSTAGENT_YAST_PACKAGES="unzip authbind vim-common"
-TRUSTAGENT_ZYPPER_PACKAGES="unzip authbind vim-common"
+TRUSTAGENT_APT_PACKAGES="unzip dpkg-dev vim-common cpuid msr-tools"
+TRUSTAGENT_YAST_PACKAGES="unzip vim-common"
+TRUSTAGENT_ZYPPER_PACKAGES="unzip vim-common"
 
 ##### install prereqs can only be done as root
 if [ "$(whoami)" == "root" ]; then
