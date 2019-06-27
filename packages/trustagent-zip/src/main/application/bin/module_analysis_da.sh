@@ -151,7 +151,9 @@ if [ ! -f "$TXTSTAT" ]; then
   echo "$BLANK2<txt>" >>$OUTFILE
   echo "$BLANK2$BLANK2<txtStatus>0</txtStatus>" >>$OUTFILE
   echo "$BLANK2$BLANK2<modules>" >>$OUTFILE
-  generate_pcr_measurelog < "$INFILE_PCR_EVENTLOG" >>$OUTFILE
+  if [ -f "$INFILE_PCR_EVENTLOG" ];then
+    generate_pcr_measurelog < "$INFILE_PCR_EVENTLOG" >>$OUTFILE
+  fi
   echo "$BLANK2$BLANK2</modules>" >>$OUTFILE
   echo "$BLANK2</txt>" >>$OUTFILE
   echo "</measureLog>" >>$OUTFILE
@@ -286,7 +288,9 @@ done
 #output all modules
 echo "$BLANK2$BLANK2<modules>" >>$OUTFILE
 # write the PCR values to the measure log
-generate_pcr_measurelog < "$INFILE_PCR_EVENTLOG" >>$OUTFILE
+if [ -f "$INFILE_PCR_EVENTLOG" ];then
+  generate_pcr_measurelog < "$INFILE_PCR_EVENTLOG" >>$OUTFILE
+fi
 
 for((g=0;g<${#xDigestArray[*]};g++));do
   if [ "${xTypeArray[$g]}" != 0x3 -a "${xPcrIndexArray[$g]}" != 255 ]; then

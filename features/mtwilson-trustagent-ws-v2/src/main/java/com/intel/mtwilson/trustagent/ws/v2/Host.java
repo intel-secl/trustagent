@@ -65,6 +65,7 @@ public class Host {
             host.setInstalledComponents(hostCntrl.getContext().getInstalledComponents());
             hostCntrl.getContext().getHardwareFeatures().get(HardwareFeature.TPM).getMeta().put("pcr_banks",StringUtils.join(pcrBanks, '_'));
             host.setHardwareFeatures(hostCntrl.getContext().getHardwareFeatures());
+            host.setIsDockerEnv(hostCntrl.getContext().getIsDockerEnv());
             /*
             String responseXML =
                     "<host_info>"

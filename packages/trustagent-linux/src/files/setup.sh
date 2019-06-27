@@ -368,38 +368,39 @@ if [[ ! -h $TRUSTAGENT_BIN/tagent ]]; then
 fi
 
 #16. install application agent
-if [ "$TBOOTXM_INSTALL" != "N" ] && [ "$TBOOTXM_INSTALL" != "No" ] && [ "$TBOOTXM_INSTALL" != "n" ] && [ "$TBOOTXM_INSTALL" != "no" ]; then 
-#  ### INSTALL MEASUREMENT AGENT --comment out for now for cit 2.2
-  echo "Installing application agent..."
-  TBOOTXM_PACKAGE=`ls -1 application-agent*.bin 2>/dev/null | tail -n 1`
-  if [ -z "$TBOOTXM_PACKAGE" ]; then
-    echo_failure "Failed to find application agent installer package"
-    exit -1
+if [[ "$(whoami)" == "root" && ${DOCKER} == "false" ]]; then
+  if [ "$TBOOTXM_INSTALL" != "N" ] && [ "$TBOOTXM_INSTALL" != "No" ] && [ "$TBOOTXM_INSTALL" != "n" ] && [ "$TBOOTXM_INSTALL" != "no" ]; then
+    echo "Installing application agent..."
+    TBOOTXM_PACKAGE=`ls -1 application-agent*.bin 2>/dev/null | tail -n 1`
+    if [ -z "$TBOOTXM_PACKAGE" ]; then
+      echo_failure "Failed to find application agent installer package"
+      exit -1
+    fi
+    ./$TBOOTXM_PACKAGE
+    if [ $? -ne 0 ]; then echo_failure "Failed to install application agent"; exit -1; fi
   fi
-  ./$TBOOTXM_PACKAGE
-  if [ $? -ne 0 ]; then echo_failure "Failed to install application agent"; exit -1; fi
-fi
 
-#Added execute permission for measure binary
-chmod o+x /opt/tbootxm
-chmod o+x /opt/tbootxm/bin/
-chmod o+x /opt/tbootxm/lib/
-chmod o+x /opt/tbootxm/bin/measure
-chmod o+x /opt/tbootxm/lib/libwml.so
+  #Added execute permission for measure binary
+  chmod o+x /opt/tbootxm
+  chmod o+x /opt/tbootxm/bin/
+  chmod o+x /opt/tbootxm/lib/
+  chmod o+x /opt/tbootxm/bin/measure
+  chmod o+x /opt/tbootxm/lib/libwml.so
 
 
-#Copy default and workload software manifest to /opt/trustagent/var/
-if ! stat $TRUSTAGENT_VAR/manifest_* 1> /dev/null 2>&1; then
-  UUID=$(uuidgen)
-  if [ "$TPM_VERSION" == "1.2" ]; then
-    cp manifest_tpm12.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
-  else
-    cp manifest_tpm20.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
+  #Copy default and workload software manifest to /opt/trustagent/var/
+  if ! stat $TRUSTAGENT_VAR/manifest_* 1> /dev/null 2>&1; then
+    UUID=$(uuidgen)
+    if [ "$TPM_VERSION" == "1.2" ]; then
+      cp manifest_tpm12.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
+    else
+      cp manifest_tpm20.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
+    fi
+    sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
+    UUID=$(uuidgen)
+    cp manifest_wlagent.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
+    sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
   fi
-  sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
-  UUID=$(uuidgen)
-  cp manifest_wlagent.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
-  sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
 fi
 
 # 17. migrate any old data to the new locations (v1 - v3)  (should be rewritten in java)

@@ -80,6 +80,7 @@ public class  GetHostInfo implements Command {
             HardwareFeatureDetails suefi = context.getHardwareFeatures().get(HardwareFeature.SUEFI);
             String tbootStatus = context.getTbootInstalled(); // will be null in case of windows
             String txtStatus = context.getTxtEnabled();
+            getDockerEnv();
             if((isTbootNotInstalled(tbootStatus) || !Boolean.valueOf(txtStatus)) && suefi == null) {
                 throw new PlatformInfoException(ErrorCode.ERROR, "TXT should be enabled and tboot should be installed on this system");
             }
@@ -91,6 +92,10 @@ public class  GetHostInfo implements Command {
             log.debug("Error while getting Host details", ex);
             throw new PlatformInfoException(ErrorCode.ERROR, "Error while getting Host details.", ex);
         }
+    }
+
+    private void getDockerEnv() {
+        context.setIsDockerEnv((String) map.get("docker-env"));
     }
 
     private boolean isTbootNotInstalled(String tbootStatus) {

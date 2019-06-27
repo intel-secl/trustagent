@@ -39,6 +39,7 @@ public class PlatformInfoCollector {
         platformInfoMap.put("tpm-enabled", context.getTpmEnabled());
         platformInfoMap.put("txt-status", context.getTxtStatus());
         platformInfoMap.put("tboot-status", context.getTbootStatus());
+        platformInfoMap.put("docker-env", context.isDockerEnv());
         platformInfoMap.put("installed-components", String.join(",", context.getInstalledComponents()));
         platformInfoMap.put("cbnt-status", context.getCbntStatus());
         platformInfoMap.put("cbnt-profile", context.getCbntProfile());
