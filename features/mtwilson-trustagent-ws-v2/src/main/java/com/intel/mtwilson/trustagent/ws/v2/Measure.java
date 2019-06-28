@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 package com.intel.mtwilson.trustagent.ws.v2;
 
 import com.intel.mtwilson.Folders;
@@ -6,7 +10,6 @@ import com.intel.mountwilson.common.TAException;
 
 import com.intel.mtwilson.core.common.utils.ManifestUtils;
 import com.intel.mtwilson.launcher.ws.ext.V2;
-//import com.intel.mtwilson.core.common.utils.ManifestUtils;
 import com.intel.mtwilson.core.common.utils.MeasurementUtils;
 import com.intel.wml.manifest.xml.Manifest;
 import com.intel.wml.measurement.xml.Measurement;

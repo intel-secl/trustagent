@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 package com.intel.mtwilson.trustagent.ws.v2;
 
 import com.intel.dcsg.cpg.io.UUID;
@@ -20,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import com.intel.mtwilson.core.common.model.SoftwareFlavorPrefix;
+
 /**
  * @author arijitgh
  */

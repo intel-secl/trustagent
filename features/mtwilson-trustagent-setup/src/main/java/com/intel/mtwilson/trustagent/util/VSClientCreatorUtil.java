@@ -1,10 +1,13 @@
+/*
+ * Copyright (C) 2019 Intel Corporation
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 package com.intel.mtwilson.trustagent.util;
 
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.mtwilson.jaxrs2.client.MtWilsonClient;
-import com.intel.dcsg.cpg.configuration.Configuration;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 
 import java.net.URL;
