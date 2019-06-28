@@ -13,7 +13,7 @@ if [ -z "$makeself" ]; then
     exit 1
 fi
 
-jars=`ls ./share/lib-host-connector-1.0.jar && ls ./share/mtwilson-flavor-ws-v2-4.0-SNAPSHOT.jar`
+jars=`ls ./share/lib-host-connector-*.jar && ls ./share/mtwilson-flavor-ws-v2-*-SNAPSHOT.jar`
 if [ -z "$jars" ]; then
     echo "Missing dependency jars"
     exit 1
