@@ -106,7 +106,7 @@ public class StartHttpServer implements Command {
         sslContextFactory.setKeyStoreType(KeyStore.getDefaultType());
         sslContextFactory.setTrustStorePath(configuration.getTrustagentKeystoreFile().getAbsolutePath());
         sslContextFactory.setTrustStorePassword(configuration.getTrustagentKeystorePassword());
-        sslContextFactory.setExcludeProtocols("SSL", "SSLv2", "SSLv2Hello", "SSLv3");
+        sslContextFactory.setExcludeProtocols("SSL", "SSLv2", "SSLv2Hello", "SSLv3", "TLSv1", "TLSv1.1");
         sslContextFactory.setIncludeCipherSuites(
                 "TLS_DHE_RSA.*", "TLS_ECDHE.*"
         );
