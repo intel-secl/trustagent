@@ -68,6 +68,12 @@
                     <type>bin</type>
                 </dependency>
                 <dependency>
+                    <groupId>com.intel.isecl</groupId>
+                    <artifactId>workload-agent</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <type>bin</type>
+                </dependency>
+                <dependency>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-api</artifactId>
                 </dependency>
@@ -114,6 +120,13 @@
                                             <groupId>com.intel.mtwilson.trustagent.packages</groupId>
                                             <artifactId>tboot-linux</artifactId>
                                             <version>${project.version}</version>
+                                            <type>bin</type>
+                                            <outputDirectory>${makeself.directory}</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>com.intel.isecl</groupId>
+                                            <artifactId>workload-agent</artifactId>
+                                            <version>1.0-SNAPSHOT</version>
                                             <type>bin</type>
                                             <outputDirectory>${makeself.directory}</outputDirectory>
                                         </artifactItem>
