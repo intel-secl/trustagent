@@ -69,6 +69,10 @@ fi
 #Adding net-tools for bug 5285
 #adding openssl-devel for bug 5284
 TRUSTAGENT_YUM_PACKAGES="unzip vim-common cpuid msr-tools"
+if [ "$TPM_VERSION" == "2.0" ]; then
+  TRUSTAGENT_YUM_PACKAGES="$TRUSTAGENT_YUM_PACKAGES tpm2-abrmd"
+fi
+
 TRUSTAGENT_APT_PACKAGES="unzip dpkg-dev vim-common cpuid msr-tools"
 TRUSTAGENT_YAST_PACKAGES="unzip vim-common"
 TRUSTAGENT_ZYPPER_PACKAGES="unzip vim-common"

@@ -604,13 +604,23 @@ for directory in $TRUSTAGENT_HOME $TRUSTAGENT_CONFIGURATION $TRUSTAGENT_JAVA $TR
 done
 
 # 27. update tpm devices permissions to ensure it can be accessed by trustagent
-if [[ "$(whoami)" == "root" && $TPM_VERSION == "2.0" ]]; then
-  # tpm devices can only be accessed by the trustagent user and group
-  echo "KERNEL==\"tpmrm[0-9]*|tpm[0-9]*\", MODE=\"0660\", OWNER=\"$TRUSTAGENT_USERNAME\", GROUP=\"$TRUSTAGENT_USERNAME\"" > /lib/udev/rules.d/tpm-udev.rules
-  /sbin/udevadm control --reload-rules
-  /sbin/udevadm trigger --type=devices --action=change
-else
-  echo_warning "Skipping update tpm devices permissions"
+if [ "$TPM_VERSION" == "2.0" ]; then
+  if [ "$(whoami)" == "root" ]; then
+    # After installing tpm2-abmrd the tss user and group permission rules get written to 60-tpm-udev.rules.
+    # The following commands reload and trigger the rules from 60-tpm-udev.rules thus chaging the
+    # ownership of tpm device
+    /sbin/udevadm control --reload-rules
+    /sbin/udevadm trigger --type=devices --action=change
+  else
+    echo_warning "Skipping update tpm devices permissions"
+  fi
+
+  # add tagent user to tss group
+  usermod -a -G tss $TRUSTAGENT_USERNAME
+
+  # enable and start the tpm2-abrmd service
+  systemctl enable tpm2-abrmd.service
+  systemctl start tpm2-abrmd.service
 fi
 
 if [ "${LOCALHOST_INTEGRATION}" == "yes" ]; then
