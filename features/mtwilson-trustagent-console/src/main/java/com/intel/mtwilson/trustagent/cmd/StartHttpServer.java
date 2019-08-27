@@ -108,12 +108,10 @@ public class StartHttpServer implements Command {
         sslContextFactory.setTrustStorePassword(configuration.getTrustagentKeystorePassword());
         sslContextFactory.setExcludeProtocols("SSL", "SSLv2", "SSLv2Hello", "SSLv3", "TLSv1", "TLSv1.1");
         sslContextFactory.setIncludeCipherSuites(
-                "TLS_DHE_RSA.*", "TLS_ECDHE.*"
-        );
-        // Do not disable ECDHE ciper suite to overcome DH vulnerabilities; ISECL-2188, ISECL-2188, ISECL-3482
-        sslContextFactory.setExcludeCipherSuites(
-                ".*NULL.*", ".*RC4.*", ".*MD5.*", ".*DES.*", ".*DSS.*",
-                ".*EC.*", ".*ECDH.*"
+                "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
         );
         sslContextFactory.setRenegotiationAllowed(false);
         ServerConnector https = new ServerConnector(server,
