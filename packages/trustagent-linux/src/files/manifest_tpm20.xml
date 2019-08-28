@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Manifest xmlns="lib:wml:manifests:1.0" Label="ISecL_Default_Application_Flavor_v1.5_TPM2.0" Uuid="" DigestAlg="SHA384">
+<Manifest xmlns="lib:wml:manifests:1.0" Label="ISecL_Default_Application_Flavor_v" Uuid="" DigestAlg="SHA384">
    <Dir Exclude="" FilterType="regex" Include=".*" Path="/opt/tbootxm/bin"/>
    <Dir Exclude="" FilterType="regex" Include=".*" Path="/opt/tbootxm/dracut_files"/>
    <Dir Exclude="" FilterType="regex" Include=".*" Path="/opt/tbootxm/initrd_hooks"/>

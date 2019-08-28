@@ -386,21 +386,6 @@ if [[ "$(whoami)" == "root" && ${DOCKER} == "false" ]]; then
   chmod o+x /opt/tbootxm/lib/
   chmod o+x /opt/tbootxm/bin/measure
   chmod o+x /opt/tbootxm/lib/libwml.so
-
-
-  #Copy default and workload software manifest to /opt/trustagent/var/
-  if ! stat $TRUSTAGENT_VAR/manifest_* 1> /dev/null 2>&1; then
-    UUID=$(uuidgen)
-    if [ "$TPM_VERSION" == "1.2" ]; then
-      cp manifest_tpm12.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
-    else
-      cp manifest_tpm20.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
-    fi
-    sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
-    UUID=$(uuidgen)
-    cp manifest_wlagent.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
-    sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
-  fi
 fi
 
 # 17. migrate any old data to the new locations (v1 - v3)  (should be rewritten in java)
@@ -680,6 +665,20 @@ fi
 if [ -n "$TRUSTAGENT_NOSETUP" ]; then
   echo "TRUSTAGENT_NOSETUP value is set. So, skipping the trustagent setup task."
   exit 0;
+fi
+
+#Copy default and workload software manifest to /opt/trustagent/var/
+if ! stat $TRUSTAGENT_VAR/manifest_* 1> /dev/null 2>&1; then
+  TA_VERSION=`tagent version | grep Version | awk '{print $2}' |  cut -d '-' -f1`
+  UUID=$(uuidgen)
+  cp manifest_tpm20.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
+  sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
+  sed -i "s/Label=\"ISecL_Default_Application_Flavor_v\"/Label=\"ISecL_Default_Application_Flavor_v${TA_VERSION}_TPM2.0\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
+
+  UUID=$(uuidgen)
+  cp manifest_wlagent.xml $TRUSTAGENT_VAR/manifest_"$UUID".xml
+  sed -i "s/Uuid=\"\"/Uuid=\"${UUID}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
+  sed -i "s/Label=\"ISecL_Default_Workload_Flavor_v\"/Label=\"ISecL_Default_Workload_Flavor_v${TA_VERSION}\"/g" $TRUSTAGENT_VAR/manifest_"$UUID".xml
 fi
 
 #Stop further installation if there is no TPM driver loaded
