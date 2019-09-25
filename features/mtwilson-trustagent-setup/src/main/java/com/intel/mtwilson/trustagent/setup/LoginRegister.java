@@ -8,6 +8,7 @@ import com.intel.dcsg.cpg.tls.policy.TlsConnection;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.mtwilson.Folders;
+import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.trustagent.attestation.client.jaxrs.Hosts;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
@@ -43,6 +44,7 @@ public class LoginRegister extends AbstractSetupTask {
     private String dn;
     private String[] ip;
     private String[] dns;
+    private String aasApiUrl;
 
     @Override
     protected void configure() throws Exception {
@@ -52,6 +54,10 @@ public class LoginRegister extends AbstractSetupTask {
         trustagentLoginUserName = trustagentConfiguration.getTrustAgentAdminUserName();
         if (trustagentLoginUserName == null || trustagentLoginUserName.isEmpty()) {
             configuration("TrustAgent User name is not set. Please run the create-admin-user setup task first.");
+        }
+        aasApiUrl = trustagentConfiguration.getAasApiUrl();
+        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
+            configuration("AAS API URL is not set");
         }
 
         File privateDir = new File(Folders.configuration() + File.separator + "private");
@@ -66,9 +72,10 @@ public class LoginRegister extends AbstractSetupTask {
            return;
         }
 
-        SecureStoreUtil secureStore = new SecureStoreUtil();
-        trustagentLoginPassword = secureStore.readFromStore(secureStore.loadKeyStore(passwordFile.getAbsolutePath(), trustagentConfiguration.getTrustagentSecureStorePassword()), 
-                TrustagentConfiguration.SECURE_STORE_PASSWORD_KEY, TrustagentConfiguration.SECURE_STORE_PASSWORD_ALIAS);
+        trustagentLoginPassword = trustagentConfiguration.getTrustAgentAdminPassword();
+        if (trustagentLoginPassword == null || trustagentLoginPassword.isEmpty()) {
+            configuration("TA admin password is not set");
+        }
 
         if (trustagentLoginPassword == null || trustagentLoginPassword.isEmpty()) {
             configuration("TrustAgent password is not set. Please run the create-admin-user setup task first.");
@@ -137,9 +144,7 @@ public class LoginRegister extends AbstractSetupTask {
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
 
         Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_USERNAME, username);
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_PASSWORD, guardedPassword.getInsPassword());
-
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, trustagentLoginUserName, trustagentLoginPassword));
         Hosts hostClientObj = new Hosts(clientConfiguration, tlsConnection);
         List<String> hostNames = new ArrayList<>();
         hostNames.addAll(Arrays.asList(dns));

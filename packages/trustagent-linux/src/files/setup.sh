@@ -612,6 +612,8 @@ if [ "${LOCALHOST_INTEGRATION}" == "yes" ]; then
   /opt/trustagent/bin/tagent.sh localhost-integration
 fi
 
+tagent config trustagent.admin.password $TRUSTAGENT_ADMIN_PASSWORD
+tagent config aas.api.url $AAS_API_URL
 #tagent config mtwilson.extensions.fileIncludeFilter.contains "${MTWILSON_EXTENSIONS_FILEINCLUDEFILTER_CONTAINS:-mtwilson,trustagent,jersey-media-multipart}" >/dev/null
 #tagent config mtwilson.extensions.packageIncludeFilter.startsWith "${MTWILSON_EXTENSIONS_PACKAGEINCLUDEFILTER_STARTSWITH:-com.intel,org.glassfish.jersey.media.multipart}" >/dev/null
 
