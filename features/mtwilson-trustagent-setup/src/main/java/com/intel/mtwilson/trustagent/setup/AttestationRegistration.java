@@ -11,8 +11,8 @@ import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
+import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
+import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.jaxrs2.client.MtWilsonClient;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.tls.policy.TlsPolicyDescriptor;
@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import com.intel.mtwilson.crypto.password.GuardedPassword;
@@ -52,34 +53,36 @@ public class AttestationRegistration extends AbstractSetupTask{
     private static final String TLS_ALIAS = "tls";
 
     private TrustagentConfiguration trustagentConfiguration;
-    private String url;
-    private String username;
-    private GuardedPassword guardedPassword = new GuardedPassword();
-    private File keystoreFile;
     private GuardedPassword keystoreGuardedPassword = new GuardedPassword();
     private SimpleKeystore keystore;
     private String currentIp;
-    
+    private TlsConnection tlsConnection;
+    private Properties clientConfiguration = new Properties();
+
     @Override
     protected void configure() throws Exception {
         trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
-        url = trustagentConfiguration.getMtWilsonApiUrl();
+        String url = trustagentConfiguration.getMtWilsonApiUrl();
         if( url == null || url.isEmpty() ) {
             configuration("Mt Wilson URL is not set");
         }
-        username = trustagentConfiguration.getMtWilsonApiUsername();
-        guardedPassword.setPassword(trustagentConfiguration.getMtWilsonApiPassword());
+        String username = trustagentConfiguration.getTrustAgentAdminUserName();
+        if (username == null || username.isEmpty()) {
+            configuration("TA admin username is not set");
+        }
+        String password = trustagentConfiguration.getTrustAgentAdminPassword();
+        if (password == null || password.isEmpty()) {
+            configuration("TA admin password is not set");
+        }
+        String aasApiUrl = trustagentConfiguration.getAasApiUrl();
+        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
+            configuration("AAS API URL is not set");
+        }
         currentIp = trustagentConfiguration.getCurrentIp();
-        if( username == null || username.isEmpty() ) {
-            configuration("Mt Wilson username is not set");
-        }
-        if(!guardedPassword.isPasswordValid()) {
-            configuration("Mt Wilson password is not set");
-        }
         if( currentIp == null || currentIp.isEmpty() ) {
             configuration("Current IP is not set");
         }
-        keystoreFile = trustagentConfiguration.getTrustagentKeystoreFile();
+        File keystoreFile = trustagentConfiguration.getTrustagentKeystoreFile();
         if( keystoreFile == null || !keystoreFile.exists() ) {
             configuration("Trust Agent keystore does not exist");
         }
@@ -88,17 +91,15 @@ public class AttestationRegistration extends AbstractSetupTask{
             configuration("Trust Agent keystore password is not set");
         }
         keystore = new SimpleKeystore(new FileResource(keystoreFile), keystoreGuardedPassword.getInsPassword());
+
+        tlsConnection = new TlsConnection(new URL(trustagentConfiguration.getMtWilsonApiUrl()), new InsecureTlsPolicy());
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
+
     }
 
     @Override
     protected void validate() throws Exception {
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(), trustagentConfiguration.getTrustagentKeystorePassword()).build();
-        TlsConnection tlsConnection = new TlsConnection(new URL(trustagentConfiguration.getMtWilsonApiUrl()), tlsPolicy);
-        
-        Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_USERNAME, username);
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_PASSWORD, guardedPassword.getInsPassword());
-        
+
         Hosts hostsClient = new Hosts(clientConfiguration, tlsConnection);
         HostFilterCriteria filterCriteria = new HostFilterCriteria();
         filterCriteria.nameEqualTo = currentIp;
@@ -116,13 +117,7 @@ public class AttestationRegistration extends AbstractSetupTask{
         }
         
         String connectionString = String.format("%s:https://%s:%s", distro, currentIp, trustagentConfiguration.getTrustagentHttpTlsPort());
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(), trustagentConfiguration.getTrustagentKeystorePassword()).build();
-        TlsConnection tlsConnection = new TlsConnection(new URL(trustagentConfiguration.getMtWilsonApiUrl()), tlsPolicy);
-        
-        Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_USERNAME, username);
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_PASSWORD, guardedPassword.getInsPassword());
-        
+
         clientConfiguration.setProperty(TrustagentConfiguration.CLIENT_CONNECT_TIMEOUT, "10");
         clientConfiguration.setProperty(TrustagentConfiguration.CLIENT_READ_TIMEOUT, "60");
         

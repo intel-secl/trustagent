@@ -7,11 +7,11 @@ package com.intel.mtwilson.trustagent.setup;
 import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
+import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.dcsg.cpg.x509.X509Util;
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.client.jaxrs.PrivacyCA;
+import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.core.tpm.Tpm;
 import com.intel.mtwilson.core.tpm.Tpm.CredentialType;
 import com.intel.mtwilson.core.common.tpm.model.IdentityProofRequest;
@@ -45,7 +45,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import com.intel.mtwilson.crypto.password.GuardedPassword;
 
 
 /**
@@ -56,11 +55,11 @@ public class RequestAikCertificate extends AbstractSetupTask {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RequestAikCertificate.class);
     private TrustagentConfiguration config;
-    private SimpleKeystore keystore;
     private X509Certificate privacyCA;
     private String url;
     private String username;
-    private  GuardedPassword guardedPassword = new GuardedPassword();
+    private String password;
+    private String aasApiUrl;
     private byte[] ekCert;
 
     @Override
@@ -68,21 +67,27 @@ public class RequestAikCertificate extends AbstractSetupTask {
         config = new TrustagentConfiguration(getConfiguration());
 
         url = config.getMtWilsonApiUrl();
-        username = config.getMtWilsonApiUsername();
-        guardedPassword.setPassword(config.getMtWilsonApiPassword());
-
         if (url == null || url.isEmpty()) {
             configuration("Mt Wilson URL [mtwilson.api.url] must be set");
         }
+
+        username = config.getTrustAgentAdminUserName();
         if (username == null || username.isEmpty()) {
-            configuration("Mt Wilson username [mtwilson.api.username] must be set");
+            configuration("TA admin username is not set");
         }
-        if (!guardedPassword.isPasswordValid()) {
-            configuration("Mt Wilson password [mtwilson.api.password] must be set");
+
+        password = config.getTrustAgentAdminPassword();
+        if (password == null || password.isEmpty()) {
+            configuration("TA admin password is not set");
+        }
+
+        aasApiUrl = config.getAasApiUrl();
+        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
+            configuration("AAS API URL is not set");
         }
 
         if (config.getTrustagentKeystoreFile().exists()) {
-            keystore = new SimpleKeystore(new FileResource(config.getTrustagentKeystoreFile()), config.getTrustagentKeystorePassword());
+            SimpleKeystore keystore = new SimpleKeystore(new FileResource(config.getTrustagentKeystoreFile()), config.getTrustagentKeystorePassword());
             try {
                 privacyCA = keystore.getX509Certificate("privacy", SimpleKeystore.CA);
             } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | CertificateEncodingException e) {
@@ -148,12 +153,10 @@ public class RequestAikCertificate extends AbstractSetupTask {
                 String aikblob = taConfig.getAikBlobFile().getAbsolutePath();
                 writeBlob(aikblob, newId.getAikBlob());
             }
-            TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(taConfig.getTrustagentKeystoreFile(), taConfig.getTrustagentKeystorePassword()).build();
-            TlsConnection tlsConnection = new TlsConnection(new URL(taConfig.getMtWilsonApiUrl()), tlsPolicy);
 
+            TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
             Properties clientConfiguration = new Properties();
-            clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_USERNAME, taConfig.getMtWilsonApiUsername());
-            clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_PASSWORD, taConfig.getMtWilsonApiPassword());
+            clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
 
             // send the identity request to the privacy ca to get a challenge
             PrivacyCA client = new PrivacyCA(clientConfiguration, tlsConnection);

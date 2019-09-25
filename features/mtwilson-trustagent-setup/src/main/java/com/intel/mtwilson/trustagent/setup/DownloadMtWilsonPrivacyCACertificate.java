@@ -8,9 +8,9 @@ import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.dcsg.cpg.crypto.Sha1Digest;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
+import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.client.jaxrs.CaCertificates;
+import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import java.io.File;
@@ -31,30 +31,33 @@ import com.intel.mtwilson.crypto.password.GuardedPassword;
 public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DownloadMtWilsonPrivacyCACertificate.class);
 
-    private TrustagentConfiguration trustagentConfiguration;
     private String url;
     private String username;
-    private GuardedPassword guardedPassword = new GuardedPassword();
-    private File keystoreFile;
+    private String password;
+    private String aasApiUrl;
     private GuardedPassword keystoreGuardedPassword = new GuardedPassword();
     private SimpleKeystore keystore;
     
     @Override
     protected void configure() throws Exception {
-        trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
+        TrustagentConfiguration trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
         url = trustagentConfiguration.getMtWilsonApiUrl();
         if( url == null || url.isEmpty() ) {
             configuration("Mt Wilson URL is not set");
         }
-        username = trustagentConfiguration.getMtWilsonApiUsername();
-        guardedPassword.setPassword(trustagentConfiguration.getMtWilsonApiPassword());
-        if( username == null || username.isEmpty() ) {
-            configuration("Mt Wilson username is not set");
+        username = trustagentConfiguration.getTrustAgentAdminUserName();
+        if (username == null || username.isEmpty()) {
+            configuration("TA admin username is not set");
         }
-        if( !guardedPassword.isPasswordValid() ) {
-            configuration("Mt Wilson password is not set");
+        password = trustagentConfiguration.getTrustAgentAdminPassword();
+        if (password == null || password.isEmpty()) {
+            configuration("TA admin password is not set");
         }
-        keystoreFile = trustagentConfiguration.getTrustagentKeystoreFile();
+        aasApiUrl = trustagentConfiguration.getAasApiUrl();
+        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
+            configuration("AAS API URL is not set");
+        }
+        File keystoreFile = trustagentConfiguration.getTrustagentKeystoreFile();
         if( keystoreFile == null || !keystoreFile.exists() ) {
             configuration("Trust Agent keystore does not exist");
         }
@@ -86,14 +89,9 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
     @Override
     protected void execute() throws Exception {
         log.debug("Creating TLS policy");
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(), trustagentConfiguration.getTrustagentKeystorePassword()).build();
-        TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
-        
+        TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
         Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_USERNAME, username);
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_PASSWORD, guardedPassword.getInsPassword());
-        guardedPassword.dispose();
-        
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
         CaCertificates client = new CaCertificates(clientConfiguration, tlsConnection);
         X509Certificate certificate = client.retrieveCaCertificate("privacy");
         keystore.addTrustedCaCertificate(certificate, "privacy");

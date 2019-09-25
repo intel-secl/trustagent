@@ -7,13 +7,12 @@ package com.intel.mtwilson.trustagent.setup;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.dcsg.cpg.crypto.Sha1Digest;
-import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
+import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.dcsg.cpg.x509.X509Util;
 import com.intel.mtwilson.Folders;
+import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.privacyca.v2.model.CaCertificateFilterCriteria;
 import com.intel.mtwilson.client.jaxrs.CaCertificates;
 import com.intel.mtwilson.client.jaxrs.PrivacyCA;
@@ -42,7 +41,6 @@ import java.util.Properties;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import com.intel.mtwilson.crypto.password.GuardedPassword;
 
 /**
  *
@@ -52,37 +50,47 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RequestEndorsementCertificate.class);
     private TrustagentConfiguration config;
-    private File keystoreFile;
-    private SimpleKeystore keystore;
-    private String tpmOwnerSecretHex;
-    private String url;
-    private String username;
-    private GuardedPassword guardedPassword = new GuardedPassword();
     private X509Certificate ekCert;
     private CaCertificates caCertificatesClient;
     private TpmEndorsements tpmEndorsementsClient;
     private File endorsementAuthoritiesFile;
     private List<X509Certificate> endorsementAuthorities;
     private UUID hostHardwareId;
+    private TlsConnection tlsConnection;
+    private Properties clientConfiguration = new Properties();
 
     @Override
     protected void configure() throws Exception {
         config = new TrustagentConfiguration(getConfiguration());
 
-        url = config.getMtWilsonApiUrl();
-        username = config.getMtWilsonApiUsername();
-        guardedPassword.setPassword(config.getMtWilsonApiPassword());
+        String url = config.getMtWilsonApiUrl();
         if (url == null || url.isEmpty()) {
             configuration("Mt Wilson URL [mtwilson.api.url] must be set");
         }
+
+        String username = config.getTrustAgentAdminUserName();
         if (username == null || username.isEmpty()) {
-            configuration("Mt Wilson username [mtwilson.api.username] must be set");
-        }
-        if (!guardedPassword.isPasswordValid()) {
-            configuration("Mt Wilson password [mtwilson.api.password] must be set");
+            configuration("TA admin username is not set");
         }
 
-        tpmOwnerSecretHex = config.getTpmOwnerSecretHex(); // we check it here because ProvisionTPM calls getOwnerSecret() which relies on this
+        String password = config.getTrustAgentAdminPassword();
+        if (password == null || password.isEmpty()) {
+            configuration("TA admin password is not set");
+        }
+
+        String aasApiUrl = config.getAasApiUrl();
+        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
+            configuration("AAS API URL is not set");
+        }
+
+        String hostHardwareIdHex = config.getHardwareUuid();
+        if (hostHardwareIdHex == null || hostHardwareIdHex.isEmpty() || !UUID.isValid(hostHardwareIdHex)) {
+            configuration("Host hardware UUID [hardware.uuid] must be set");
+        } else {
+            hostHardwareId = UUID.valueOf(hostHardwareIdHex);
+        }
+
+        String tpmOwnerSecretHex = config.getTpmOwnerSecretHex(); // we check it here because ProvisionTPM calls getOwnerSecret() which relies on this
         if (tpmOwnerSecretHex == null) {
             configuration("TPM Owner Secret is not configured: %s", TrustagentConfiguration.TPM_OWNER_SECRET); // this constant is the name of the property, literally "tpm.owner.secret"
         }
@@ -91,31 +99,26 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
             configuration("Trust Agent is not the TPM owner");
         }
 
-        keystoreFile = config.getTrustagentKeystoreFile();
-
         endorsementAuthoritiesFile = config.getEndorsementAuthoritiesFile();
         if (endorsementAuthoritiesFile == null) {
             configuration("Endorsement authorities file location is not set");
         }
 
+        tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
+
         try {
-            tpmEndorsementsClient = new TpmEndorsements(config.getMtWilsonClientProperties());
+            tpmEndorsementsClient = new TpmEndorsements(clientConfiguration, tlsConnection);
         } catch (Exception e) {
             log.error("Cannot configure TPM Endorsements API client", e);
             configuration(e, "Cannot configure TPM Endorsements API client");
         }
 
         try {
-            caCertificatesClient = new CaCertificates(config.getMtWilsonClientProperties());
+            caCertificatesClient = new CaCertificates(clientConfiguration, tlsConnection);
         } catch (Exception e) {
+            log.error("Cannot configure CA Certificates API client", e);
             configuration(e, "Cannot configure CA Certificates API client");
-        }
-
-        String hostHardwareIdHex = config.getHardwareUuid();
-        if (hostHardwareIdHex == null || hostHardwareIdHex.isEmpty() || !UUID.isValid(hostHardwareIdHex)) {
-            configuration("Host hardware UUID [hardware.uuid] must be set");
-        } else {
-            hostHardwareId = UUID.valueOf(hostHardwareIdHex);
         }
 
     }
@@ -256,16 +259,10 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
     }
 
     private void endorseTpmWithMtWilson() throws IOException, Tpm.TpmException, CertificateEncodingException {
-        TrustagentConfiguration config = new TrustagentConfiguration(getConfiguration());
         Tpm tpm = Tpm.open(Paths.get(Folders.application(), "bin"));
         byte[] pubEkMod = tpm.getEndorsementKeyModulus(config.getTpmOwnerSecret());
         log.debug("Public EK Modulus: {}", TpmUtils.byteArrayToHexString(pubEkMod));
         log.debug("Requesting TPM endorsement from Privacy CA");
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(config.getTrustagentKeystoreFile(), config.getTrustagentKeystorePassword()).build();
-        TlsConnection tlsConnection = new TlsConnection(new URL(config.getMtWilsonApiUrl()), tlsPolicy);
-        Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_USERNAME, config.getMtWilsonApiUsername());
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_PASSWORD, config.getMtWilsonApiPassword());
         PrivacyCA pcaClient;
         try {
             pcaClient = new PrivacyCA(clientConfiguration, tlsConnection);

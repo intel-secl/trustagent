@@ -5,8 +5,8 @@
 package com.intel.mtwilson.trustagent.util;
 
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
+import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
+import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.jaxrs2.client.MtWilsonClient;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 
@@ -20,34 +20,26 @@ import java.util.Properties;
 public class VSClientCreatorUtil {
 
     private final static org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(VSClientCreatorUtil.class);
-    private TrustagentConfiguration trustagentConfiguration;
     private String username;
     private String password;
     private String url;
-    private String currentIp;
+    private String aasApiUrl;
 
     private void setProperties() throws Exception {
-        trustagentConfiguration  = TrustagentConfiguration.loadConfiguration();
+        TrustagentConfiguration trustagentConfiguration  = TrustagentConfiguration.loadConfiguration();
         url = trustagentConfiguration.getMtWilsonApiUrl();
-        username = trustagentConfiguration.getMtWilsonApiUsername();
-        password = trustagentConfiguration.getMtWilsonApiPassword();
-        currentIp = trustagentConfiguration.getCurrentIp();
+        username = trustagentConfiguration.getTrustAgentAdminUserName();
+        password = trustagentConfiguration.getTrustAgentAdminPassword();
+        aasApiUrl = trustagentConfiguration.getAasApiUrl();
 
     }
 
     public MtWilsonClient createVSClient() throws Exception {
         setProperties();
-        String distro = "intel";
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            distro = "microsoft";
-        }
-        String connectionString = String.format("%s:https://%s:%s", distro, currentIp, trustagentConfiguration.getTrustagentHttpTlsPort());
-        log.debug("connection string is {}", connectionString);
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(), trustagentConfiguration.getTrustagentKeystorePassword()).build();
-        TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
+        log.debug("Using AAS API URL to fetch token - {}", aasApiUrl);
+        TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
         Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_USERNAME, username);
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_PASSWORD, password);
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
         return new MtWilsonClient(clientConfiguration, tlsConnection);
     }
 }

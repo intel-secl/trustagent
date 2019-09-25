@@ -46,7 +46,9 @@ public class TrustagentConfiguration {
     // Trust Agent administrator username and passwora is not defined here,
     // see shiro.ini and passwora.txt files instead and administrator must
     // provide the username and password when connecting to Trust Agent.
-    
+
+    public final static String BEARER_TOKEN = "bearer.token";
+    public final static String AAS_API_URL = "aas.api.url";
     public final static String MTWILSON_API_URL = "mtwilson.api.url";
     public final static String MTWILSON_TLS_CERT_SHA384 = "mtwilson.tls.cert.sha384";
     public final static String MTWILSON_API_USERNAME = "mtwilson.api.username"; // NOTE: MUST NOT STORE THE VALUE
@@ -75,6 +77,7 @@ public class TrustagentConfiguration {
     public static final String SIGNING_KEY_SECRET = "signing.key.secret";
     public static final String SIGNING_KEY_INDEX = "signing.key.index";
     public static final String TRUSTAGENT_ADMIN_USERNAME = "trustagent.admin.username";
+    public static final String TRUSTAGENT_ADMIN_PASSWORD = "trustagent.admin.password";
     public final static String JETTY_THREAD_MIN = "jetty.thread.min";
     public final static String JETTY_THREAD_MAX = "jetty.thread.max";
     public final static String CURRENT_IP = "current.ip";
@@ -118,6 +121,9 @@ public class TrustagentConfiguration {
 
     public String getCurrentIp() {
         return conf.get(CURRENT_IP, null);// intentionally no default - this must be configured during setup
+    }
+    public String getAasApiUrl() {
+        return conf.get(AAS_API_URL, null);
     }
     public String getMtWilsonApiUrl() {
         return conf.get(MTWILSON_API_URL, null);// intentionally no default - this must be configured during setup
@@ -488,7 +494,11 @@ public class TrustagentConfiguration {
     public String getTrustAgentAdminUserName() {
         return conf.get(TRUSTAGENT_ADMIN_USERNAME); // intentionally no default - this must be generated during setup
     }
-    
+
+    public String getTrustAgentAdminPassword() {
+        return conf.get(TRUSTAGENT_ADMIN_PASSWORD); // intentionally no default - this must be generated during setup
+    }
+
     public String getTrustAgentTlsPolicyCertificateSha384() {
         return conf.get(TRUSTAGENT_TLS_CERT_SHA384, null);// intentionally no default - this must be configured during setup
     }

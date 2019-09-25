@@ -7,8 +7,8 @@ package com.intel.mtwilson.trustagent.setup;
 import com.intel.dcsg.cpg.io.PropertiesUtil;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
+import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
+import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.trustagent.attestation.client.jaxrs.HostTpmPassword;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.as.rest.v2.model.TpmPassword;
@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.Properties;
-import com.intel.mtwilson.crypto.password.GuardedPassword;
 
 /**
  *
@@ -25,32 +24,38 @@ import com.intel.mtwilson.crypto.password.GuardedPassword;
  */
 public class RegisterTpmPassword extends AbstractSetupTask {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RegisterTpmPassword.class);
-    private TrustagentConfiguration config;
+
     private String tpmOwnerSecretHex;
     private UUID hostHardwareId;
     private File etagCacheFile;
     private Properties etagCache;
-    private String url;
-    private String username;
-    private  GuardedPassword guardedPassword = new GuardedPassword();
-    
+    private TlsConnection tlsConnection;
+    private Properties clientConfiguration = new Properties();
+
     @Override
     protected void configure() throws Exception {
-        config = new TrustagentConfiguration(getConfiguration());
+        TrustagentConfiguration config = new TrustagentConfiguration(getConfiguration());
         
-        url = config.getMtWilsonApiUrl();
-        username = config.getMtWilsonApiUsername();
-        guardedPassword.setPassword(config.getMtWilsonApiPassword());
+        String url = config.getMtWilsonApiUrl();
         if (url == null || url.isEmpty()) {
             configuration("Mt Wilson URL [mtwilson.api.url] must be set");
         }
+
+        String username = config.getTrustAgentAdminUserName();
         if (username == null || username.isEmpty()) {
-            configuration("Mt Wilson username [mtwilson.api.username] must be set");
+            configuration("TA admin username is not set");
         }
-        if (!guardedPassword.isPasswordValid()) {
-            configuration("Mt Wilson password [mtwilson.api.password] must be set");
+
+        String password = config.getTrustAgentAdminPassword();
+        if (password == null || password.isEmpty()) {
+            configuration("TA admin password is not set");
         }
-        
+
+        String aasApiUrl = config.getAasApiUrl();
+        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
+            configuration("AAS API URL is not set");
+        }
+
         tpmOwnerSecretHex = config.getTpmOwnerSecretHex();
         if( tpmOwnerSecretHex == null || tpmOwnerSecretHex.isEmpty()) {
             configuration("TPM Owner Secret [tpm.owner.secret] must be set");
@@ -71,13 +76,8 @@ public class RegisterTpmPassword extends AbstractSetupTask {
             hostHardwareId = UUID.valueOf(hostHardwareIdHex);
         }
         
-        // these properties are used in validate() and execute() and must be defined
-        if( config.getTrustagentKeystoreFile() == null ) {
-            configuration("Keystore file is not set");
-        }
-        if( config.getTrustagentKeystorePassword() == null ) {
-            configuration("Keystore password is not set");
-        }
+        tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
     }
 
     @Override
@@ -86,14 +86,6 @@ public class RegisterTpmPassword extends AbstractSetupTask {
         //        looking for the same ETag from here.
         //        until that is done, user should always run this setup task
         //        with --force
-        
-        log.debug("RegisterTpmPassword.validate creating strict TLS Policy using keystore");
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(config.getTrustagentKeystoreFile(), config.getTrustagentKeystorePassword()).build();
-        TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
-        
-        Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_USERNAME, username);
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_PASSWORD, guardedPassword.getInsPassword());
 
         // check if mt wilson already knows the tpm owner secret
         HostTpmPassword client = new HostTpmPassword(clientConfiguration, tlsConnection);
@@ -121,14 +113,7 @@ public class RegisterTpmPassword extends AbstractSetupTask {
 
     @Override
     protected void execute() throws Exception {
-        log.debug("RegisterTpmPassword.execute creating strict TLS policy using keystore");
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(config.getTrustagentKeystoreFile(), config.getTrustagentKeystorePassword()).build();
-        TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
-        
-        Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_USERNAME, username);
-        clientConfiguration.setProperty(TrustagentConfiguration.MTWILSON_API_PASSWORD, guardedPassword.getInsPassword());
-        
+
         HostTpmPassword client = new HostTpmPassword(clientConfiguration, tlsConnection);
         String etag = client.storeTpmPassword(hostHardwareId, tpmOwnerSecretHex);
         if( etag != null && !etag.isEmpty() ) {
