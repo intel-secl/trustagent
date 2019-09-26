@@ -38,7 +38,7 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
     private String aasApiUrl;
     private GuardedPassword keystoreGuardedPassword = new GuardedPassword();
     private SimpleKeystore keystore;
-    TrustagentConfiguration trustagentConfiguration
+    private TrustagentConfiguration trustagentConfiguration;
 
     @Override
     protected void configure() throws Exception {
@@ -94,9 +94,7 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
         TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(), trustagentConfiguration.getTrustagentKeystorePassword()).build();
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
         Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
-
-
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
         CaCertificates client = new CaCertificates(clientConfiguration, tlsConnection);
         X509Certificate certificate = client.retrieveCaCertificate("privacy");
         keystore.addTrustedCaCertificate(certificate, "privacy");

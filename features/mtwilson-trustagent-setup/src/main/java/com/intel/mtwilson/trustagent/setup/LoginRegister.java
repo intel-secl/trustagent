@@ -113,8 +113,7 @@ public class LoginRegister extends AbstractSetupTask {
         
         TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
         Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, trustagentLoginUserName, trustagentLoginPassword));
-
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(trustagentLoginUserName, trustagentLoginPassword, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
         Hosts hostClientObj = new Hosts(clientConfiguration, tlsConnection);
         List<String> hostNames = new ArrayList<>();
         hostNames.addAll(Arrays.asList(dns));

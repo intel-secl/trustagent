@@ -8,6 +8,8 @@ import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.dcsg.cpg.crypto.Sha1Digest;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.client.jaxrs.CaCertificates;
 import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
@@ -37,10 +39,11 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
     private String aasApiUrl;
     private GuardedPassword keystoreGuardedPassword = new GuardedPassword();
     private SimpleKeystore keystore;
+    private TrustagentConfiguration trustagentConfiguration;
     
     @Override
     protected void configure() throws Exception {
-        TrustagentConfiguration trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
+        trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
         url = trustagentConfiguration.getMtWilsonApiUrl();
         if( url == null || url.isEmpty() ) {
             configuration("Mt Wilson URL is not set");
@@ -91,7 +94,9 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
         log.debug("Downloading SAML certificate and adding it to the keystore");
         TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
         Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
+            trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
         CaCertificates client = new CaCertificates(clientConfiguration, tlsConnection);
         X509Certificate certificate = client.retrieveCaCertificate("saml");
         keystore.addTrustedCaCertificate(certificate, "saml");

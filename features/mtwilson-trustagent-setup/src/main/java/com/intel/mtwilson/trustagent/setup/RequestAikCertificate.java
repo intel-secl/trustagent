@@ -7,6 +7,8 @@ package com.intel.mtwilson.trustagent.setup;
 import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.dcsg.cpg.x509.X509Util;
 import com.intel.mtwilson.Folders;
@@ -156,7 +158,10 @@ public class RequestAikCertificate extends AbstractSetupTask {
 
             TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
             Properties clientConfiguration = new Properties();
-            clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
+
+            TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(taConfig.getTrustagentKeystoreFile(),
+                taConfig.getTrustagentKeystorePassword()).build();
+            clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
 
             // send the identity request to the privacy ca to get a challenge
             PrivacyCA client = new PrivacyCA(clientConfiguration, tlsConnection);

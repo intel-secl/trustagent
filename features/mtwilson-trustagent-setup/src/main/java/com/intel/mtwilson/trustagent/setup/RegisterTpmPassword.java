@@ -7,6 +7,8 @@ package com.intel.mtwilson.trustagent.setup;
 import com.intel.dcsg.cpg.io.PropertiesUtil;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.trustagent.attestation.client.jaxrs.HostTpmPassword;
@@ -31,44 +33,45 @@ public class RegisterTpmPassword extends AbstractSetupTask {
     private Properties etagCache;
     private TlsConnection tlsConnection;
     private Properties clientConfiguration = new Properties();
+    TrustagentConfiguration trustagentConfiguration;
 
     @Override
     protected void configure() throws Exception {
-        TrustagentConfiguration config = new TrustagentConfiguration(getConfiguration());
+        trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
         
-        String url = config.getMtWilsonApiUrl();
+        String url = trustagentConfiguration.getMtWilsonApiUrl();
         if (url == null || url.isEmpty()) {
             configuration("Mt Wilson URL [mtwilson.api.url] must be set");
         }
 
-        String username = config.getTrustAgentAdminUserName();
+        String username = trustagentConfiguration.getTrustAgentAdminUserName();
         if (username == null || username.isEmpty()) {
             configuration("TA admin username is not set");
         }
 
-        String password = config.getTrustAgentAdminPassword();
+        String password = trustagentConfiguration.getTrustAgentAdminPassword();
         if (password == null || password.isEmpty()) {
             configuration("TA admin password is not set");
         }
 
-        String aasApiUrl = config.getAasApiUrl();
+        String aasApiUrl = trustagentConfiguration.getAasApiUrl();
         if (aasApiUrl == null || aasApiUrl.isEmpty()) {
             configuration("AAS API URL is not set");
         }
 
-        tpmOwnerSecretHex = config.getTpmOwnerSecretHex();
+        tpmOwnerSecretHex = trustagentConfiguration.getTpmOwnerSecretHex();
         if( tpmOwnerSecretHex == null || tpmOwnerSecretHex.isEmpty()) {
             configuration("TPM Owner Secret [tpm.owner.secret] must be set");
         }
 
-        etagCacheFile = config.getTrustagentEtagCacheFile();
+        etagCacheFile = trustagentConfiguration.getTrustagentEtagCacheFile();
         if( etagCacheFile.exists() ) {
             etagCache = PropertiesUtil.loadExisting(etagCacheFile);
         }
         else {
             etagCache = new Properties();
         }
-        String hostHardwareIdHex = config.getHardwareUuid();
+        String hostHardwareIdHex = trustagentConfiguration.getHardwareUuid();
         if( hostHardwareIdHex == null || hostHardwareIdHex.isEmpty() || !UUID.isValid(hostHardwareIdHex) ) {
             configuration("Host hardware UUID [hardware.uuid] must be set");
         }
@@ -77,7 +80,10 @@ public class RegisterTpmPassword extends AbstractSetupTask {
         }
         
         tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
-        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
+
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
+            trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
     }
 
     @Override

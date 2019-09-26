@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.dcsg.cpg.crypto.Sha1Digest;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.dcsg.cpg.x509.X509Util;
 import com.intel.mtwilson.Folders;
@@ -49,7 +51,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 public class RequestEndorsementCertificate extends AbstractSetupTask {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RequestEndorsementCertificate.class);
-    private TrustagentConfiguration config;
+    private TrustagentConfiguration trustagentConfiguration;
     private X509Certificate ekCert;
     private CaCertificates caCertificatesClient;
     private TpmEndorsements tpmEndorsementsClient;
@@ -61,51 +63,54 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
 
     @Override
     protected void configure() throws Exception {
-        config = new TrustagentConfiguration(getConfiguration());
+        trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
 
-        String url = config.getMtWilsonApiUrl();
+        String url = trustagentConfiguration.getMtWilsonApiUrl();
         if (url == null || url.isEmpty()) {
             configuration("Mt Wilson URL [mtwilson.api.url] must be set");
         }
 
-        String username = config.getTrustAgentAdminUserName();
+        String username = trustagentConfiguration.getTrustAgentAdminUserName();
         if (username == null || username.isEmpty()) {
             configuration("TA admin username is not set");
         }
 
-        String password = config.getTrustAgentAdminPassword();
+        String password = trustagentConfiguration.getTrustAgentAdminPassword();
         if (password == null || password.isEmpty()) {
             configuration("TA admin password is not set");
         }
 
-        String aasApiUrl = config.getAasApiUrl();
+        String aasApiUrl = trustagentConfiguration.getAasApiUrl();
         if (aasApiUrl == null || aasApiUrl.isEmpty()) {
             configuration("AAS API URL is not set");
         }
 
-        String hostHardwareIdHex = config.getHardwareUuid();
+        String hostHardwareIdHex = trustagentConfiguration.getHardwareUuid();
         if (hostHardwareIdHex == null || hostHardwareIdHex.isEmpty() || !UUID.isValid(hostHardwareIdHex)) {
             configuration("Host hardware UUID [hardware.uuid] must be set");
         } else {
             hostHardwareId = UUID.valueOf(hostHardwareIdHex);
         }
 
-        String tpmOwnerSecretHex = config.getTpmOwnerSecretHex(); // we check it here because ProvisionTPM calls getOwnerSecret() which relies on this
+        String tpmOwnerSecretHex = trustagentConfiguration.getTpmOwnerSecretHex(); // we check it here because ProvisionTPM calls getOwnerSecret() which relies on this
         if (tpmOwnerSecretHex == null) {
             configuration("TPM Owner Secret is not configured: %s", TrustagentConfiguration.TPM_OWNER_SECRET); // this constant is the name of the property, literally "tpm.owner.secret"
         }
         Tpm tpm = Tpm.open(Paths.get(Folders.application(), "bin"));
-        if (!tpm.isOwnedWithAuth(config.getTpmOwnerSecret())) {
+        if (!tpm.isOwnedWithAuth(trustagentConfiguration.getTpmOwnerSecret())) {
             configuration("Trust Agent is not the TPM owner");
         }
 
-        endorsementAuthoritiesFile = config.getEndorsementAuthoritiesFile();
+        endorsementAuthoritiesFile = trustagentConfiguration.getEndorsementAuthoritiesFile();
         if (endorsementAuthoritiesFile == null) {
             configuration("Endorsement authorities file location is not set");
         }
 
         tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
-        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
+
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
+            trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
 
         try {
             tpmEndorsementsClient = new TpmEndorsements(clientConfiguration, tlsConnection);
@@ -186,7 +191,7 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
         byte[] ekCertBytes;
         Tpm tpm = Tpm.open(Paths.get(Folders.application(), "bin"));/* Linux -- Also need to distinguish between TPM 1.2 and TPM 2.0 */
         try {
-            ekCertBytes = tpm.getCredential(config.getTpmOwnerSecret(), CredentialType.EC);
+            ekCertBytes = tpm.getCredential(trustagentConfiguration.getTpmOwnerSecret(), CredentialType.EC);
             log.debug("EC base64: {}", Base64.encodeBase64String(ekCertBytes));
             ekCert = X509Util.decodeDerCertificate(ekCertBytes);
         } catch (Tpm.TpmException e) {
@@ -260,7 +265,7 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
 
     private void endorseTpmWithMtWilson() throws IOException, Tpm.TpmException, CertificateEncodingException {
         Tpm tpm = Tpm.open(Paths.get(Folders.application(), "bin"));
-        byte[] pubEkMod = tpm.getEndorsementKeyModulus(config.getTpmOwnerSecret());
+        byte[] pubEkMod = tpm.getEndorsementKeyModulus(trustagentConfiguration.getTpmOwnerSecret());
         log.debug("Public EK Modulus: {}", TpmUtils.byteArrayToHexString(pubEkMod));
         log.debug("Requesting TPM endorsement from Privacy CA");
         PrivacyCA pcaClient;
@@ -273,7 +278,7 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
         X509Certificate ekCert = pcaClient.endorseTpm(pubEkMod);
         log.debug("Received EC SHA1: {}", Sha1Digest.digestOf(ekCert.getEncoded()).toHexString());
         // write the EC to the TPM NVRAM
-        tpm.setCredential(config.getTpmOwnerSecret(), CredentialType.EC, ekCert.getEncoded());
+        tpm.setCredential(trustagentConfiguration.getTpmOwnerSecret(), CredentialType.EC, ekCert.getEncoded());
 
     }
 }

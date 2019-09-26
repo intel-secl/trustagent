@@ -35,7 +35,6 @@ public class SetupTest {
         list.add(new TakeOwnership());
         list.add(new DownloadMtWilsonTlsCertificate());
         list.add(new DownloadMtWilsonPrivacyCACertificate());
-        list.add(new DownloadCmsCACertificate());
         list.add(new RequestEndorsementCertificate());
         list.add(new RequestAikCertificate());
         // TODO: register host with Mt Wilson (TBD - requires Mt Wilson to allow registration and setting trust policy as separate steps, which is not yet implemented)

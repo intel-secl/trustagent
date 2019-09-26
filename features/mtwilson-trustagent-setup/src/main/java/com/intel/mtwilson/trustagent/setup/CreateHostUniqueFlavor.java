@@ -6,6 +6,8 @@
 package com.intel.mtwilson.trustagent.setup;
 
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.jaxrs2.client.MtWilsonClient;
@@ -75,7 +77,10 @@ public class CreateHostUniqueFlavor extends AbstractSetupTask {
         String connectionString = String.format("%s:https://%s:%s", distro, currentIp, trustagentConfiguration.getTrustagentHttpTlsPort());
         TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
         Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
+
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
+            trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
 
         List<String> partialFlavorTypes = new ArrayList<>();
         partialFlavorTypes.add("HOST_UNIQUE");

@@ -6,6 +6,8 @@ package com.intel.mtwilson.trustagent.setup;
 
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.common.ErrorCode;
 import com.intel.mtwilson.common.TAException;
@@ -46,11 +48,12 @@ public class GetConfiguredManifest extends AbstractSetupTask {
     private List<String> flavorUuidList = new ArrayList<>();
     private boolean validated = false;
     private boolean duplicateDefaultSoftwareFlavorExists = false;
+    private TrustagentConfiguration trustagentConfiguration;
 
     @Override
     protected void configure() throws Exception {
         String flavorLabels;
-        TrustagentConfiguration trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
+        trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
         url = trustagentConfiguration.getMtWilsonApiUrl();
         if (url == null || url.isEmpty()) {
             configuration("Verification service URL is not set");
@@ -111,7 +114,11 @@ public class GetConfiguredManifest extends AbstractSetupTask {
         try {
             TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
             Properties clientConfiguration = new Properties();
-            clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
+
+            TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
+                trustagentConfiguration.getTrustagentKeystorePassword()).build();
+
+            clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
             client = new MtWilsonClient(clientConfiguration, tlsConnection);
         } catch (IOException exception) {
             log.error("Cannot create Verification Service client : {}", exception);
