@@ -8,7 +8,8 @@ import com.intel.dcsg.cpg.crypto.SimpleKeystore;
 import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.dcsg.cpg.crypto.Sha1Digest;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
-import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.mtwilson.client.jaxrs.CaCertificates;
 import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.setup.AbstractSetupTask;
@@ -25,7 +26,7 @@ import com.intel.mtwilson.crypto.password.GuardedPassword;
 
 /**
  * Prerequisites:  Trust Agent Keystore must already be created
- * 
+ *
  * @author jbuhacoff
  */
 public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
@@ -37,10 +38,11 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
     private String aasApiUrl;
     private GuardedPassword keystoreGuardedPassword = new GuardedPassword();
     private SimpleKeystore keystore;
-    
+    TrustagentConfiguration trustagentConfiguration
+
     @Override
     protected void configure() throws Exception {
-        TrustagentConfiguration trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
+        trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
         url = trustagentConfiguration.getMtWilsonApiUrl();
         if( url == null || url.isEmpty() ) {
             configuration("Mt Wilson URL is not set");
@@ -89,13 +91,16 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
     @Override
     protected void execute() throws Exception {
         log.debug("Creating TLS policy");
-        TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(), trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
         Properties clientConfiguration = new Properties();
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, username, password));
+
+
         CaCertificates client = new CaCertificates(clientConfiguration, tlsConnection);
         X509Certificate certificate = client.retrieveCaCertificate("privacy");
         keystore.addTrustedCaCertificate(certificate, "privacy");
         keystore.save();
     }
-    
+
 }
