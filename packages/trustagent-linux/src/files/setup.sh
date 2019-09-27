@@ -618,7 +618,7 @@ tagent config "aas.api.url" "$AAS_API_URL" >/dev/null
 tagent config "cms.base.url" "$CMS_BASE_URL" >/dev/null
 #Get CMS CA Certificate
 curl --insecure -X GET -H "Accept: application/x-pem-file" -w "%{http_code}" $CMS_BASE_URL/ca-certificates -o $TRUSTAGENT_CONFIGURATION/cms-ca.cert
-
+chown $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $TRUSTAGENT_CONFIGURATION/cms-ca.cert
 #tagent config mtwilson.extensions.fileIncludeFilter.contains "${MTWILSON_EXTENSIONS_FILEINCLUDEFILTER_CONTAINS:-mtwilson,trustagent,jersey-media-multipart}" >/dev/null
 #tagent config mtwilson.extensions.packageIncludeFilter.startsWith "${MTWILSON_EXTENSIONS_PACKAGEINCLUDEFILTER_STARTSWITH:-com.intel,org.glassfish.jersey.media.multipart}" >/dev/null
 
