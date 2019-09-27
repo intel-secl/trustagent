@@ -5,8 +5,7 @@
 package com.intel.mtwilson.trustagent.setup;
 
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
-import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
+import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.trustagent.attestation.client.jaxrs.Hosts;
@@ -20,8 +19,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
-import com.intel.mtwilson.crypto.password.SecureStoreUtil;
-import com.intel.mtwilson.crypto.password.GuardedPassword;
 
 /**
  *
@@ -31,33 +28,24 @@ public class LoginRegister extends AbstractSetupTask {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LoginRegister.class);
     private static final String ipv6RegEx = "^([0-9A-Fa-f]{1,4}:){7}(.)*$";
-    private TrustagentConfiguration trustagentConfiguration;
     private String trustagentLoginUserName;
     private String trustagentLoginPassword;
     private String url;
-    private String username;
-    private  GuardedPassword guardedPassword = new GuardedPassword();
-    private File keystoreFile;
+    private String aasApiUrl;
     private File passwordFile;
-    private  GuardedPassword guardedkeystorePassword = new GuardedPassword();
     private boolean isRegistered;
     private String dn;
     private String[] ip;
     private String[] dns;
-    private String aasApiUrl;
 
     @Override
     protected void configure() throws Exception {
-        trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
+        TrustagentConfiguration trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
         isRegistered = false;
 
         trustagentLoginUserName = trustagentConfiguration.getTrustAgentAdminUserName();
         if (trustagentLoginUserName == null || trustagentLoginUserName.isEmpty()) {
             configuration("TrustAgent User name is not set. Please run the create-admin-user setup task first.");
-        }
-        aasApiUrl = trustagentConfiguration.getAasApiUrl();
-        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
-            configuration("AAS API URL is not set");
         }
 
         File privateDir = new File(Folders.configuration() + File.separator + "private");
@@ -74,10 +62,6 @@ public class LoginRegister extends AbstractSetupTask {
 
         trustagentLoginPassword = trustagentConfiguration.getTrustAgentAdminPassword();
         if (trustagentLoginPassword == null || trustagentLoginPassword.isEmpty()) {
-            configuration("TA admin password is not set");
-        }
-
-        if (trustagentLoginPassword == null || trustagentLoginPassword.isEmpty()) {
             configuration("TrustAgent password is not set. Please run the create-admin-user setup task first.");
         }
 
@@ -85,22 +69,10 @@ public class LoginRegister extends AbstractSetupTask {
         if (url == null || url.isEmpty()) {
             configuration("Mt Wilson URL is not set");
         }
-        username = trustagentConfiguration.getMtWilsonApiUsername();
-        guardedPassword.setPassword(trustagentConfiguration.getMtWilsonApiPassword());
-        if (username == null || username.isEmpty()) {
-            configuration("Mt Wilson username is not set");
-        }
-        if (!guardedPassword.isPasswordValid()) {
-            configuration("Mt Wilson password is not set");
-        }
 
-        keystoreFile = trustagentConfiguration.getTrustagentKeystoreFile();
-        if (keystoreFile == null || !keystoreFile.exists()) {
-            configuration("Trust Agent keystore does not exist");
-        }
-        guardedkeystorePassword.setPassword(trustagentConfiguration.getTrustagentKeystorePassword());
-        if (!guardedkeystorePassword.isPasswordValid()) {
-            configuration("Trust Agent keystore password is not set");
+        aasApiUrl = trustagentConfiguration.getAasApiUrl();
+        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
+            configuration("AAS API URL is not set");
         }
 
         dn = trustagentConfiguration.getTrustagentTlsCertDn();
@@ -139,12 +111,10 @@ public class LoginRegister extends AbstractSetupTask {
             return;
         }
         
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
-                trustagentConfiguration.getTrustagentKeystorePassword()).build();
-        TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
-
+        TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
         Properties clientConfiguration = new Properties();
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(aasApiUrl, trustagentLoginUserName, trustagentLoginPassword));
+
         Hosts hostClientObj = new Hosts(clientConfiguration, tlsConnection);
         List<String> hostNames = new ArrayList<>();
         hostNames.addAll(Arrays.asList(dns));
