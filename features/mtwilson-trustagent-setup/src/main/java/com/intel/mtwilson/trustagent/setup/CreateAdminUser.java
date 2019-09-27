@@ -35,7 +35,7 @@ import com.intel.mtwilson.crypto.password.SecureStoreUtil;
  */
 public class CreateAdminUser extends AbstractSetupTask {
     
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LoginRegister.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CreateAdminUser.class);
     
     public static final String USERNAME = "(?:([a-zA-Z0-9_\\\\\\.@-]+))";
     public static final String PASSWORD = "(?:([a-zA-Z0-9_\\\\.\\\\, @!#$%^+=>?:{}()\\[\\]\\\"|;~`'*-/]+))";

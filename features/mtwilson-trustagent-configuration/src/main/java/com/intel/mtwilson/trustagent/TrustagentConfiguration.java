@@ -49,6 +49,7 @@ public class TrustagentConfiguration {
 
     public final static String BEARER_TOKEN = "bearer.token";
     public final static String AAS_API_URL = "aas.api.url";
+    public final static String CMS_BASE_URL = "cms.base.url";
     public final static String MTWILSON_API_URL = "mtwilson.api.url";
     public final static String MTWILSON_TLS_CERT_SHA384 = "mtwilson.tls.cert.sha384";
     public final static String MTWILSON_API_USERNAME = "mtwilson.api.username"; // NOTE: MUST NOT STORE THE VALUE
@@ -124,6 +125,9 @@ public class TrustagentConfiguration {
     }
     public String getAasApiUrl() {
         return conf.get(AAS_API_URL, null);
+    }
+    public String getCmsBaseUrl() {
+        return conf.get(CMS_BASE_URL, null);
     }
     public String getMtWilsonApiUrl() {
         return conf.get(MTWILSON_API_URL, null);// intentionally no default - this must be configured during setup

@@ -137,6 +137,7 @@ TRUSTAGENT_SETUP_TASKS="update-extensions-cache-file secure-store create-keystor
 # not including register-tpm-password because we are prompting for it in the setup.sh
 JAVA_REQUIRED_VERSION=${JAVA_REQUIRED_VERSION:-1.8}
 JAVA_OPTS="-Dlogback.configurationFile=$TRUSTAGENT_CONFIGURATION/logback.xml -Dlog4j.configuration=file:$TRUSTAGENT_CONFIGURATION/log4j.properties -Dfs.name=trustagent -Djdk.tls.ephemeralDHKeySize=2048 -Djava.io.tmpdir=$TRUSTAGENT_TMP"
+JAVA_OPTS="${JAVA_OPTS} -Djava.net.preferIPv4Stack=true"
 if [[ -n ${DEBUG} ]]; then
     JAVA_OPTS="${JAVA_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n"
 fi
