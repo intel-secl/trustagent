@@ -8,7 +8,6 @@ import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
-import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.common.ErrorCode;
 import com.intel.mtwilson.common.TAException;
 import com.intel.mtwilson.jaxrs2.client.MtWilsonClient;
@@ -112,11 +111,11 @@ public class GetConfiguredManifest extends AbstractSetupTask {
         MtWilsonClient client;
         log.info("Getting flavor for the host");
         try {
-            TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
-            Properties clientConfiguration = new Properties();
-
             TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
                 trustagentConfiguration.getTrustagentKeystorePassword()).build();
+
+            TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
+            Properties clientConfiguration = new Properties();
 
             clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
             client = new MtWilsonClient(clientConfiguration, tlsConnection);

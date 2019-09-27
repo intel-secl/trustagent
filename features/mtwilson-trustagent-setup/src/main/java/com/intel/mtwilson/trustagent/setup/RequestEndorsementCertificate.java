@@ -11,7 +11,6 @@ import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
-import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.dcsg.cpg.x509.X509Util;
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
@@ -106,10 +105,10 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
             configuration("Endorsement authorities file location is not set");
         }
 
-        tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
-
         TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
             trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
+
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
 
         try {

@@ -5,6 +5,8 @@
 package com.intel.mtwilson.trustagent.setup;
 
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
+import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
@@ -37,10 +39,11 @@ public class LoginRegister extends AbstractSetupTask {
     private String dn;
     private String[] ip;
     private String[] dns;
+    private TrustagentConfiguration trustagentConfiguration;
 
     @Override
     protected void configure() throws Exception {
-        TrustagentConfiguration trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
+        trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
         isRegistered = false;
 
         trustagentLoginUserName = trustagentConfiguration.getTrustAgentAdminUserName();
@@ -110,8 +113,10 @@ public class LoginRegister extends AbstractSetupTask {
             log.error("The TA username or password is not set. Please run the create-admin-user first.");
             return;
         }
-        
-        TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
+
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
+            trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
         Properties clientConfiguration = new Properties();
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(trustagentLoginUserName, trustagentLoginPassword, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
         Hosts hostClientObj = new Hosts(clientConfiguration, tlsConnection);

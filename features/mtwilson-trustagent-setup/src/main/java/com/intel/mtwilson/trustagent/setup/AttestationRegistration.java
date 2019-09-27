@@ -12,7 +12,6 @@ import com.intel.dcsg.cpg.io.FileResource;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
-import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.jaxrs2.client.MtWilsonClient;
 import com.intel.mtwilson.setup.AbstractSetupTask;
@@ -93,12 +92,10 @@ public class AttestationRegistration extends AbstractSetupTask{
             configuration("Trust Agent keystore password is not set");
         }
         keystore = new SimpleKeystore(new FileResource(keystoreFile), keystoreGuardedPassword.getInsPassword());
-
-        tlsConnection = new TlsConnection(new URL(trustagentConfiguration.getMtWilsonApiUrl()), new InsecureTlsPolicy());
-
         TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
             trustagentConfiguration.getTrustagentKeystorePassword()).build();
 
+        tlsConnection = new TlsConnection(new URL(trustagentConfiguration.getMtWilsonApiUrl()), tlsPolicy);
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
 
     }

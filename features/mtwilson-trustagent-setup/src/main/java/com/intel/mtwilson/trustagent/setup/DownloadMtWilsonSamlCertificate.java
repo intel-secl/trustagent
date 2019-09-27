@@ -10,7 +10,6 @@ import com.intel.dcsg.cpg.crypto.Sha1Digest;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
-import com.intel.dcsg.cpg.tls.policy.impl.InsecureTlsPolicy;
 import com.intel.mtwilson.client.jaxrs.CaCertificates;
 import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.setup.AbstractSetupTask;
@@ -92,10 +91,10 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
     @Override
     protected void execute() throws Exception {
         log.debug("Downloading SAML certificate and adding it to the keystore");
-        TlsConnection tlsConnection = new TlsConnection(new URL(url), new InsecureTlsPolicy());
-        Properties clientConfiguration = new Properties();
         TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
             trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
+        Properties clientConfiguration = new Properties();
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
         CaCertificates client = new CaCertificates(clientConfiguration, tlsConnection);
         X509Certificate certificate = client.retrieveCaCertificate("saml");
