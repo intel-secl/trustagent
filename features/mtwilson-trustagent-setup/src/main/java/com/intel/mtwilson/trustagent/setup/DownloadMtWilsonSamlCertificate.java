@@ -91,8 +91,8 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
     @Override
     protected void execute() throws Exception {
         log.debug("Downloading SAML certificate and adding it to the keystore");
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
-            trustagentConfiguration.getTrustagentKeystorePassword()).build();
+            TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
+                trustagentConfiguration.getTrustagentKeystorePassword()).build();
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
         Properties clientConfiguration = new Properties();
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));

@@ -54,7 +54,7 @@ public class CreateKeystorePassword extends AbstractSetupTask {
             }
         }
         // store the new password
-        getConfiguration().set(TrustagentConfiguration.TRUSTAGENT_KEYSTORE_PASSWORD, keystorePassword);
+        getConfiguration().set(TrustagentConfiguration.TRUSTAGENT_KEYSTORE_PASSWORD, "changeit");
     }
     
 }
