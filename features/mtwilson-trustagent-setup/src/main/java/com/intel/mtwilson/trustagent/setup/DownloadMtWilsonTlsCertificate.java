@@ -34,7 +34,7 @@ public class DownloadMtWilsonTlsCertificate extends AbstractSetupTask {
     private String url;
     private String username;
     private GuardedPassword guardedPassword = new GuardedPassword();
-    private File keystoreFile;
+    private File truststoreFile;
     private GuardedPassword keystoreGuardedPassword = new GuardedPassword();
     private SimpleKeystore keystore;
     private List<String> approved;
@@ -55,11 +55,11 @@ public class DownloadMtWilsonTlsCertificate extends AbstractSetupTask {
             configuration("Mt Wilson password is not set: mtwilson.api.password");
         }
         guardedPassword.dispose();
-        keystoreFile = trustagentConfiguration.getTrustagentKeystoreFile();
-        if( keystoreFile == null || !keystoreFile.exists() ) {
+        truststoreFile = trustagentConfiguration.getTrustagentTruststoreFile();
+        if( truststoreFile == null || !truststoreFile.exists() ) {
             configuration("Trust Agent keystore does not exist");
         }
-        keystoreGuardedPassword.setPassword(trustagentConfiguration.getTrustagentKeystorePassword());
+        keystoreGuardedPassword.setPassword(trustagentConfiguration.getTrustagentTruststorePassword());
         if(!keystoreGuardedPassword.isPasswordValid() ) {
             configuration("Trust Agent keystore password is not set");
         }
@@ -67,7 +67,7 @@ public class DownloadMtWilsonTlsCertificate extends AbstractSetupTask {
         if( approved.isEmpty() ) {
             configuration("One or more approved TLS certificate fingerprints must be set in MTWILSON_TLS_CERT_SHA384; comma-separated values ok");
         }
-        keystore = new SimpleKeystore(new FileResource(keystoreFile), keystoreGuardedPassword.getInsPassword());
+        keystore = new SimpleKeystore(new FileResource(truststoreFile), keystoreGuardedPassword.getInsPassword());
         keystoreGuardedPassword.dispose();
     }
 

@@ -114,8 +114,8 @@ public class LoginRegister extends AbstractSetupTask {
             return;
         }
 
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
-            trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentTruststoreFile(),
+            trustagentConfiguration.getTrustagentTruststorePassword()).build();
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
         Properties clientConfiguration = new Properties();
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(trustagentLoginUserName, trustagentLoginPassword, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));

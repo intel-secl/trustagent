@@ -59,15 +59,15 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
         if (aasApiUrl == null || aasApiUrl.isEmpty()) {
             configuration("AAS API URL is not set");
         }
-        File keystoreFile = trustagentConfiguration.getTrustagentKeystoreFile();
-        if( keystoreFile == null || !keystoreFile.exists() ) {
+        File truststoreFile = trustagentConfiguration.getTrustagentTruststoreFile();
+        if( truststoreFile == null || !truststoreFile.exists() ) {
             configuration("Trust Agent keystore does not exist");
         }
         keystoreGuardedPassword.setPassword(trustagentConfiguration.getTrustagentKeystorePassword());
         if( !keystoreGuardedPassword.isPasswordValid() ) {
             configuration("Trust Agent keystore password is not set");
         }
-        keystore = new SimpleKeystore(new FileResource(keystoreFile), keystoreGuardedPassword.getInsPassword());
+        keystore = new SimpleKeystore(new FileResource(truststoreFile), keystoreGuardedPassword.getInsPassword());
         keystoreGuardedPassword.dispose();
     }
 
@@ -91,8 +91,8 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
     @Override
     protected void execute() throws Exception {
         log.debug("Creating TLS policy");
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
-            trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentTruststoreFile(),
+            trustagentConfiguration.getTrustagentTruststorePassword()).build();
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
         Properties clientConfiguration = new Properties();
 

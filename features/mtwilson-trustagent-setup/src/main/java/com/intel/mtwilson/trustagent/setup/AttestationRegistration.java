@@ -83,17 +83,17 @@ public class AttestationRegistration extends AbstractSetupTask{
         if( currentIp == null || currentIp.isEmpty() ) {
             configuration("Current IP is not set");
         }
-        File keystoreFile = trustagentConfiguration.getTrustagentKeystoreFile();
-        if( keystoreFile == null || !keystoreFile.exists() ) {
+        File truststoreFile = trustagentConfiguration.getTrustagentTruststoreFile();
+        if( truststoreFile == null || !truststoreFile.exists() ) {
             configuration("Trust Agent keystore does not exist");
         }
-        keystoreGuardedPassword.setPassword(trustagentConfiguration.getTrustagentKeystorePassword());
+        keystoreGuardedPassword.setPassword(trustagentConfiguration.getTrustagentTruststorePassword());
         if( !keystoreGuardedPassword.isPasswordValid() ) {
             configuration("Trust Agent keystore password is not set");
         }
-        keystore = new SimpleKeystore(new FileResource(keystoreFile), keystoreGuardedPassword.getInsPassword());
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
-            trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        keystore = new SimpleKeystore(new FileResource(truststoreFile), keystoreGuardedPassword.getInsPassword());
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentTruststoreFile(),
+            trustagentConfiguration.getTrustagentTruststorePassword()).build();
 
         tlsConnection = new TlsConnection(new URL(trustagentConfiguration.getMtWilsonApiUrl()), tlsPolicy);
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));

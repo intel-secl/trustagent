@@ -77,8 +77,8 @@ public class RegisterTpmPassword extends AbstractSetupTask {
         else {
             hostHardwareId = UUID.valueOf(hostHardwareIdHex);
         }
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
-            trustagentConfiguration.getTrustagentKeystorePassword()).build();
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentTruststoreFile(),
+            trustagentConfiguration.getTrustagentTruststorePassword()).build();
         tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
 
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));

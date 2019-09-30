@@ -87,8 +87,8 @@ public class RequestAikCertificate extends AbstractSetupTask {
             configuration("AAS API URL is not set");
         }
 
-        if (config.getTrustagentKeystoreFile().exists()) {
-            SimpleKeystore keystore = new SimpleKeystore(new FileResource(config.getTrustagentKeystoreFile()), config.getTrustagentKeystorePassword());
+        if (config.getTrustagentTruststoreFile().exists()) {
+            SimpleKeystore keystore = new SimpleKeystore(new FileResource(config.getTrustagentTruststoreFile()), config.getTrustagentTruststorePassword());
             try {
                 privacyCA = keystore.getX509Certificate("privacy", SimpleKeystore.CA);
             } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | CertificateEncodingException e) {
@@ -143,7 +143,7 @@ public class RequestAikCertificate extends AbstractSetupTask {
         try {
             Tpm tpm = Tpm.open(Paths.get(Folders.application(), "bin"));
             TrustagentConfiguration taConfig = new TrustagentConfiguration(getConfiguration());
-            SimpleKeystore taKeystore = new SimpleKeystore(new FileResource(taConfig.getTrustagentKeystoreFile()), taConfig.getTrustagentKeystorePassword());
+            SimpleKeystore taKeystore = new SimpleKeystore(new FileResource(taConfig.getTrustagentTruststoreFile()), taConfig.getTrustagentTruststorePassword());
             X509Certificate privacy = taKeystore.getX509Certificate("privacy", SimpleKeystore.CA);
             TpmIdentityRequest encryptedEkCert = new TpmIdentityRequest(ekCert, (RSAPublicKey) privacy.getPublicKey(), false);
             IdentityRequest newId = tpm.collateIdentityRequest(taConfig.getTpmOwnerSecret(), taConfig.getAikSecret(), privacy.getPublicKey());
@@ -155,8 +155,8 @@ public class RequestAikCertificate extends AbstractSetupTask {
                 writeBlob(aikblob, newId.getAikBlob());
             }
 
-            TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(taConfig.getTrustagentKeystoreFile(),
-                taConfig.getTrustagentKeystorePassword()).build();
+            TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(taConfig.getTrustagentTruststoreFile(),
+                taConfig.getTrustagentTruststorePassword()).build();
             TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
             Properties clientConfiguration = new Properties();
 

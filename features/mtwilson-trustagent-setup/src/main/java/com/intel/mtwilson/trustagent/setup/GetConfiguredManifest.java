@@ -111,8 +111,8 @@ public class GetConfiguredManifest extends AbstractSetupTask {
         MtWilsonClient client;
         log.info("Getting flavor for the host");
         try {
-            TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
-                trustagentConfiguration.getTrustagentKeystorePassword()).build();
+            TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentTruststoreFile(),
+                trustagentConfiguration.getTrustagentTruststorePassword()).build();
 
             TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
             Properties clientConfiguration = new Properties();

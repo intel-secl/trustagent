@@ -40,7 +40,7 @@ public class VSClientCreatorUtil {
     public MtWilsonClient createVSClient() throws Exception {
         setProperties();
         log.debug("Using AAS API URL to fetch token - {}", aasApiUrl);
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentKeystoreFile(),
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentTruststoreFile(),
             trustagentConfiguration.getTrustagentKeystorePassword()).build();
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
         Properties clientConfiguration = new Properties();
