@@ -50,7 +50,7 @@ public class ReplaceTlsKeyPair extends InteractiveCommand {
     private static final String TRUST_AGENT_TLS_CERT_DNS = "trustagent.tls.cert.dns";
     private static final String TRUST_AGENT_TLS_CERT_SHA384 = "trustagent.tls.cert.sha384";
     private static final String TRUST_AGENT_SSL_KEYSTORE = "trustagent.keystore";
-    private static final String TRUST_AGENT_SSL_KEYSTOREPASSWORD = "trustagent.keystore.password";
+    private static final String TRUST_AGENT_SSL_KEYSTOREPASSWORD = "keystore.password";
     
     private PrivateKey privateKey;
     private List<X509Certificate> x509CertChainList;
@@ -73,7 +73,7 @@ public class ReplaceTlsKeyPair extends InteractiveCommand {
         
         String keystorePath = configuration.get(TRUST_AGENT_SSL_KEYSTORE, null);
         if( keystorePath == null ) {
-            keystorePath = Folders.configuration() + File.separator + "trustagent.p12";
+            keystorePath = Folders.configuration() + File.separator + "keystore.p12";
         }
         File keystoreFile = new File(keystorePath);
         if( !keystoreFile.exists() ) {

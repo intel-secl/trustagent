@@ -66,7 +66,7 @@ public class TrustagentConfiguration {
     public final static String TRUSTAGENT_TLS_CERT_DN = "trustagent.tls.cert.dn"; // default CN=trustagent
     public final static String TRUSTAGENT_TLS_CERT_IP = "trustagent.tls.cert.ip"; // default 127.0.0.1  , can be comma-separated list of values
     public final static String TRUSTAGENT_TLS_CERT_DNS = "trustagent.tls.cert.dns";// default localhost  , can be comma-separated list of values
-    public final static String TRUSTAGENT_KEYSTORE_PASSWORD = "trustagent.keystore.password";
+    public final static String TRUSTAGENT_KEYSTORE_PASSWORD = "keystore.password";
 	public final static String TRUSTAGENT_SECURESTORE_PASSWORD = "trustagent.securestore.password";
     public final static String DAA_ENABLED = "daa.enabled"; // default false for 1.2 and 2.0
     public final static String TPM_QUOTE_IPV4 = "tpm.quote.ipv4";
@@ -299,7 +299,11 @@ public class TrustagentConfiguration {
     }
     
     public File getTrustagentKeystoreFile() {
-        return new File(Folders.configuration() + File.separator + "trustagent.p12");
+        return new File(Folders.configuration() + File.separator + "keystore.p12");
+    }
+
+    public File getTrustagentTruststoreFile() {
+        return new File(Folders.configuration() + File.separator + "truststore.p12");
     }
 	
 	public File getTrustagentSecureStoreFile() {
@@ -308,6 +312,10 @@ public class TrustagentConfiguration {
 	
     public String getTrustagentKeystorePassword() {
         return conf.get(TRUSTAGENT_KEYSTORE_PASSWORD, null); // intentionally no default - this must be generated during setup
+    }
+
+    public String getTrustagentTruststorePassword() {
+        return "changeit"; // intentionally no default - this must be generated during setup
     }
 	
 	public String getTrustagentSecureStorePassword() {

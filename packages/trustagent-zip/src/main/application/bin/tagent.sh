@@ -129,9 +129,9 @@ TRUSTAGENT_REGISTRATION_TASKS="attestation-registration"
 TRUSTAGENT_CREATE_FLAVOR_TASK="create-host-unique-flavor"
 TRUSTAGENT_GET_MANIFEST_TASK="get-configured-manifest"
 TRUSTAGENT_TPM_TASKS="create-tpm-owner-secret create-tpm-srk-secret create-aik-secret take-ownership"
-TRUSTAGENT_START_TASKS="secure-store create-keystore-password create-tls-keypair create-tpm-owner-secret take-ownership"
+TRUSTAGENT_START_TASKS="secure-store create-tpm-owner-secret take-ownership"
 TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS="create-binding-key certify-binding-key create-signing-key certify-signing-key"
-TRUSTAGENT_SETUP_TASKS="update-extensions-cache-file secure-store create-keystore-password create-tls-keypair create-admin-user $TRUSTAGENT_TPM_TASKS "
+TRUSTAGENT_SETUP_TASKS="update-extensions-cache-file secure-store create-tls-keypair create-admin-user $TRUSTAGENT_TPM_TASKS "
 #TRUSTAGENT_SETUP_TASKS="update-extensions-cache-file create-keystore-password create-tls-keypair create-admin-user  "
 # not including configure-from-environment because we are running it always before the user-chosen tasks
 # not including register-tpm-password because we are prompting for it in the setup.sh
@@ -541,7 +541,6 @@ case "$1" in
     #fi
 
     trustagent_start
-    trustagent_setup
     
     if trustagent_authorize; then
       trustagent_stop
