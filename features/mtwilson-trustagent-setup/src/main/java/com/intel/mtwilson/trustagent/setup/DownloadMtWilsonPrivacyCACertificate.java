@@ -63,7 +63,7 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
         if( truststoreFile == null || !truststoreFile.exists() ) {
             configuration("Trust Agent keystore does not exist");
         }
-        keystoreGuardedPassword.setPassword(trustagentConfiguration.getTrustagentKeystorePassword());
+        keystoreGuardedPassword.setPassword(trustagentConfiguration.getTrustagentTruststorePassword());
         if( !keystoreGuardedPassword.isPasswordValid() ) {
             configuration("Trust Agent keystore password is not set");
         }

@@ -70,13 +70,13 @@ public class Aik {
     public X509Certificate getIdentityCA() throws IOException {
         if (identityIssuer == null) {
             TrustagentConfiguration configuration = getConfiguration();
-            File keystoreFile = configuration.getTrustagentKeystoreFile();
-            if (!keystoreFile.exists()) {
-                log.error("Missing keystore file: {}", keystoreFile.getAbsolutePath());
+            File truststoreFile = configuration.getTrustagentTruststoreFile();
+            if (!truststoreFile.exists()) {
+                log.error("Missing truststore file: {}", truststoreFile.getAbsolutePath());
                 throw new WebApplicationException(Response.serverError().header("Error", "Missing CA keystore file").build());
             }
             try {
-                SimpleKeystore keystore = new SimpleKeystore(new FileResource(keystoreFile), configuration.getTrustagentKeystorePassword());
+                SimpleKeystore keystore = new SimpleKeystore(new FileResource(truststoreFile), configuration.getTrustagentTruststorePassword());
                 X509Certificate privacyCACertificate = keystore.getX509Certificate("privacy", SimpleKeystore.CA);
                 identityIssuer = privacyCACertificate;
             } catch (KeyManagementException | NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | CertificateEncodingException e) {
