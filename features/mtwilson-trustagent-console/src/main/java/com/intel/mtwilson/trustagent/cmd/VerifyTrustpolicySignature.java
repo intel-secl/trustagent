@@ -48,14 +48,14 @@ public class VerifyTrustpolicySignature implements Command {
         File trustagentTruststoreFile = configuration.getTrustagentTruststoreFile();
 
         if( !trustagentTruststoreFile.exists() ) {
-            throw new FileNotFoundException("Trustagent keystore file does not exist");
+            throw new FileNotFoundException("Trustagent truststore file does not exist");
         }
-        String truststoreTruststorePassword = configuration.getTrustagentTruststorePassword();
-        if( truststoreTruststorePassword == null || truststoreTruststorePassword.isEmpty()) {
-            throw new NullPointerException("Trustagent keystore password is not configured");
+        String trustagentTruststorePassword = configuration.getTrustagentTruststorePassword();
+        if( trustagentTruststorePassword == null || trustagentTruststorePassword.isEmpty()) {
+            throw new NullPointerException("Trustagent truststore password is not configured");
         }
         
-        SimpleKeystore keystore = new SimpleKeystore(new FileResource(trustagentTruststoreFile), truststoreTruststorePassword);
+        SimpleKeystore keystore = new SimpleKeystore(new FileResource(trustagentTruststoreFile), trustagentTruststorePassword);
         X509Certificate samlCert;
         
         try {

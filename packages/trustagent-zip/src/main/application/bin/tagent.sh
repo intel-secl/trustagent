@@ -124,7 +124,7 @@ fi
 TRUSTAGENT_PID_FILE=$TRUSTAGENT_HOME/trustagent.pid
 TRUSTAGENT_HTTP_LOG_FILE=$TRUSTAGENT_LOGS/http.log
 TRUSTAGENT_LOG4J_LOG_FILE=$TRUSTAGENT_LOGS/trustagent-log4j.log
-TRUSTAGENT_AUTHORIZE_TASKS="download-mtwilson-tls-certificate download-mtwilson-privacy-ca-certificate request-endorsement-certificate request-aik-certificate $TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS login-register"
+TRUSTAGENT_AUTHORIZE_TASKS="download-mtwilson-privacy-ca-certificate request-endorsement-certificate request-aik-certificate $TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS login-register"
 TRUSTAGENT_REGISTRATION_TASKS="attestation-registration"
 TRUSTAGENT_CREATE_FLAVOR_TASK="create-host-unique-flavor"
 TRUSTAGENT_GET_MANIFEST_TASK="get-configured-manifest"
@@ -132,7 +132,7 @@ TRUSTAGENT_TPM_TASKS="create-tpm-owner-secret create-tpm-srk-secret create-aik-s
 TRUSTAGENT_START_TASKS="secure-store create-tpm-owner-secret take-ownership"
 TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS="create-binding-key certify-binding-key create-signing-key certify-signing-key"
 TRUSTAGENT_SETUP_TASKS="update-extensions-cache-file secure-store create-tls-keypair create-admin-user $TRUSTAGENT_TPM_TASKS "
-#TRUSTAGENT_SETUP_TASKS="update-extensions-cache-file create-keystore-password create-tls-keypair create-admin-user  "
+#TRUSTAGENT_SETUP_TASKS="update-extensions-cache-file create-tls-keypair create-admin-user  "
 # not including configure-from-environment because we are running it always before the user-chosen tasks
 # not including register-tpm-password because we are prompting for it in the setup.sh
 JAVA_REQUIRED_VERSION=${JAVA_REQUIRED_VERSION:-1.8}

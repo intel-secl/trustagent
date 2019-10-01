@@ -87,13 +87,13 @@ public class AttestationRegistration extends AbstractSetupTask{
         }
         File truststoreFile = trustagentConfiguration.getTrustagentTruststoreFile();
         if( truststoreFile == null || !truststoreFile.exists() ) {
-            configuration("Trust Agent keystore does not exist");
+            configuration("Trust Agent truststore does not exist");
         }
         truststorePassword = trustagentConfiguration.getTrustagentTruststorePassword();
         keystoreGuardedPassword.setPassword(truststorePassword);
 
         if( !keystoreGuardedPassword.isPasswordValid() ) {
-            configuration("Trust Agent keystore password is not set");
+            configuration("Trust Agent truststore password is not set");
         }
         keystore = new SimpleKeystore(new FileResource(truststoreFile), keystoreGuardedPassword.getInsPassword());
         TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(truststoreFile, truststorePassword).build();
