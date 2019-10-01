@@ -37,8 +37,10 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
     private String password;
     private String aasApiUrl;
     private GuardedPassword keystoreGuardedPassword = new GuardedPassword();
-    private SimpleKeystore keystore;
+    private SimpleKeystore truststore;
     private TrustagentConfiguration trustagentConfiguration;
+    private File truststoreFile;
+    private String truststorePassword;
 
     @Override
     protected void configure() throws Exception {
@@ -59,22 +61,23 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
         if (aasApiUrl == null || aasApiUrl.isEmpty()) {
             configuration("AAS API URL is not set");
         }
-        File truststoreFile = trustagentConfiguration.getTrustagentTruststoreFile();
+        truststoreFile = trustagentConfiguration.getTrustagentTruststoreFile();
         if( truststoreFile == null || !truststoreFile.exists() ) {
             configuration("Trust Agent keystore does not exist");
         }
-        keystoreGuardedPassword.setPassword(trustagentConfiguration.getTrustagentTruststorePassword());
+        truststorePassword = trustagentConfiguration.getTrustagentTruststorePassword();
+        keystoreGuardedPassword.setPassword(truststorePassword);
         if( !keystoreGuardedPassword.isPasswordValid() ) {
             configuration("Trust Agent keystore password is not set");
         }
-        keystore = new SimpleKeystore(new FileResource(truststoreFile), keystoreGuardedPassword.getInsPassword());
+        truststore = new SimpleKeystore(new FileResource(truststoreFile), keystoreGuardedPassword.getInsPassword());
         keystoreGuardedPassword.dispose();
     }
 
     @Override
     protected void validate() throws Exception {
         try {
-            X509Certificate certificate = keystore.getX509Certificate("privacy", SimpleKeystore.CA);
+            X509Certificate certificate = truststore.getX509Certificate("privacy", SimpleKeystore.CA);
             if( certificate == null ) {
                 validation("Missing Privacy CA certificate");
             }
@@ -91,16 +94,15 @@ public class DownloadMtWilsonPrivacyCACertificate extends AbstractSetupTask {
     @Override
     protected void execute() throws Exception {
         log.debug("Creating TLS policy");
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentTruststoreFile(),
-            trustagentConfiguration.getTrustagentTruststorePassword()).build();
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(truststoreFile, truststorePassword).build();
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
         Properties clientConfiguration = new Properties();
 
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
         CaCertificates client = new CaCertificates(clientConfiguration, tlsConnection);
         X509Certificate certificate = client.retrieveCaCertificate("privacy");
-        keystore.addTrustedCaCertificate(certificate, "privacy");
-        keystore.save();
+        truststore.addTrustedCaCertificate(certificate, "privacy");
+        truststore.save();
     }
 
 }

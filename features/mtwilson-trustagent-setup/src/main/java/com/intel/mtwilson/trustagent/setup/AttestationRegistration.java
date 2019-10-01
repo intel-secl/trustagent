@@ -59,6 +59,8 @@ public class AttestationRegistration extends AbstractSetupTask{
     private String currentIp;
     private TlsConnection tlsConnection;
     private Properties clientConfiguration = new Properties();
+    private File truststoreFile;
+    private String truststorePassword;
 
     @Override
     protected void configure() throws Exception {
@@ -87,13 +89,14 @@ public class AttestationRegistration extends AbstractSetupTask{
         if( truststoreFile == null || !truststoreFile.exists() ) {
             configuration("Trust Agent keystore does not exist");
         }
-        keystoreGuardedPassword.setPassword(trustagentConfiguration.getTrustagentTruststorePassword());
+        truststorePassword = trustagentConfiguration.getTrustagentTruststorePassword();
+        keystoreGuardedPassword.setPassword(truststorePassword);
+
         if( !keystoreGuardedPassword.isPasswordValid() ) {
             configuration("Trust Agent keystore password is not set");
         }
         keystore = new SimpleKeystore(new FileResource(truststoreFile), keystoreGuardedPassword.getInsPassword());
-        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentTruststoreFile(),
-            trustagentConfiguration.getTrustagentTruststorePassword()).build();
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(truststoreFile, truststorePassword).build();
 
         tlsConnection = new TlsConnection(new URL(trustagentConfiguration.getMtWilsonApiUrl()), tlsPolicy);
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));

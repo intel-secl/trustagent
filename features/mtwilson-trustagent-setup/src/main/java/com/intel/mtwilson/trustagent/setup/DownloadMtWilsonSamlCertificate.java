@@ -39,7 +39,8 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
     private GuardedPassword keystoreGuardedPassword = new GuardedPassword();
     private SimpleKeystore keystore;
     private TrustagentConfiguration trustagentConfiguration;
-    
+    private File truststoreFile;
+    private String truststorePassword;
     @Override
     protected void configure() throws Exception {
         trustagentConfiguration = new TrustagentConfiguration(getConfiguration());
@@ -59,11 +60,12 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
         if (aasApiUrl == null || aasApiUrl.isEmpty()) {
             configuration("AAS API URL is not set");
         }
-        File truststoreFile = trustagentConfiguration.getTrustagentTruststoreFile();
+        truststoreFile = trustagentConfiguration.getTrustagentTruststoreFile();
         if( truststoreFile == null || !truststoreFile.exists() ) {
             configuration("Trust Agent keystore does not exist");
         }
-        keystoreGuardedPassword.setPassword(trustagentConfiguration.getTrustagentTruststorePassword());
+        truststorePassword = trustagentConfiguration.getTrustagentTruststorePassword();
+        keystoreGuardedPassword.setPassword(truststorePassword);
         if( !keystoreGuardedPassword.isPasswordValid() ) {
             configuration("Trust Agent keystore password is not set");
         }
@@ -91,8 +93,7 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
     @Override
     protected void execute() throws Exception {
         log.debug("Downloading SAML certificate and adding it to the keystore");
-            TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustagentConfiguration.getTrustagentTruststoreFile(),
-                trustagentConfiguration.getTrustagentTruststorePassword()).build();
+        TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(truststoreFile, truststorePassword).build();
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
         Properties clientConfiguration = new Properties();
         clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));

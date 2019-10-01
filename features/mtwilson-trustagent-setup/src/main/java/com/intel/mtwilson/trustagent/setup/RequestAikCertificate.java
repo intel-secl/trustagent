@@ -62,6 +62,8 @@ public class RequestAikCertificate extends AbstractSetupTask {
     private String password;
     private String aasApiUrl;
     private byte[] ekCert;
+    private File trustStroreFile;
+    private String trustStorePassword;
 
     @Override
     protected void configure() throws Exception {
@@ -87,8 +89,10 @@ public class RequestAikCertificate extends AbstractSetupTask {
             configuration("AAS API URL is not set");
         }
 
-        if (config.getTrustagentTruststoreFile().exists()) {
-            SimpleKeystore keystore = new SimpleKeystore(new FileResource(config.getTrustagentTruststoreFile()), config.getTrustagentTruststorePassword());
+        trustStroreFile = config.getTrustagentTruststoreFile();
+        trustStorePassword = config.getTrustagentTruststorePassword();
+        if (trustStroreFile.exists()) {
+            SimpleKeystore keystore = new SimpleKeystore(new FileResource(trustStroreFile), trustStorePassword);
             try {
                 privacyCA = keystore.getX509Certificate("privacy", SimpleKeystore.CA);
             } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | CertificateEncodingException e) {
@@ -143,7 +147,7 @@ public class RequestAikCertificate extends AbstractSetupTask {
         try {
             Tpm tpm = Tpm.open(Paths.get(Folders.application(), "bin"));
             TrustagentConfiguration taConfig = new TrustagentConfiguration(getConfiguration());
-            SimpleKeystore taKeystore = new SimpleKeystore(new FileResource(taConfig.getTrustagentTruststoreFile()), taConfig.getTrustagentTruststorePassword());
+            SimpleKeystore taKeystore = new SimpleKeystore(new FileResource(trustStroreFile), trustStorePassword);
             X509Certificate privacy = taKeystore.getX509Certificate("privacy", SimpleKeystore.CA);
             TpmIdentityRequest encryptedEkCert = new TpmIdentityRequest(ekCert, (RSAPublicKey) privacy.getPublicKey(), false);
             IdentityRequest newId = tpm.collateIdentityRequest(taConfig.getTpmOwnerSecret(), taConfig.getAikSecret(), privacy.getPublicKey());
@@ -155,8 +159,7 @@ public class RequestAikCertificate extends AbstractSetupTask {
                 writeBlob(aikblob, newId.getAikBlob());
             }
 
-            TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(taConfig.getTrustagentTruststoreFile(),
-                taConfig.getTrustagentTruststorePassword()).build();
+            TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustStroreFile, trustStorePassword).build();
             TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
             Properties clientConfiguration = new Properties();
 
