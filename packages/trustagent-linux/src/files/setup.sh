@@ -612,6 +612,9 @@ if [ "${LOCALHOST_INTEGRATION}" == "yes" ]; then
   /opt/trustagent/bin/tagent.sh localhost-integration
 fi
 
+# Jetty TLS configuration
+tagent config jetty.tls.cert.ip $JETTY_TLS_CERT_IP > /dev/null
+tagent config jetty.tls.cert.dns $JETTY_TLS_CERT_DNS > /dev/null
 #AAS configuration
 tagent config "aas.api.url" "$AAS_API_URL" >/dev/null
 #CMS configuration
