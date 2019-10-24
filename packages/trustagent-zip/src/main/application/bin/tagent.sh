@@ -421,7 +421,6 @@ print_help() {
     echo "Usage: $0 password [username] [password] --permissions [domain1:action1]"
     echo "Usage: $0 export-config [outfile|--in=infile|--out=outfile|--stdout] [--env-password=PASSWORD_VAR]"
     echo "Usage: $0 config [key] [--delete|newValue]"
-    echo "Usage: $0 replace-tls-key-pair [--private-key=private-key-file] [--cert-chain=cert-chain-file]"
     echo "Usage: $0 get-configured-manifest [environment-file]"
     echo "Available setup tasks:"
     echo $TRUSTAGENT_SETUP_TASKS | tr ' ' '\n'
