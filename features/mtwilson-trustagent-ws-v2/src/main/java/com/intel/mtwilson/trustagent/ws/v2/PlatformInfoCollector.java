@@ -44,10 +44,7 @@ public class PlatformInfoCollector {
         platformInfoMap.put("cbnt-status", context.getCbntStatus());
         platformInfoMap.put("cbnt-profile", context.getCbntProfile());
         platformInfoMap.put("suefi-status", context.getSuefiStatus());
-        platformInfoMap.put("mktme-status", context.getMktmeStatus());
-        platformInfoMap.put("mktme-encryption-algorithm", context.getMktmeEncryptionAlgorithm());
-        platformInfoMap.put("mktme-max-keys-per-cpu", context.getMktmeMaxKeysPerCpu());
-
+        
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(platformInfoMap);
         System.out.print(json);
     }

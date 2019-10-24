@@ -181,14 +181,8 @@ public class  GetHostInfo implements Command {
         if (map.get("txt-status") != null && !map.get("txt-status").equals(FeatureStatus.UNSUPPORTED.getValue())) {
             hardwareFeatureDetails.put(TXT, getTxtDetails());
         }
-        /*
-        Add MKTME into HostInfo only if MKTME hardware feature is supported
-         */
         if (map.get("suefi-status") != null && !map.get("suefi-status").equals(FeatureStatus.UNSUPPORTED.getValue())) {
             hardwareFeatureDetails.put(SUEFI, getSuefiDetails());
-        }
-        if (map.get("mktme-status") != null && !map.get("mktme-status").equals(FeatureStatus.UNSUPPORTED.getValue())) {
-            hardwareFeatureDetails.put(MKTME, getMktmeDetails());
         }
         if (map.get("cbnt-status") != null && !map.get("cbnt-status").equals(FeatureStatus.UNSUPPORTED.getValue())) {
             hardwareFeatureDetails.put(CBNT, getCbntDetails());
@@ -212,16 +206,6 @@ public class  GetHostInfo implements Command {
         meta.put("msr", "mk ris kfm");
         cbnt.setMeta(meta);
         return cbnt;
-    }
-
-    private HardwareFeatureDetails getMktmeDetails() {
-        HardwareFeatureDetails mktme = new HardwareFeatureDetails();
-        mktme.setEnabled(map.get("mktme-status").equals(FeatureStatus.ENABLED.getValue()));
-        Map<String, String> meta = new HashMap<>();
-        meta.put("encryption_algorithm", (String) map.get("mktme-encryption-algorithm"));
-        meta.put("max_keys_per_cpu", (String) map.get("mktme-max-keys-per-cpu"));
-        mktme.setMeta(meta);
-        return mktme;
     }
 
     private HardwareFeatureDetails getTxtDetails() {
