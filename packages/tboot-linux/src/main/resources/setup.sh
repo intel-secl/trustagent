@@ -164,11 +164,11 @@ is_reboot_required() {
 
 install_tboot_prereqs() {
   if yum_detect; then
-    TBOOT_PREREQ_YUM_PACKAGES="grub2-efi-modules" #redhat-lsb libvirt net-tools redhat-lsb-core
+    TBOOT_PREREQ_YUM_PACKAGES="grub2-efi-x64-modules.noarch" #redhat-lsb libvirt net-tools redhat-lsb-core
     install_packages "tboot-prereq" "TBOOT_PREREQ"
     tpErrorCode=$?
     if [ $tpErrorCode -ne 0 ]; then
-      echo_failure "grub2-efi-modules installation failed"
+      echo_failure "grub2-efi-x64-modules.noarch installation failed"
       exit $tpErrorCode
     fi
   fi
