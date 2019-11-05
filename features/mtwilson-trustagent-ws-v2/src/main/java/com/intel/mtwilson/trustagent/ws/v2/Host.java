@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import com.intel.mtwilson.core.common.model.HostInfo;
 import com.intel.mtwilson.core.tpm.Tpm;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -36,6 +37,7 @@ public class Host {
     
     @GET
     @Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
+    @RequiresPermissions("host_info:retrieve")
     public HostInfo getHostInformation() throws PlatformInfoException, IOException, Tpm.TpmException {
         if( hostInfo == null ) {
             HostController hostCntrl = new HostController();

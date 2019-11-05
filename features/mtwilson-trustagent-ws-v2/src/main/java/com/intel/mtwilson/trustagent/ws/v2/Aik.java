@@ -12,6 +12,8 @@ import com.intel.mtwilson.launcher.ws.ext.V2;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import com.intel.mtwilson.trustagent.TrustagentRepository;
 import com.intel.mtwilson.trustagent.TrustagentWebApplicationException;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -46,6 +48,7 @@ public class Aik {
 
     @GET
     @Produces({CryptoMediaType.APPLICATION_PKIX_CERT, CryptoMediaType.APPLICATION_X_PEM_FILE})
+    @RequiresPermissions("aik:retrieve")
     public X509Certificate getIdentity() throws IOException, CertificateException {
         if (identity == null) {
             TrustagentConfiguration configuration = getConfiguration();
@@ -67,6 +70,7 @@ public class Aik {
     @GET
     @Path("/ca")
     @Produces({CryptoMediaType.APPLICATION_PKIX_CERT, CryptoMediaType.APPLICATION_X_PEM_FILE})
+    @RequiresPermissions("aik_ca:retrieve")
     public X509Certificate getIdentityCA() throws IOException {
         if (identityIssuer == null) {
             TrustagentConfiguration configuration = getConfiguration();

@@ -13,6 +13,7 @@ import com.intel.mtwilson.launcher.ws.ext.V2;
 import com.intel.mtwilson.core.common.utils.MeasurementUtils;
 import com.intel.wml.manifest.xml.Manifest;
 import com.intel.wml.measurement.xml.Measurement;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
@@ -34,6 +35,7 @@ public class Measure {
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
+    @RequiresPermissions("application_measurement:create")
     public Measurement measure(Manifest manifest, @Context HttpServletResponse response) throws IOException, JAXBException, TAException, InterruptedException {
         Measurement measurement;
         String manifestString = ManifestUtils.getManifestString(manifest);

@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import com.intel.mtwilson.core.common.model.SoftwareFlavorPrefix;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 
 /**
  * @author arijitgh
@@ -38,6 +39,7 @@ public class ManifestDeployer {
 
     @POST
     @Consumes(MediaType.APPLICATION_XML)
+    @RequiresPermissions("deploy_manifest:create")
     public Response getPushedManifest(Manifest pushedManifest, @Context HttpServletResponse response) throws JAXBException {
         validate(pushedManifest);
         String manifestString = ManifestUtils.getManifestString(pushedManifest);

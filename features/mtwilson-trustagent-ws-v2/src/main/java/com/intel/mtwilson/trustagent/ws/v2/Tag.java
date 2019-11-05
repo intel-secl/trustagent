@@ -21,6 +21,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.codec.binary.Hex;
 import com.intel.mtwilson.core.tpm.Tpm;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+
 import java.nio.file.Paths;
 /**
  *
@@ -33,6 +35,7 @@ public class Tag {
     
     @POST
     @Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+    @RequiresPermissions("deploy_tag:create")
     public void writeTag(TagWriteRequest tagInfo, @Context HttpServletResponse response) throws IOException, TAException {
         try {
             log.debug("writeTag uuid {} sha384 {}", tagInfo.getHardwareUuid(), Hex.encodeHexString(tagInfo.getTag()));

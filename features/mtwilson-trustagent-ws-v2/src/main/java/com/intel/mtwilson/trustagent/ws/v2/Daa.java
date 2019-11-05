@@ -11,6 +11,8 @@ import com.intel.mtwilson.launcher.ws.ext.V2;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import com.intel.mtwilson.trustagent.model.DaaChallenge;
 import com.intel.mtwilson.trustagent.model.DaaResponse;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+
 import java.io.IOException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -27,6 +29,7 @@ public class Daa {
     
     @POST
     @Path("/challenge")
+    @RequiresPermissions("daa:retrieve")
     public DaaResponse daaChallenge(DaaChallenge daaChallenge) throws IOException, TAException {
         TrustagentConfiguration configuration = TrustagentConfiguration.loadConfiguration();
         if( !configuration.isDaaEnabled() ) {

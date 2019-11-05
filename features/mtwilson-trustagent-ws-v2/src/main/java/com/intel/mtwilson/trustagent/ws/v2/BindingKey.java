@@ -8,6 +8,8 @@ import com.intel.mtwilson.jaxrs2.mediatype.CryptoMediaType;
 import com.intel.mtwilson.launcher.ws.ext.V2;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import com.intel.mtwilson.trustagent.TrustagentRepository;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -29,6 +31,7 @@ public class BindingKey {
     
     @GET
     @Produces({CryptoMediaType.APPLICATION_PKIX_CERT, CryptoMediaType.APPLICATION_X_PEM_FILE})
+    @RequiresPermissions("binding_key:retrieve")
     public X509Certificate getCertificate() throws IOException, CertificateException {
         if( binding == null ) {
             TrustagentConfiguration configuration = getConfiguration();
