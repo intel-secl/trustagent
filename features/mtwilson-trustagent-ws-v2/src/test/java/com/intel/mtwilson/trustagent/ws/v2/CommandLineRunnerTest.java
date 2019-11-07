@@ -74,10 +74,10 @@ public class CommandLineRunnerTest extends CommandLineRunner {
             for(String arg:args){
                 command = command + " " + arg;
             }
-            return (new Result(0, readSampleInput(getWinFileName(command)), null));
+            return (new Result(0, readSampleInput(getWinFileName(command)).getBytes(), new byte[0]));
         }
         else if("linux".equals(osType)){
-            return (new Result(0, readSampleInput("platform-info"), null));
+            return (new Result(0, readSampleInput("platform-info").getBytes(), new byte[0]));
         }
         return null;
     }

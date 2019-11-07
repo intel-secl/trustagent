@@ -129,10 +129,10 @@ TRUSTAGENT_REGISTRATION_TASKS="attestation-registration"
 TRUSTAGENT_CREATE_FLAVOR_TASK="create-host-unique-flavor"
 TRUSTAGENT_GET_MANIFEST_TASK="get-configured-manifest"
 TRUSTAGENT_TPM_TASKS="create-tpm-owner-secret create-tpm-srk-secret create-aik-secret take-ownership"
-TRUSTAGENT_START_TASKS="secure-store create-tpm-owner-secret take-ownership"
+TRUSTAGENT_START_TASKS="secure-store jetty-tls-keystore create-tpm-owner-secret take-ownership"
 TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS="create-binding-key certify-binding-key create-signing-key certify-signing-key"
-TRUSTAGENT_SETUP_TASKS="update-extensions-cache-file secure-store create-tls-keypair create-admin-user $TRUSTAGENT_TPM_TASKS "
-#TRUSTAGENT_SETUP_TASKS="update-extensions-cache-file create-tls-keypair create-admin-user  "
+TRUSTAGENT_SETUP_TASKS="update-extensions-cache-file secure-store create-admin-user jetty-tls-keystore $TRUSTAGENT_TPM_TASKS "
+#TRUSTAGENT_SETUP_TASKS="update-extensions-cache-file jetty-tls-keystore create-admin-user  "
 # not including configure-from-environment because we are running it always before the user-chosen tasks
 # not including register-tpm-password because we are prompting for it in the setup.sh
 JAVA_REQUIRED_VERSION=${JAVA_REQUIRED_VERSION:-1.8}
@@ -264,9 +264,8 @@ trustagent_gen_master_password() {
 # Encrypts the configuration file with the generated password
 trustagent_encrypt_config() {
    # Encrypt the config with the password
-   export PASSWORD=$(cat $TRUSTAGENT_CONFIGURATION/.trustagent_password)
-   "$JAVA_CMD" $JAVA_OPTS com.intel.mtwilson.launcher.console.Main import-config --in=${TRUSTAGENT_CONFIGURATION}/trustagent.properties --out=${TRUSTAGENT_CONFIGURATION}/trustagent.properties --env-password=PASSWORD
-   unset PASSWORD
+   export TRUSTAGENT_PASSWORD=$(cat $TRUSTAGENT_CONFIGURATION/.trustagent_password)
+   "$JAVA_CMD" $JAVA_OPTS com.intel.mtwilson.launcher.console.Main import-config --in=${TRUSTAGENT_CONFIGURATION}/trustagent.properties --out=${TRUSTAGENT_CONFIGURATION}/trustagent.properties
 }
 
 trustagent_authorize() {
@@ -509,13 +508,13 @@ case "$1" in
   setup)
 
     shift
-    trustagent_setup $*
-
     if [ -z "$*" ]; then
        trustagent_check_tpm_version
        trustagent_gen_master_password
        trustagent_encrypt_config
     fi
+
+    trustagent_setup $*
 
 
     ;;
@@ -540,6 +539,7 @@ case "$1" in
     #fi
 
     trustagent_start
+    trustagent_setup
     
     if trustagent_authorize; then
       trustagent_stop

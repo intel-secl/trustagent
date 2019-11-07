@@ -76,12 +76,12 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
     @Override
     protected void validate() throws Exception {
         try {
-            X509Certificate samlCerttificate = keystore.getX509Certificate("saml", SimpleKeystore.CA);
-            if(samlCerttificate == null){
+            X509Certificate samlCertificate = keystore.getX509Certificate("saml", SimpleKeystore.CA);
+            if(samlCertificate == null){
                 validation("Missing Saml Certificate");
             }
-            if(samlCerttificate != null){
-                log.debug("Found saml Certificate {}", Sha1Digest.digestOf(samlCerttificate.getEncoded()).toHexString());
+            if(samlCertificate != null){
+                log.debug("Found saml Certificate {}", Sha1Digest.digestOf(samlCertificate.getEncoded()).toHexString());
             }
         }
         catch(NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | CertificateEncodingException e) {

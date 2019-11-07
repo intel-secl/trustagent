@@ -27,7 +27,6 @@ public class SetupTest {
     public static List<SetupTask> getTasks() {
         ArrayList<SetupTask> list = new ArrayList<>();
         list.add(new ConfigureFromEnvironment());
-        list.add(new CreateTlsKeypair());
         list.add(new CreateAdminUser());
         list.add(new CreateTpmOwnerSecret());
         list.add(new CreateAikSecret());
