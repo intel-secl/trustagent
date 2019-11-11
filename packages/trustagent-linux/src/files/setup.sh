@@ -619,6 +619,7 @@ tagent config jetty.tls.cert.dns $JETTY_TLS_CERT_DNS > /dev/null
 tagent config "aas.api.url" "$AAS_API_URL" >/dev/null
 #CMS configuration
 tagent config "cms.base.url" "$CMS_BASE_URL" >/dev/null
+tagent config "cms.tls.cert.sha384" "$CMS_TLS_CERT_SHA384" >/dev/null
 #tagent config mtwilson.extensions.fileIncludeFilter.contains "${MTWILSON_EXTENSIONS_FILEINCLUDEFILTER_CONTAINS:-mtwilson,trustagent,jersey-media-multipart}" >/dev/null
 #tagent config mtwilson.extensions.packageIncludeFilter.startsWith "${MTWILSON_EXTENSIONS_PACKAGEINCLUDEFILTER_STARTSWITH:-com.intel,org.glassfish.jersey.media.multipart}" >/dev/null
 
