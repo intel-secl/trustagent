@@ -48,6 +48,7 @@ public class TrustagentConfiguration {
     // provide the username and password when connecting to Trust Agent.
 
     public final static String BEARER_TOKEN = "bearer.token";
+    public final static String BEARER_TOKEN_ENV = "BEARER_TOKEN";
     public final static String AAS_API_URL = "aas.api.url";
     public final static String CMS_BASE_URL = "cms.base.url";
     public final static String MTWILSON_API_URL = "mtwilson.api.url";

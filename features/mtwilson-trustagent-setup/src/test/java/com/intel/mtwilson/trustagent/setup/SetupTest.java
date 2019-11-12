@@ -27,7 +27,6 @@ public class SetupTest {
     public static List<SetupTask> getTasks() {
         ArrayList<SetupTask> list = new ArrayList<>();
         list.add(new ConfigureFromEnvironment());
-        list.add(new CreateAdminUser());
         list.add(new CreateTpmOwnerSecret());
         list.add(new CreateAikSecret());
         list.add(new TakeOwnership());
@@ -83,7 +82,7 @@ public class SetupTest {
     @Test
     public void testOneSetupTask() throws IOException {
         PropertiesConfiguration configuration = loadConfiguration();
-        SetupTask task = new CreateAdminUser();
+        SetupTask task = new CreateAikSecret();
         task.setConfiguration(configuration);
         if (task.isConfigured()) {
             log.debug("Running task: {}", task.getClass().getName());

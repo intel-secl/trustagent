@@ -9,7 +9,6 @@ import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.tls.policy.TlsConnection;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
-import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.trustagent.attestation.client.jaxrs.HostTpmPassword;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.as.rest.v2.model.TpmPassword;
@@ -43,19 +42,9 @@ public class RegisterTpmPassword extends AbstractSetupTask {
             configuration("Mt Wilson URL [mtwilson.api.url] must be set");
         }
 
-        String username = trustagentConfiguration.getTrustAgentAdminUserName();
-        if (username == null || username.isEmpty()) {
-            configuration("TA admin username is not set");
-        }
-
-        String password = trustagentConfiguration.getTrustAgentAdminPassword();
-        if (password == null || password.isEmpty()) {
-            configuration("TA admin password is not set");
-        }
-
-        String aasApiUrl = trustagentConfiguration.getAasApiUrl();
-        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
-            configuration("AAS API URL is not set");
+        String bearerToken = System.getenv(TrustagentConfiguration.BEARER_TOKEN_ENV);
+        if (bearerToken == null || bearerToken.isEmpty()) {
+            configuration("BEARER_TOKEN not set in the environment");
         }
 
         tpmOwnerSecretHex = trustagentConfiguration.getTpmOwnerSecretHex();
@@ -81,7 +70,7 @@ public class RegisterTpmPassword extends AbstractSetupTask {
             trustagentConfiguration.getTrustagentTruststorePassword()).build();
         tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
 
-        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, bearerToken);
     }
 
     @Override

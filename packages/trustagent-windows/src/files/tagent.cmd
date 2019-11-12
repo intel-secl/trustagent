@@ -38,7 +38,7 @@ set TRUSTAGENT_START_TASKS=secure-store create-keystore-password jetty-tls-keyst
 REM set TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS=create-binding-key certify-binding-key create-signing-key certify-signing-key
 REM set TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS=
 REM  %TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS%
-set TRUSTAGENT_SETUP_TASKS=update-extensions-cache-file secure-store create-keystore-password jetty-tls-keystore create-admin-user %TRUSTAGENT_TPM_TASKS% %TRUSTAGENT_AUTHORIZE_TASKS% login-register
+set TRUSTAGENT_SETUP_TASKS=update-extensions-cache-file secure-store create-keystore-password jetty-tls-keystore %TRUSTAGENT_TPM_TASKS% %TRUSTAGENT_AUTHORIZE_TASKS%
 REM ECHO. ==Running tagent service==
 REM # load environment variables (these may override the defaults set above)
 if exist "%TRUSTAGENT_ENV%\" (

@@ -12,7 +12,6 @@ import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.dcsg.cpg.x509.X509Util;
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.client.jaxrs.PrivacyCA;
-import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.core.tpm.Tpm;
 import com.intel.mtwilson.core.tpm.Tpm.CredentialType;
 import com.intel.mtwilson.core.common.tpm.model.IdentityProofRequest;
@@ -58,9 +57,7 @@ public class RequestAikCertificate extends AbstractSetupTask {
     private TrustagentConfiguration config;
     private X509Certificate privacyCA;
     private String url;
-    private String username;
-    private String password;
-    private String aasApiUrl;
+    private String bearerToken;
     private byte[] ekCert;
     private File trustStroreFile;
     private String trustStorePassword;
@@ -73,20 +70,9 @@ public class RequestAikCertificate extends AbstractSetupTask {
         if (url == null || url.isEmpty()) {
             configuration("Mt Wilson URL [mtwilson.api.url] must be set");
         }
-
-        username = config.getTrustAgentAdminUserName();
-        if (username == null || username.isEmpty()) {
-            configuration("TA admin username is not set");
-        }
-
-        password = config.getTrustAgentAdminPassword();
-        if (password == null || password.isEmpty()) {
-            configuration("TA admin password is not set");
-        }
-
-        aasApiUrl = config.getAasApiUrl();
-        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
-            configuration("AAS API URL is not set");
+        bearerToken = System.getenv(TrustagentConfiguration.BEARER_TOKEN_ENV);
+        if (bearerToken == null || bearerToken.isEmpty()) {
+            configuration("BEARER_TOKEN not set in the environment");
         }
 
         trustStroreFile = config.getTrustagentTruststoreFile();
@@ -162,8 +148,7 @@ public class RequestAikCertificate extends AbstractSetupTask {
             TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(trustStroreFile, trustStorePassword).build();
             TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
             Properties clientConfiguration = new Properties();
-
-            clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
+            clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, bearerToken);
 
             // send the identity request to the privacy ca to get a challenge
             PrivacyCA client = new PrivacyCA(clientConfiguration, tlsConnection);

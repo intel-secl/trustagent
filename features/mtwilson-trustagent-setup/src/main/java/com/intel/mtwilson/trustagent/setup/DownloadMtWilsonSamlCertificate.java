@@ -11,7 +11,6 @@ import com.intel.dcsg.cpg.tls.policy.TlsConnection;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.mtwilson.client.jaxrs.CaCertificates;
-import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
 import java.io.File;
@@ -33,9 +32,7 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DownloadMtWilsonSamlCertificate.class);
 
     private String url;
-    private String username;
-    private String password;
-    private String aasApiUrl;
+    private String bearerToken;
     private GuardedPassword keystoreGuardedPassword = new GuardedPassword();
     private SimpleKeystore keystore;
     private TrustagentConfiguration trustagentConfiguration;
@@ -48,17 +45,9 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
         if( url == null || url.isEmpty() ) {
             configuration("Mt Wilson URL is not set");
         }
-        username = trustagentConfiguration.getTrustAgentAdminUserName();
-        if (username == null || username.isEmpty()) {
-            configuration("TA admin username is not set");
-        }
-        password = trustagentConfiguration.getTrustAgentAdminPassword();
-        if (password == null || password.isEmpty()) {
-            configuration("TA admin password is not set");
-        }
-        aasApiUrl = trustagentConfiguration.getAasApiUrl();
-        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
-            configuration("AAS API URL is not set");
+        bearerToken = System.getenv(TrustagentConfiguration.BEARER_TOKEN_ENV);
+        if (bearerToken == null || bearerToken.isEmpty()) {
+            configuration("BEARER_TOKEN not set in the environment");
         }
         truststoreFile = trustagentConfiguration.getTrustagentTruststoreFile();
         if( truststoreFile == null || !truststoreFile.exists() ) {
@@ -96,7 +85,7 @@ public class DownloadMtWilsonSamlCertificate extends AbstractSetupTask {
         TlsPolicy tlsPolicy = TlsPolicyBuilder.factory().strictWithKeystore(truststoreFile, truststorePassword).build();
         TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
         Properties clientConfiguration = new Properties();
-        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, bearerToken);
         CaCertificates client = new CaCertificates(clientConfiguration, tlsConnection);
         X509Certificate certificate = client.retrieveCaCertificate("saml");
         keystore.addTrustedCaCertificate(certificate, "saml");

@@ -13,7 +13,6 @@ import com.intel.mtwilson.common.TAException;
 import com.intel.mtwilson.jaxrs2.client.MtWilsonClient;
 import com.intel.mtwilson.setup.AbstractSetupTask;
 import com.intel.mtwilson.trustagent.TrustagentConfiguration;
-import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.core.common.utils.ManifestUtils;
 import com.intel.wml.manifest.xml.Manifest;
 import org.apache.commons.io.FileUtils;
@@ -39,9 +38,7 @@ public class GetConfiguredManifest extends AbstractSetupTask {
     private static final String FLAVOR_LABELS = "FLAVOR_LABELS";
     private static final String MANIFEST_RESOURCE = "manifests";
     private String url;
-    private String username;
-    private String password;
-    private String aasApiUrl;
+    private String bearerToken;
     private String flavorUuids;
     private List<String> flavorList = new ArrayList<>();
     private List<String> flavorUuidList = new ArrayList<>();
@@ -57,17 +54,9 @@ public class GetConfiguredManifest extends AbstractSetupTask {
         if (url == null || url.isEmpty()) {
             configuration("Verification service URL is not set");
         }
-        username = trustagentConfiguration.getTrustAgentAdminUserName();
-        if (username == null || username.isEmpty()) {
-            configuration("TA admin username is not set");
-        }
-        password = trustagentConfiguration.getTrustAgentAdminPassword();
-        if (password == null || password.isEmpty()) {
-            configuration("TA admin password is not set");
-        }
-        aasApiUrl = trustagentConfiguration.getAasApiUrl();
-        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
-            configuration("AAS API URL is not set");
+        bearerToken = System.getenv(TrustagentConfiguration.BEARER_TOKEN_ENV);
+        if (bearerToken == null || bearerToken.isEmpty()) {
+            configuration("BEARER_TOKEN not set in the environment");
         }
         flavorUuids = System.getenv(FLAVOR_UUIDS);
         if (flavorUuids != null && !flavorUuids.isEmpty()) {
@@ -116,8 +105,7 @@ public class GetConfiguredManifest extends AbstractSetupTask {
 
             TlsConnection tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
             Properties clientConfiguration = new Properties();
-
-            clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
+            clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, bearerToken);
             client = new MtWilsonClient(clientConfiguration, tlsConnection);
         } catch (IOException exception) {
             log.error("Cannot create Verification Service client : {}", exception);

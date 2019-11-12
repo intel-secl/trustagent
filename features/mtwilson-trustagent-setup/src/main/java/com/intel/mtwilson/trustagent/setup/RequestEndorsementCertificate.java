@@ -13,7 +13,6 @@ import com.intel.dcsg.cpg.tls.policy.TlsPolicy;
 import com.intel.dcsg.cpg.tls.policy.TlsPolicyBuilder;
 import com.intel.dcsg.cpg.x509.X509Util;
 import com.intel.mtwilson.Folders;
-import com.intel.mtwilson.core.common.utils.AASTokenFetcher;
 import com.intel.mtwilson.privacyca.v2.model.CaCertificateFilterCriteria;
 import com.intel.mtwilson.client.jaxrs.CaCertificates;
 import com.intel.mtwilson.client.jaxrs.PrivacyCA;
@@ -69,19 +68,9 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
             configuration("Mt Wilson URL [mtwilson.api.url] must be set");
         }
 
-        String username = trustagentConfiguration.getTrustAgentAdminUserName();
-        if (username == null || username.isEmpty()) {
-            configuration("TA admin username is not set");
-        }
-
-        String password = trustagentConfiguration.getTrustAgentAdminPassword();
-        if (password == null || password.isEmpty()) {
-            configuration("TA admin password is not set");
-        }
-
-        String aasApiUrl = trustagentConfiguration.getAasApiUrl();
-        if (aasApiUrl == null || aasApiUrl.isEmpty()) {
-            configuration("AAS API URL is not set");
+        String bearerToken = System.getenv(TrustagentConfiguration.BEARER_TOKEN_ENV);
+        if (bearerToken == null || bearerToken.isEmpty()) {
+            configuration("BEARER_TOKEN not set in the environment");
         }
 
         String hostHardwareIdHex = trustagentConfiguration.getHardwareUuid();
@@ -109,7 +98,7 @@ public class RequestEndorsementCertificate extends AbstractSetupTask {
             trustagentConfiguration.getTrustagentTruststorePassword()).build();
         tlsConnection = new TlsConnection(new URL(url), tlsPolicy);
 
-        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, new AASTokenFetcher().getAASToken(username, password, new TlsConnection(new URL(aasApiUrl), tlsPolicy)));
+        clientConfiguration.setProperty(TrustagentConfiguration.BEARER_TOKEN, bearerToken);
 
         try {
             tpmEndorsementsClient = new TpmEndorsements(clientConfiguration, tlsConnection);
