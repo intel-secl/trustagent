@@ -69,7 +69,6 @@ export AUTOMATIC_PULL_MANIFEST=${AUTOMATIC_PULL_MANIFEST:-y}
 export TRUSTAGENT_ADMIN_USERNAME=${TRUSTAGENT_ADMIN_USERNAME:-tagent-admin}
 export TRUSTAGENT_ADMIN_PASSWORD=${TRUSTAGENT_ADMIN_PASSWORD:-tagent-admin-password}
 export REGISTER_TPM_PASSWORD=${REGISTER_TPM_PASSWORD:-y}
-export TRUSTAGENT_LOGIN_REGISTER=${TRUSTAGENT_LOGIN_REGISTER:-true}
 export TRUSTAGENT_HOME=${TRUSTAGENT_HOME:-$DEFAULT_TRUSTAGENT_HOME}
 TRUSTAGENT_LAYOUT=${TRUSTAGENT_LAYOUT:-home}
 # PID file needed for startup service registration and as set in tagent.sh
@@ -712,7 +711,7 @@ configure_cron add "$TRUSTAGENT_TMPCLN_INT" "find "$TRUSTAGENT_TMP" -mtime +"$TR
 tagent start
 
 if [[ "$PROVISION_ATTESTATION" == "y" || "$PROVISION_ATTESTATION" == "Y" || "$PROVISION_ATTESTATION" == "yes" ]]; then
-    authorize_vars="MTWILSON_API_URL MTWILSON_API_USERNAME MTWILSON_API_PASSWORD MTWILSON_TLS_CERT_SHA384"
+    authorize_vars="MTWILSON_API_URL"
     for var in $authorize_vars
     do
         if [ ! -v $var ]
@@ -772,21 +771,3 @@ if [[ $ipResult -eq 255 ]]; then
 fi
 
 #exit
-
-# 32. register tpm password with mtwilson
-# optional: register tpm password with mtwilson so pull provisioning can
-#           be accomplished with less reboots (no ownership transfer)
-#           default is not to register the password.
-#prompt_with_default REGISTER_TPM_PASSWORD       "Register TPM password with service to support asset tag automation? [y/n]" ${REGISTER_TPM_PASSWORD:-no}
-#if [[ "$REGISTER_TPM_PASSWORD" == "y" || "$REGISTER_TPM_PASSWORD" == "Y" || "$REGISTER_TPM_PASSWORD" == "yes" ]]; then 
-  #prompt_with_default ASSET_TAG_URL "Asset Tag Server URL: (https://[SERVER]:[PORT]/mtwilson/v2)" ${ASSET_TAG_URL}
-#  prompt_with_default MTWILSON_API_USERNAME "Username:" ${MTWILSON_API_USERNAME}
-#  prompt_with_default_password MTWILSON_API_PASSWORD "Password:" ${MTWILSON_API_PASSWORD}
-#  export MTWILSON_API_USERNAME MTWILSON_API_PASSWORD
-#  export HARDWARE_UUID=`dmidecode |grep UUID | awk '{print $2}'`
-#  tagent setup register-tpm-password
-#fi
-
-
-# remove the temporary setup env file
-#rm -f $TRUSTAGENT_ENV/trustagent-setup

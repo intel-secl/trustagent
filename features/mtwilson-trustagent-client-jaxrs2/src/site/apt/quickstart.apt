@@ -63,10 +63,7 @@ import com.intel.mtwilson.trustagent.model.VMQuoteResponse;
 
 +---
 Properties properties = new Properties();
-properties.setProperty("mtwilson.api.username", [TRUSTAGENT_ADMIN_USERNAME]);
-properties.setProperty("mtwilson.api.password", [TRUSTAGENT_ADMIN_PASSWORD]);
 properties.setProperty("mtwilson.api.url", "https://trustagent.server.com:1443/mtwilson/v2");
-properties.setProperty("mtwilson.api.tls.policy.certificate.sha256", "ae8b50d9a45d1941d5486df204b9e05a433e3a5bc13445f48774af686d18dcfc");       
 +---
 
 *Configuration of TLS policy

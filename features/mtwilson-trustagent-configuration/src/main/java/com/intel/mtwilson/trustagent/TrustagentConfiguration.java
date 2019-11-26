@@ -52,9 +52,6 @@ public class TrustagentConfiguration {
     public final static String AAS_API_URL = "aas.api.url";
     public final static String CMS_BASE_URL = "cms.base.url";
     public final static String MTWILSON_API_URL = "mtwilson.api.url";
-    public final static String MTWILSON_TLS_CERT_SHA384 = "mtwilson.tls.cert.sha384";
-    public final static String MTWILSON_API_USERNAME = "mtwilson.api.username"; // NOTE: MUST NOT STORE THE VALUE
-    public final static String MTWILSON_API_PASSWORD = "mtwilson.api.password"; // NOTE: MUST NOT STORE THE VALUE
     public final static String FLAVOR_UUIDS = "flavor.uuids";
     public final static String FLAVOR_LABELS = "flavor.labels";
     public final static String TPM_OWNER_SECRET = "tpm.owner.secret"; // 20 bytes hex (40 hex digits)
@@ -102,25 +99,6 @@ public class TrustagentConfiguration {
         this.conf = configuration;
     }
 
-    /**
-     * NOTE: this comes from an environment variable and would only be used
-     * during setup for automatic approval of the mtwilson tls cert when the
-     * admin sets the env var MTWILSON_TLS_CERT_SHA1 to be a comma-separated list
-     * of valid SHA1 digests. During setup the authorized certificates are 
-     * saved to the trustagent.p12 keystore so this env var is not needed 
-     * after setup.
-     * 
-     * @return 
-     */
-    public List<String> getMtWilsonTlsCertificateFingerprints() {        
-        String fingerprintCsv = conf.get(MTWILSON_TLS_CERT_SHA384, null);
-        if( fingerprintCsv == null || fingerprintCsv.isEmpty() ) {
-            return Collections.EMPTY_LIST;
-        }
-        return Arrays.asList(fingerprintCsv.split("\\s*,\\s*"));
-            
-    }
-
     public String getCurrentIp() {
         return conf.get(CURRENT_IP, null);// intentionally no default - this must be configured during setup
     }
@@ -132,12 +110,6 @@ public class TrustagentConfiguration {
     }
     public String getMtWilsonApiUrl() {
         return conf.get(MTWILSON_API_URL, null);// intentionally no default - this must be configured during setup
-    }
-    public String getMtWilsonApiUsername() {
-        return conf.get(MTWILSON_API_USERNAME, null);// intentionally no default - this must be configured during setup
-    }
-    public String getMtWilsonApiPassword() {
-        return conf.get(MTWILSON_API_PASSWORD, null);// intentionally no default - this must be configured during setup
     }
     public String getFlavorUUIDs() {
         return conf.get(FLAVOR_UUIDS, null);
@@ -363,12 +335,8 @@ public class TrustagentConfiguration {
     public Properties getMtWilsonClientProperties() {
         Properties properties = new Properties();
         properties.setProperty("mtwilson.api.url", getMtWilsonApiUrl());
-        properties.setProperty("mtwilson.api.username", getMtWilsonApiUsername());
-        properties.setProperty("mtwilson.api.password", getMtWilsonApiPassword());
         properties.setProperty("mtwilson.api.tls.policy.certificate.keystore.file", getTrustagentKeystoreFile().getAbsolutePath());
         properties.setProperty("mtwilson.api.tls.policy.certificate.keystore.password", getTrustagentKeystorePassword());
-        properties.setProperty("mtwilson.api.tls.policy.certificate.sha384", getMtwilsonTlsPolicyCertificateSha384());
-        properties.setProperty("mtwilson.tls.cert.sha384", getMtwilsonTlsPolicyCertificateSha384());
         return properties;
     }
     

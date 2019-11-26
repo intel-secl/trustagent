@@ -98,11 +98,8 @@ Running the container
         MTWILSON_IP_ADDRESS=<ISecL server IP address>
         MTWILSON_HOSTNAME=<ISecL Server Hostname or IP address if the service is running on a host.>
                           # If running on a container, name it "verification-service"
-        MTWILSON_API_USERNAME=<ISecL user name>
-        MTWILSON_API_PASSWORD=<ISecL user password>
         TPM_OWNER_SECRET=<OPTIONAL: TPM owner secret>
         CURRENT_IP=<IP of the host on which the agent container is running>
-        MTWILSON_TLS_CERT_SHA384=<Verification Service CERT SHA384>
         http_proxy=<proxy server address, if behind a proxy>
         https_proxy=<proxy server address, if behind a proxy>
 

@@ -42,9 +42,6 @@ public class TrustAgentClient extends MtWilsonClient {
      * 
      * // basic authentication
      * 
-     * mtwilson.api.username - trustagent api username
-     * mtwilson.api.password - trustagent api password
-     * mtwilson.api.tls.policy.certificate.sha256 - trustagent tls certificate sha256 value
      * </pre>
      * @throws Exception     
      * 
@@ -53,9 +50,6 @@ public class TrustAgentClient extends MtWilsonClient {
      * {
     *       Properties properties = new Properties();
     *       properties.put("mtwilson.api.baseurl", "https://trustagent.server.com:1443/v2");
-    *       properties.put("mtwilson.api.username", "tagentadmin");
-    *       properties.put("mtwilson.api.password", "TAgentAdminPassword");
-    *       properties.put("mtwilson.api.tls.policy.certificate.sha256", "003da58915bde878516b315f8fde9277d20e4df71b68602fbcfe0ebfda0e7afe");
     *       TrustAgentClient client = new TrustAgentClient(properties);
     * }
     * </pre>

@@ -38,9 +38,6 @@ public class ConfigureFromEnvironment extends AbstractSetupTask {
         configuration = getConfiguration();
         variables = new String[] {
             TrustagentConfiguration.MTWILSON_API_URL,
-            TrustagentConfiguration.MTWILSON_API_USERNAME, // NOTE: excluded from storing in trustagent.properties by com.intel.mtwilson.trustagent.cmd.Setup beforeStore
-            TrustagentConfiguration.MTWILSON_API_PASSWORD, // NOTE: excluded from storing in trustagent.properties by com.intel.mtwilson.trustagent.cmd.Setup beforeStore
-            TrustagentConfiguration.MTWILSON_TLS_CERT_SHA384,
             TrustagentConfiguration.TPM_QUOTE_IPV4,
             TrustagentConfiguration.TPM_OWNER_SECRET,
             TrustagentConfiguration.TPM_SRK_SECRET,

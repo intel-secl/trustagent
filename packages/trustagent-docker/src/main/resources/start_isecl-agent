@@ -128,8 +128,8 @@ function start_isecl-agent() {
 
         # echo "Restarting the container from saved volumes"
         # Check if all the required parameters are passed
-        if [ -z "$MTWILSON_IP_ADDRESS" ] || [ -z "$MTWILSON_API_USERNAME" ] || [ -z "$MTWILSON_API_PASSWORD" ] || [ -z "$CURRENT_IP" ] || [ -z "$MTWILSON_TLS_CERT_SHA384" ] || [ -z "$TRUSTAGENT_ADMIN_PASSWORD" ]; then
-            echo -e "\033[0;31m Insufficient argument provided , reguired :- MTWILSON_IP_ADDRESS, MTWILSON_API_USERNAME , MTWILSON_API_PASSWORD, MTWILSON_TLS_CERT_SHA384, CURRENT_IP TRUSTAGENT_ADMIN_PASSWORD"
+        if [ -z "$MTWILSON_IP_ADDRESS" ] || [ -z "$CURRENT_IP" ] || [ -z "$TRUSTAGENT_ADMIN_PASSWORD" ]; then
+            echo -e "\033[0;31m Insufficient argument provided , reguired :- MTWILSON_IP_ADDRESS, CURRENT_IP TRUSTAGENT_ADMIN_PASSWORD"
             exit 1
         fi
 

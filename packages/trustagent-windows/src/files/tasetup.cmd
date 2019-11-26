@@ -50,7 +50,6 @@ set ASSET_TAG_SETUP="y"
 set trustagent_cmd=%package_dir%\bin\agenthandler.cmd
 set bootdriver_dir=%package_dir%\bootdriver
 set REGISTER_TPM_PASSWORD=y
-set TRUSTAGENT_LOGIN_REGISTER=true
 set PROVISION_ATTESTATION=y
 
 set logfile=%package_dir%\logs\install.log
@@ -81,7 +80,7 @@ IF EXIST "%package_dir%\trustagent.env" (
 
 REM # 3. Export variables
 REM # this is a list of all the variables we expect to find in trustagent.env
-set TRUSTAGENT_ENV_VARS=TRUSTAGENT_ADMIN_USERNAME TRUSTAGENT_ADMIN_PASSWORD CURRENT_IP AUTOMATIC_REGISTRATION PROVISION_ATTESTATION MTWILSON_API_URL MTWILSON_TLS_CERT_SHA384 MTWILSON_API_USERNAME MTWILSON_API_PASSWORD TPM_OWNER_SECRET TPM_SRK_SECRET AIK_SECRET AIK_INDEX TPM_QUOTE_IPV4 TRUSTAGENT_HTTP_TLS_PORT TRUSTAGENT_TLS_CERT_DN TRUSTAGENT_TLS_CERT_IP TRUSTAGENT_TLS_CERT_DNS TRUSTAGENT_KEYSTORE_PASSWORD DAA_ENABLED TRUSTAGENT_PASSWORD JAVA_REQUIRED_VERSION HARDWARE_UUID
+set TRUSTAGENT_ENV_VARS=TRUSTAGENT_ADMIN_USERNAME TRUSTAGENT_ADMIN_PASSWORD CURRENT_IP AUTOMATIC_REGISTRATION PROVISION_ATTESTATION MTWILSON_API_URL TPM_OWNER_SECRET TPM_SRK_SECRET AIK_SECRET AIK_INDEX TPM_QUOTE_IPV4 TRUSTAGENT_HTTP_TLS_PORT TRUSTAGENT_TLS_CERT_DN TRUSTAGENT_TLS_CERT_IP TRUSTAGENT_TLS_CERT_DNS TRUSTAGENT_KEYSTORE_PASSWORD DAA_ENABLED TRUSTAGENT_PASSWORD JAVA_REQUIRED_VERSION HARDWARE_UUID
 
 REM export_vars $TRUSTAGENT_ENV_VARS
 FOR %%a in (%TRUSTAGENT_ENV_VARS%) do (
@@ -268,14 +267,9 @@ call "%trustagent_cmd%" import-config --in="trustagent.properties" --out="trusta
 cd "%package_bin%"
 
 IF [%MTWILSON_API_URL%] == [""] set MTWILSON_API_URL=
-IF [%MTWILSON_API_USERNAME%] == [""] set MTWILSON_API_USERNAME=
-IF [%MTWILSON_API_PASSWORD%] == [""] set MTWILSON_API_PASSWORD=
-IF [%MTWILSON_TLS_CERT_SHA384%] == [""] set MTWILSON_TLS_CERT_SHA384=
-IF [%MTWILSON_TLS_CERT_SHA256%] == [""] set MTWILSON_TLS_CERT_SHA256=
-IF [%MTWILSON_TLS_CERT_SHA1%] == [""] set MTWILSON_TLS_CERT_SHA1=
 IF [%PROVISION_ATTESTATION%] == [""] set PROVISION_ATTESTATION=
 
-IF DEFINED MTWILSON_API_URL (IF DEFINED MTWILSON_TLS_CERT_SHA384 (IF DEFINED MTWILSON_API_USERNAME (IF DEFINED MTWILSON_API_PASSWORD (IF "%PROVISION_ATTESTATION%"=="y" (call "%trustagent_cmd%" provision-attestation))))) ELSE (Call :tee Trust agent setup: Attestation service details unavailable. Skipping provisioning)
+IF DEFINED MTWILSON_API_URL (IF "%PROVISION_ATTESTATION%"=="y" (call "%trustagent_cmd%" provision-attestation)) ELSE (Call :tee Trust agent setup: Attestation service details unavailable. Skipping provisioning)
 
 IF [%AUTOMATIC_REGISTRATION%] == [""] set AUTOMATIC_REGISTRATION=
 IF "%AUTOMATIC_REGISTRATION%"=="y" (
@@ -297,9 +291,6 @@ REM #           be accomplished with less reboots (no ownership transfer)
 REM # prompt_with_default REGISTER_TPM_PASSWORD       "Register TPM password with service to support asset tag automation? [y/n]" ${REGISTER_TPM_PASSWORD}
 REM if [[ "$REGISTER_TPM_PASSWORD" == "y" || "$REGISTER_TPM_PASSWORD" == "Y" || "$REGISTER_TPM_PASSWORD" == "yes" ]]; then 
 REM # prompt_with_default ASSET_TAG_URL "Asset Tag Server URL: (https://[SERVER]:[PORT]/mtwilson/v2)" ${ASSET_TAG_URL}
-REM # prompt_with_default MTWILSON_API_USERNAME "Username:" ${MTWILSON_API_USERNAME}
-REM # prompt_with_default_password MTWILSON_API_PASSWORD "Password:" ${MTWILSON_API_PASSWORD}
-REM # export MTWILSON_API_USERNAME MTWILSON_API_PASSWORD
 REM # # json='[{ "subject": "'$UUID'", "selection": "'$selectionUUID'"}]'
 REM # # wget --secure-protocol=SSLv3 --no-proxy --ca-certificate=$CERT_FILE_LOCATION --password=$password --user=$username --header="Content-Type: application/json" --post-data="$json"
 REM # TPM_PASSWORD=`read_property_from_file tpm.owner.secret /opt/trustagent/configuration/trustagent.properties`

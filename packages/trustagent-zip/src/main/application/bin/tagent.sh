@@ -77,10 +77,6 @@ fi
 register_tpm_password() {
   prompt_with_default REGISTER_TPM_PASSWORD       "Register TPM password with service to support asset tag automation? [y/n]" ${REGISTER_TPM_PASSWORD:-no}
   if [[ "$REGISTER_TPM_PASSWORD" == "y" || "$REGISTER_TPM_PASSWORD" == "Y" || "$REGISTER_TPM_PASSWORD" == "yes" ]]; then
-    prompt_with_default MTWILSON_API_USERNAME "Username:" ${MTWILSON_API_USERNAME}
-    prompt_with_default_password MTWILSON_API_PASSWORD "Password:" ${MTWILSON_API_PASSWORD}
-    export MTWILSON_API_USERNAME MTWILSON_API_PASSWORD
-    #export HARDWARE_UUID=`dmidecode |grep UUID | awk '{print $2}'`
     trustagent_setup register-tpm-password
 fi
 
@@ -270,7 +266,7 @@ trustagent_encrypt_config() {
 
 trustagent_authorize() {
   export HARDWARE_UUID=$(trustagent_system_info "hardware-uuid")
-  local authorize_vars="MTWILSON_API_URL MTWILSON_TLS_CERT_SHA384 MTWILSON_API_USERNAME "
+  local authorize_vars="MTWILSON_API_URL"
   local default_value
   for v in $authorize_vars
   do
@@ -278,11 +274,7 @@ trustagent_authorize() {
     prompt_with_default $v "Required: $v" $default_value
   done
 
-  default_value=$(eval "echo \$$MTWILSON_API_PASSWORD")
-  prompt_with_default_password MTWILSON_API_PASSWORD "Required: MTWILSON_API_PASSWORD" $default_value
-
   export_vars $authorize_vars
-  export MTWILSON_API_PASSWORD 
 
   trustagent_setup --force $TRUSTAGENT_AUTHORIZE_TASKS
   return $?
