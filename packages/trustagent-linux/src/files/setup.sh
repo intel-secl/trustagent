@@ -617,8 +617,14 @@ tagent config trustagent.admin.username $TRUSTAGENT_ADMIN_USERNAME > /dev/null
 tagent config trustagent.admin.password $TRUSTAGENT_ADMIN_PASSWORD > /dev/null
 
 # Jetty TLS configuration
-tagent config jetty.tls.cert.ip $JETTY_TLS_CERT_IP > /dev/null
-tagent config jetty.tls.cert.dns $JETTY_TLS_CERT_DNS > /dev/null
+if [ -n "$TA_TLS_CERT_IP" ]; then
+    tagent config jetty.tls.cert.ip $TA_TLS_CERT_IP > /dev/null
+fi
+
+if [ -n "$TA_TLS_CERT_DNS" ]; then
+    tagent config jetty.tls.cert.dns $TA_TLS_CERT_DNS > /dev/null
+fi
+
 #AAS configuration
 tagent config "aas.api.url" "$AAS_API_URL" >/dev/null
 #CMS configuration
