@@ -66,6 +66,7 @@ export LOG_SIZE=${LOG_SIZE:-1G}
 export LOG_OLD=${LOG_OLD:-12}
 export PROVISION_ATTESTATION=${PROVISION_ATTESTATION:-y}
 export AUTOMATIC_PULL_MANIFEST=${AUTOMATIC_PULL_MANIFEST:-y}
+export TRUSTAGENT_NOSETUP=${TRUSTAGENT_NOSETUP:-false}
 export TRUSTAGENT_ADMIN_USERNAME=${TRUSTAGENT_ADMIN_USERNAME:-tagent-admin}
 export TRUSTAGENT_ADMIN_PASSWORD=${TRUSTAGENT_ADMIN_PASSWORD:-tagent-admin-password}
 export REGISTER_TPM_PASSWORD=${REGISTER_TPM_PASSWORD:-y}
@@ -679,9 +680,9 @@ if [ ! -a /etc/logrotate.d/trustagent ]; then
 }" > /etc/logrotate.d/trustagent
 fi
 
-# exit trustagent setup if TRUSTAGENT_NOSETUP is set
-if [ -n "$TRUSTAGENT_NOSETUP" ]; then
-  echo "TRUSTAGENT_NOSETUP value is set. So, skipping the trustagent setup task."
+# exit trustagent setup if TRUSTAGENT_NOSETUP is set to true
+if [ "$TRUSTAGENT_NOSETUP" = "true" ]; then
+  echo "TRUSTAGENT_NOSETUP value is set to true. So, skipping the trustagent setup task."
   exit 0;
 fi
 
