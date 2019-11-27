@@ -67,8 +67,6 @@ export LOG_OLD=${LOG_OLD:-12}
 export PROVISION_ATTESTATION=${PROVISION_ATTESTATION:-y}
 export AUTOMATIC_PULL_MANIFEST=${AUTOMATIC_PULL_MANIFEST:-y}
 export TRUSTAGENT_NOSETUP=${TRUSTAGENT_NOSETUP:-false}
-export TRUSTAGENT_ADMIN_USERNAME=${TRUSTAGENT_ADMIN_USERNAME:-tagent-admin}
-export TRUSTAGENT_ADMIN_PASSWORD=${TRUSTAGENT_ADMIN_PASSWORD:-tagent-admin-password}
 export REGISTER_TPM_PASSWORD=${REGISTER_TPM_PASSWORD:-y}
 export TRUSTAGENT_HOME=${TRUSTAGENT_HOME:-$DEFAULT_TRUSTAGENT_HOME}
 TRUSTAGENT_LAYOUT=${TRUSTAGENT_LAYOUT:-home}
@@ -612,10 +610,6 @@ fi
 if [ "${LOCALHOST_INTEGRATION}" == "yes" ]; then
   /opt/trustagent/bin/tagent.sh localhost-integration
 fi
-
-# Configure user credentials
-tagent config trustagent.admin.username $TRUSTAGENT_ADMIN_USERNAME > /dev/null
-tagent config trustagent.admin.password $TRUSTAGENT_ADMIN_PASSWORD > /dev/null
 
 # Jetty TLS configuration
 if [ -n "$TA_TLS_CERT_IP" ]; then

@@ -5,7 +5,6 @@
 package com.intel.mtwilson.trustagent.ws.v2;
 
 import com.intel.dcsg.cpg.io.UUID;
-import com.intel.mtwilson.jaxrs2.client.MtWilsonClient;
 import com.intel.mtwilson.launcher.ws.ext.V2;
 import com.intel.mtwilson.Folders;
 import javax.ws.rs.POST;
@@ -18,7 +17,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import com.intel.mtwilson.core.common.utils.ManifestUtils;
-import com.intel.mtwilson.trustagent.util.VSClientCreatorUtil;
 import com.intel.wml.manifest.xml.Manifest;
 import org.apache.commons.io.FileUtils;
 import java.io.File;
@@ -35,7 +33,6 @@ public class ManifestDeployer {
 
     private final static org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ManifestDeployer.class);
     private final static String manifestFileBasePath = Folders.application() + File.separator + "var" + File.separator;
-    private final static String MANIFEST_RESOURCE = "manifests";
 
     @POST
     @Consumes(MediaType.APPLICATION_XML)
@@ -60,7 +57,6 @@ public class ManifestDeployer {
     private void validate(Manifest manifest) {
         validateManifestUuid(manifest);
         validateManifestLabel(manifest);
-        validateFlavorExists(manifest);
         validateDefaultManifest(manifest);
     }
 
@@ -90,26 +86,6 @@ public class ManifestDeployer {
         }
     }
 
-    private void validateFlavorExists(Manifest manifest) {
-        Manifest pulledManifest;
-        MtWilsonClient client;
-        try {
-            client = new VSClientCreatorUtil().createVSClient();
-        } catch (Exception exc){
-            log.error("Error creating client");
-            throw new WebApplicationException("Cannot connect to VS", 500);
-        }
-        try {
-            pulledManifest = client.getTarget().path(MANIFEST_RESOURCE).queryParam("id", UUID.valueOf(manifest.getUuid())).request().accept(MediaType.APPLICATION_XML).get(Manifest.class);
-            if (!manifest.getLabel().equals(pulledManifest.getLabel())) {
-                log.error("Software flavor label does not match the label of the manifest to be deployed");
-                throw new WebApplicationException();
-            }
-        } catch (WebApplicationException webex) {
-            throw new WebApplicationException("No matching software flavor found for the manifest to be deployed", 400);
-        }
-    }
-
     //Check if manifest file already exists
     private int checkManifestFileExists(File manifestPath) {
         boolean validateFilePath = manifestPath.exists();
@@ -119,8 +95,6 @@ public class ManifestDeployer {
             return Response.Status.CREATED.getStatusCode();
         }
     }
-
-
 
     private void writeToFile(File filePath, String data) throws IOException {
         FileUtils.write(filePath, data, "utf-8");

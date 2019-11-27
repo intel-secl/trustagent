@@ -75,8 +75,6 @@ public class TrustagentConfiguration {
     public static final String SIGNING_KEY_NAME = "sign";
     public static final String SIGNING_KEY_SECRET = "signing.key.secret";
     public static final String SIGNING_KEY_INDEX = "signing.key.index";
-    public static final String TRUSTAGENT_ADMIN_USERNAME = "trustagent.admin.username";
-    public static final String TRUSTAGENT_ADMIN_PASSWORD = "trustagent.admin.password";
     public final static String JETTY_THREAD_MIN = "jetty.thread.min";
     public final static String JETTY_THREAD_MAX = "jetty.thread.max";
     public final static String CURRENT_IP = "current.ip";
@@ -470,14 +468,6 @@ public class TrustagentConfiguration {
     
     public File getSigningKeyOpaqueBlobFile() {
         return new File(Folders.configuration() + File.separator + "signingkey.opaque");        
-    }
-
-    public String getTrustAgentAdminUserName() {
-        return conf.get(TRUSTAGENT_ADMIN_USERNAME); // intentionally no default - this must be generated during setup
-    }
-
-    public String getTrustAgentAdminPassword() {
-        return conf.get(TRUSTAGENT_ADMIN_PASSWORD); // intentionally no default - this must be generated during setup
     }
 
     public String getTrustAgentTlsPolicyCertificateSha384() {
