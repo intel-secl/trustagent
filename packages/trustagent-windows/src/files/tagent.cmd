@@ -261,7 +261,6 @@ EXIT /B !errorlevel!
     REM echo. Usage: %~n0 start^|stop^|authorize^|start-http-server^|version
     echo. Usage: %~n0 start^|stop^|restart^|java-detect^|fingerprint^|uninstall^|zeroize^|status^|version^|provision-attestation^|create-host
     echo. Usage: %~n0 setup [--force^|--noexec] [task1 task2 ...]
-    echo. Usage: %~n0 password [username] [password] --permissions [domain1:action1]
     echo. Usage: %~n0 export-config [outfile^|--in=infile^|--out=outfile^|--stdout] [--env-password=PASSWORD_VAR]
     echo. Usage: %~n0 config [key] [--delete^|newValue]
     echo. Available setup tasks:

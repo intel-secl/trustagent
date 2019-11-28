@@ -1,7 +1,7 @@
 ISecL v1 Agent Container
 ========================
 This repo is to create an image for ISL v1 Agent container. Below instructions 
-help in building and running the contianer on Docker runtime.
+help in building and running the container on Docker runtime.
 
 Pre-requisites
 ----------------------
@@ -108,8 +108,8 @@ Running the container
      before invoking the helper script.
 
     * **Exposing host OS version on the container** *
-    With TrustAgent running in a container, the Host info reported in flovar creation
-    and other relevant functionality would only reprot the OS version of the container 
+    With TrustAgent running in a container, the Host info reported in flavor creation
+    and other relevant functionality would only report the OS version of the container 
     (i.e., RHEL 7.3). To have the underlying host OS Version and Distro details be
     available to the container, perform the below export the below environment variables
     with the appropriate values
@@ -117,7 +117,7 @@ Running the container
         OS_VERSION=<VERSION OF THE UNDERLYING OS: 7.4, 7.5 etc.)
         OS_DISTRO=<OS DISTRIBUTION: RedHatEnterpriseServer etc.)
 
-    Below are the commands to export the values to the vaiables with the host OS details
+    Below are the commands to export the values to the variables with the host OS details
     
         OS_VERSION=$(lsb_release -a | grep "^Release:"  | cut -f2)
         OS_DISTRO=$(lsb_release -a | grep "^Distributor ID"  | cut -f2)
@@ -148,7 +148,7 @@ Running the container
 
     Once the container is down/stopped (docker-compose down), the containers does not need the env files and
     db.password to restart since the setup activities are done during the first launch and the configurations
-    are stoed as part of the volumes. 
+    are stored as part of the volumes. 
 
     Two options to run the containers without the configuration
 
