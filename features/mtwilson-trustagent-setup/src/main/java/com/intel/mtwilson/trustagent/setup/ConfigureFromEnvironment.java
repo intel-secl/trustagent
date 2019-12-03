@@ -75,7 +75,9 @@ public class ConfigureFromEnvironment extends AbstractSetupTask {
             String envValue = env.get(variable, null);
             String confValue = configuration.get(variable, null);
             log.debug("checking to see if environment variable [{}] needs to be added to configuration", variable);
-            log.debug("env {} property {}", envValue, confValue);
+             if(!(variable.contains("password") || variable.contains("secret"))) {
+               log.debug("env {} property {}", envValue, confValue);
+            }
             if (envValue != null && !envValue.isEmpty() && (confValue == null || !confValue.equals(envValue))) {
                 log.debug("environment variable [{}] needs to be added to configuration", variable);
                 updatelist.add(variable);
@@ -92,7 +94,9 @@ public class ConfigureFromEnvironment extends AbstractSetupTask {
         for (String variable : variables) {
             String envValue = env.get(variable, null);
             if (envValue != null && !envValue.isEmpty()) {
-                log.debug("Copying environment variable {} to configuration property {} with value {}", allcaps.toAllCaps(variable), variable, envValue);
+                 if(!(variable.contains("password") || variable.contains("secret"))) {
+                 log.debug("Copying environment variable {} to configuration property {} with value {}", allcaps.toAllCaps(variable), variable, envValue);
+                 }
                 configuration.set(variable, envValue);
             }
         }
