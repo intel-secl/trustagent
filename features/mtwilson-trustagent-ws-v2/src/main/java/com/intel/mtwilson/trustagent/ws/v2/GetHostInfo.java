@@ -60,7 +60,7 @@ public class  GetHostInfo implements Command {
         try {
             String result = getCmd().executeCommand(cmd1, cmd2, cmd3).getStdout();
             ObjectMapper mapper = new ObjectMapper();
-            map = mapper.readValue(result, new TypeReference<Map<String, String>>(){});
+            map = mapper.readValue(result, new TypeReference<Map<String, Object>>(){});
             getOsName();
             getOsVersion();
             getBiosOem();
