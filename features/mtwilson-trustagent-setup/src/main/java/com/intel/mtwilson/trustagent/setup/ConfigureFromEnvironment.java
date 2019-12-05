@@ -51,6 +51,9 @@ public class ConfigureFromEnvironment extends AbstractSetupTask {
             TrustagentConfiguration.DAA_ENABLED,
             TrustagentConfiguration.HARDWARE_UUID,
             TrustagentConfiguration.CURRENT_IP,
+            TrustagentConfiguration.CMS_BASE_URL,
+            TrustagentConfiguration.AAS_API_URL,
+            TrustagentConfiguration.CMS_TLS_CERT_SHA384,
             TrustagentConfiguration.TRUSTAGENT_TLS_CERT_SHA384
         };
         allcaps = new AllCapsNamingStrategy();

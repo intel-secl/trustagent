@@ -225,7 +225,11 @@ ECHO. filePasswordRealm.userFilePath=%intel_conf_dir%\users.txt >>"%intel_conf_d
 ECHO. filePasswordRealm.permissionFilePath=%intel_conf_dir%\permissions.txt >>"%intel_conf_dir%\shiro.ini"
 ECHO. passwordMatcher=com.intel.mtwilson.shiro.authc.password.PasswordCredentialsMatcher >>"%intel_conf_dir%\shiro.ini"
 ECHO. filePasswordRealm.credentialsMatcher=$passwordMatcher >>"%intel_conf_dir%\shiro.ini"
-ECHO. securityManager.realms = $filePasswordRealm >>"%intel_conf_dir%\shiro.ini"
+ECHO. jwtRealm=com.intel.mtwilson.shiro.authc.token.JWTRealm >>"%intel_conf_dir%\shiro.ini"
+ECHO. jwtMatcher=com.intel.mtwilson.shiro.authc.token.JWTSignatureMatcher >>"%intel_conf_dir%\shiro.ini"
+ECHO. jwtRealm.credentialsMatcher= $jwtMatcher >>"%intel_conf_dir%\shiro.ini"
+ECHO. jwtRealm.applicationName = TA >>"%intel_conf_dir%\shiro.ini"
+ECHO. securityManager.realms = $jwtRealm >>"%intel_conf_dir%\shiro.ini"
 ECHO. # built-in authentication strategy >>"%intel_conf_dir%\shiro.ini"
 ECHO. #authcStrategy = org.apache.shiro.authc.pam.FirstSuccessfulStrategy >>"%intel_conf_dir%\shiro.ini"
 ECHO. #authcStrategy = org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy >>"%intel_conf_dir%\shiro.ini"
@@ -235,13 +239,17 @@ ECHO. authcPassword=com.intel.mtwilson.shiro.authc.password.HttpBasicAuthenticat
 ECHO. authcPassword.applicationName=Trust Agent >>"%intel_conf_dir%\shiro.ini"
 ECHO. authcPassword.authcScheme=Basic >>"%intel_conf_dir%\shiro.ini"
 ECHO. authcPassword.authzScheme=Basic >>"%intel_conf_dir%\shiro.ini"
+ECHO. authcToken = com.intel.mtwilson.shiro.authc.token.JWTTokenAuthenticationFilter >>"%intel_conf_dir%\shiro.ini"
+ECHO. authcToken.applicationName = TA >>"%intel_conf_dir%\shiro.ini"
+ECHO. authcToken.sendChallenge = false >>"%intel_conf_dir%\shiro.ini"
+ECHO. authcToken.permissive = false >>"%intel_conf_dir%\shiro.ini"
 ECHO. # define security by url matching, the first match wins so order is important >>"%intel_conf_dir%\shiro.ini"
 ECHO. # also /path/*  will match /path/a and /path/b but not /path/c/d  >>"%intel_conf_dir%\shiro.ini"
 ECHO. # but /path/**  will match /path/a and /path/b and also /path/c/d >>"%intel_conf_dir%\shiro.ini"
 ECHO. [urls] >>"%intel_conf_dir%\shiro.ini"
 ECHO. /index.html = anon >>"%intel_conf_dir%\shiro.ini"
 ECHO. /v2/version = anon >>"%intel_conf_dir%\shiro.ini"
-ECHO. /** = ssl, authcPassword, perms >>"%intel_conf_dir%\shiro.ini"
+ECHO. /** = ssl, authcToken, perms >>"%intel_conf_dir%\shiro.ini"
 
 REM # 12. Call default trustagent setup tasks
 REM # give tagent a chance to do any other setup (such as the .env file and pcakey)
@@ -264,6 +272,8 @@ IF not defined TRUSTAGENT_PASSWORD (
 )
 cd "%TRUSTAGENT_CONF%"
 call "%trustagent_cmd%" import-config --in="trustagent.properties" --out="trustagent.properties"
+call "%trustagent_cmd%" config "jetty.tls.cert.ip" "%TA_TLS_CERT_IP%"
+call "%trustagent_cmd%" config "jetty.tls.cert.dns" "%TA_TLS_CERT_DNS%"
 cd "%package_bin%"
 
 IF [%MTWILSON_API_URL%] == [""] set MTWILSON_API_URL=

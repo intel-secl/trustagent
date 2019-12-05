@@ -51,6 +51,9 @@ public class TrustagentConfiguration {
     public final static String BEARER_TOKEN_ENV = "BEARER_TOKEN";
     public final static String AAS_API_URL = "aas.api.url";
     public final static String CMS_BASE_URL = "cms.base.url";
+    public final static String CMS_TLS_CERT_SHA384 = "cms.tls.cert.sha384";
+    public static final String JETTY_TLS_CERT_IP = "jetty.tls.cert.ip";
+    public static final String JETTY_TLS_CERT_DNS = "jetty.tls.cert.dns";
     public final static String MTWILSON_API_URL = "mtwilson.api.url";
     public final static String FLAVOR_UUIDS = "flavor.uuids";
     public final static String FLAVOR_LABELS = "flavor.labels";
