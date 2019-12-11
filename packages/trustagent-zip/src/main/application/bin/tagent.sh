@@ -436,7 +436,7 @@ trustagent_system_info() {
 }
 
 tagent_tls_fingerprint() {
-  local sha384=`$TRUSTAGENT_BIN/tagent config trustagent.tls.cert.sha384`
+  local sha384=`read_property_from_file tls.cert.sha384 "${TRUSTAGENT_CONFIGURATION}/https.properties"`
   echo "SHA384: $sha384"
 }
 
@@ -573,8 +573,7 @@ case "$1" in
     openstack_extensions_uninstall
 	docker_proxy_uninstall
     trustagent_uninstall
-    groupdel trustagent > /dev/null 2>&1
-    userdel trustagent > /dev/null 2>&1
+    userdel tagent > /dev/null 2>&1
     ;;
   *)
     if [ -z "$*" ]; then
