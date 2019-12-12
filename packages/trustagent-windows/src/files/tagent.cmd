@@ -35,9 +35,6 @@ set TRUSTAGENT_AUTHORIZE_TASKS=download-mtwilson-privacy-ca-certificate download
 set TRUSTAGENT_REGISTRATION_TASKS=attestation-registration
 set TRUSTAGENT_TPM_TASKS=create-tpm-owner-secret create-tpm-srk-secret create-aik-secret take-ownership
 set TRUSTAGENT_START_TASKS=secure-store jetty-tls-keystore take-ownership
-REM set TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS=create-binding-key certify-binding-key create-signing-key certify-signing-key
-REM set TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS=
-REM  %TRUSTAGENT_VM_ATTESTATION_SETUP_TASKS%
 set TRUSTAGENT_SETUP_TASKS=update-extensions-cache-file secure-store jetty-tls-keystore %TRUSTAGENT_TPM_TASKS% %TRUSTAGENT_AUTHORIZE_TASKS%
 REM ECHO. ==Running tagent service==
 REM # load environment variables (these may override the defaults set above)
@@ -106,7 +103,7 @@ if "%wcommand%"=="start" (
     set %%A
   )
 
-  call:trustagent_setup --force
+  call:trustagent_setup
   call:trustagent_restart
 
 ) ELSE IF "%wcommand%"=="authorize" (
