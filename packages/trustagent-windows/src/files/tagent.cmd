@@ -114,8 +114,6 @@ if "%wcommand%"=="start" (
   call:trustagent_start
 ) ELSE IF "%wcommand%"=="java-detect" (
   call:trustagent_java_detect
-) ELSE IF "%wcommand%"=="fingerprint" (
-  call:trustagent_fingerprint
 ) ELSE IF "%wcommand%"=="zeroize" (
   call:trustagent_zeroize
 ) ELSE IF "%wcommand%"=="help" (
@@ -246,17 +244,9 @@ EXIT /B !errorlevel!
   del /s /q "%TRUSTAGENT_CONF%\" >null
 EXIT /B !errorlevel!
 
-:trustagent_fingerprint
-  echo. TLS Certificate Fingerprint  
-  >"temp.out" "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main export-config --stdout 
-  for /F "delims=" %%a in ('findstr /c:trustagent.tls.cert.sha384 temp.out') do set var=%%a
-  echo. %var%
-  del /s /q temp.out >null
-EXIT /B !errorlevel!
-
 :print_help
     REM echo. Usage: %~n0 start^|stop^|authorize^|start-http-server^|version
-    echo. Usage: %~n0 start^|stop^|restart^|java-detect^|fingerprint^|uninstall^|zeroize^|status^|version^|provision-attestation^|create-host
+    echo. Usage: %~n0 start^|stop^|restart^|java-detect^|uninstall^|zeroize^|status^|version^|provision-attestation^|create-host
     echo. Usage: %~n0 setup [--force^|--noexec] [task1 task2 ...]
     echo. Usage: %~n0 export-config [outfile^|--in=infile^|--out=outfile^|--stdout] [--env-password=PASSWORD_VAR]
     echo. Usage: %~n0 config [key] [--delete^|newValue]

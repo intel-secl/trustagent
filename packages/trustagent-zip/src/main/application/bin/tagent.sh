@@ -404,7 +404,7 @@ trustagent_uninstall() {
 
 
 print_help() {
-    echo "Usage: $0 start|stop|restart|java-detect|fingerprint|status|uninstall|zeroize|version|create-host|create-host-unique-flavor"
+    echo "Usage: $0 start|stop|restart|java-detect|status|uninstall|zeroize|version|create-host|create-host-unique-flavor"
     echo "Usage: $0 provision-attestation (only for non-container deployment)"
     echo "Usage: $0 setup [--force|--noexec] [task1 task2 ...]"
     echo "Usage: $0 export-config [outfile|--in=infile|--out=outfile|--stdout] [--env-password=PASSWORD_VAR]"
@@ -431,11 +431,6 @@ trustagent_system_info() {
           ;;
     esac
     return $?
-}
-
-tagent_tls_fingerprint() {
-  local sha384=`read_property_from_file tls.cert.sha384 "${TRUSTAGENT_CONFIGURATION}/https.properties"`
-  echo "SHA384: $sha384"
 }
 
 ###################################################################################################
@@ -466,10 +461,6 @@ case "$1" in
   java-detect)
     java_detect $2
     java_env_report
-    ;;
-  fingerprint)
-    echo "TLS Certificate Fingerprint:"
-    tagent_tls_fingerprint
     ;;
   authorize)
     if trustagent_authorize; then

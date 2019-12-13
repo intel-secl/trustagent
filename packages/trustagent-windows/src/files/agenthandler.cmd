@@ -110,8 +110,6 @@ if "%wcommand%"=="start" (
   call:trustagent_authorize
 ) ELSE IF "%wcommand%"=="java-detect" (
   call:trustagent_java_detect
-) ELSE IF "%wcommand%"=="fingerprint" (
-  call:trustagent_fingerprint
 ) ELSE IF "%wcommand%"=="zeroize" (
   call:trustagent_zeroize
 ) ELSE IF "%wcommand%"=="create-host" (
@@ -221,15 +219,8 @@ GOTO:EOF
   del /s /q "%TRUSTAGENT_CONF%\" >null
 GOTO:EOF
 
-:trustagent_fingerprint
-  set HTTPS_PROPERTIES_FILE="%TRUSTAGENT_HOME%"\configuration\https.properties
-  echo. TLS Certificate Fingerprint  
-  for /F "delims=" %%a in ('findstr /c:tls.cert.sha384 %HTTPS_PROPERTIES_FILE%') do set var=%%a
-  echo. %var%
-GOTO:EOF
-
 :print_help
-    echo. "Usage: $0 start|stop|restart|java-detect|fingerprint|uninstall|zeroize|status|version|provision-attestation|create-host|configure-from-environment"  
+    echo. "Usage: $0 start|stop|restart|java-detect|uninstall|zeroize|status|version|provision-attestation|create-host|configure-from-environment"
     echo. "Usage: $0 setup [--force|--noexec] [task1 task2 ...]"
     echo. "Available setup tasks:"
     echo. %TRUSTAGENT_SETUP_TASKS% 
