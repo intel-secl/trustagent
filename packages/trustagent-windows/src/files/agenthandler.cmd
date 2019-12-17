@@ -14,8 +14,6 @@ for %%i in ("%~dp0..") do set "parentfolder=%%~fi"
 set TRUSTAGENT_HOME=%parentfolder%
 
 set DAEMON=%TRUSTAGENT_HOME%\bin\%NAME%.cmd
-set logfile=%TRUSTAGENT_HOME%\logs\install.log
-set svclogfile=%TRUSTAGENT_HOME%\logs\trustagent.log
 
 set JAVA_HOME=%TRUSTAGENT_HOME%\jre
 set JAVABIN=%JAVA_HOME%\bin\java
@@ -128,7 +126,7 @@ if "%wcommand%"=="start" (
     call:print_help
   ) ELSE (
     echo. Running command: %*
-    >>"%logfile%" "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main %*
+    "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main %*
   )
 )
 GOTO:EOF
@@ -168,7 +166,6 @@ GOTO:EOF
   )
   REM echo. %tasklist%
   "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main setup configure-from-environment %tasklist%
-  type "%svclogfile%" >> "%logfile%"
 GOTO:EOF
 
 :trustagent_authorize

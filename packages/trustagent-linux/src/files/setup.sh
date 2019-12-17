@@ -65,7 +65,6 @@ export LOG_COPYTRUNCATE=${LOG_COPYTRUNCATE:-copytruncate}
 export LOG_SIZE=${LOG_SIZE:-1G}
 export LOG_OLD=${LOG_OLD:-12}
 export PROVISION_ATTESTATION=${PROVISION_ATTESTATION:-y}
-export AUTOMATIC_PULL_MANIFEST=${AUTOMATIC_PULL_MANIFEST:-y}
 export TRUSTAGENT_NOSETUP=${TRUSTAGENT_NOSETUP:-false}
 export REGISTER_TPM_PASSWORD=${REGISTER_TPM_PASSWORD:-y}
 export TRUSTAGENT_HOME=${TRUSTAGENT_HOME:-$DEFAULT_TRUSTAGENT_HOME}
@@ -132,7 +131,6 @@ export TRUSTAGENT_VAR=${TRUSTAGENT_VAR:-$TRUSTAGENT_HOME/var}
 export TRUSTAGENT_BIN=${TRUSTAGENT_BIN:-$TRUSTAGENT_HOME/bin}
 export TRUSTAGENT_JAVA=${TRUSTAGENT_JAVA:-$TRUSTAGENT_HOME/java}
 export TRUSTAGENT_BACKUP=${TRUSTAGENT_BACKUP:-$TRUSTAGENT_REPOSITORY/backup}
-export INSTALL_LOG_FILE=$TRUSTAGENT_LOGS/install.log
 }
 
 # 5. define application directory layout
@@ -180,20 +178,6 @@ else
   echo_warning "Installing as $TRUSTAGENT_USERNAME into $TRUSTAGENT_HOME"  
 fi
 directory_layout
-
-# before we start, clear the install log (directory must already exist; created above)
-mkdir -p $(dirname $INSTALL_LOG_FILE)
-if [ $? -ne 0 ]; then
-  echo_failure "Cannot write to log directory: $(dirname $INSTALL_LOG_FILE)"
-  exit 1
-fi
-date > $INSTALL_LOG_FILE
-if [ $? -ne 0 ]; then
-  echo_failure "Cannot write to log file: $INSTALL_LOG_FILE"
-  exit 1
-fi
-chown $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $INSTALL_LOG_FILE
-logfile=$INSTALL_LOG_FILE
 
 # 8. create application directories (chown will be repeated near end of this script, after setup)
 for directory in $TRUSTAGENT_HOME $TRUSTAGENT_CONFIGURATION $TRUSTAGENT_ENV $TRUSTAGENT_REPOSITORY $TRUSTAGENT_VAR $TRUSTAGENT_LOGS $TRUSTAGENT_TMP; do
@@ -527,7 +511,7 @@ echo "TRUSTAGENT_RELEASE=\"${BUILD}\"" >> $package_version_filename
 
 if [[ "$(whoami)" == "root" && ${DOCKER} == "false" ]]; then
   echo "Registering tagent in start up"
-  register_startup_script $TRUSTAGENT_BIN/tagent tagent $TRUSTAGENT_PID_FILE 21 >>$logfile 2>&1
+  register_startup_script $TRUSTAGENT_BIN/tagent tagent $TRUSTAGENT_PID_FILE 21 2>&1
 else
   echo_warning "Skipping startup script registration"
 fi
@@ -564,8 +548,8 @@ fix_existing_aikcert
 
 # Ensure we have given trustagent access to its files
 for directory in $TRUSTAGENT_HOME $TRUSTAGENT_CONFIGURATION $TRUSTAGENT_ENV $TRUSTAGENT_REPOSITORY $TRUSTAGENT_VAR $TRUSTAGENT_LOGS $TRUSTAGENT_TMP; do
-  echo "chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $directory" >>$logfile
-  chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $directory 2>>$logfile
+  echo "chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $directory"
+  chown -R $TRUSTAGENT_USERNAME:$TRUSTAGENT_USERNAME $directory 2>/dev/null
 done
 
 if [[ "$(whoami)" == "root" && ${DOCKER} != "true" ]]; then
@@ -654,7 +638,7 @@ tagent config "cms.tls.cert.sha384" "$CMS_TLS_CERT_SHA384" >/dev/null
 # NOTE: only the output from start-http-server is redirected to the logfile;
 #       the stdout from the setup command will be displayed
 #tagent setup
-#tagent start >>$logfile  2>&1
+#tagent start 2>&1
 
 ########################################################################################################################
 # 28. config logrotate

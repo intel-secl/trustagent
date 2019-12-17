@@ -52,8 +52,6 @@ set bootdriver_dir=%package_dir%\bootdriver
 set REGISTER_TPM_PASSWORD=y
 set PROVISION_ATTESTATION=y
 
-set logfile=%package_dir%\logs\install.log
-
 
 REM # FUNCTION LIBRARY, VERSION INFORMATION, and LOCAL CONFIGURATION
 Call :tee Trust agent setup: Configure trust agent version and environment variables
@@ -205,7 +203,7 @@ Call :tee %TRUSTAGENT_TLS_CERT_IP%
 REM # 10. Update extension cache
 REM # before running any tagent commands update the extensions cache file
 Call :tee Trust agent setup: Updating the extensions cache file... 
->>"%logfile%" call "%trustagent_cmd%" setup update-extensions-cache-file --force
+call "%trustagent_cmd%" setup update-extensions-cache-file --force
 
 REM # create a trustagent username "mtwilson" with no password and all privileges
 REM # which allows mtwilson to access it until mtwilson UI is updated to allow
@@ -314,6 +312,6 @@ REM fi
 :: STDOUT is used by nsis to display on the UI
 :tee
         IF "%1"=="" goto:eof
-	echo.%date% %time% - %* >> "%logfile%"
+	echo.%date% %time% - %*
 	echo.%*
 goto:eof

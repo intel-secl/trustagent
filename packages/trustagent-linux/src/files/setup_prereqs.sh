@@ -5,8 +5,6 @@
 # * date and time are synchronized with remote server, if using remote attestation service
 # * the mtwilson linux util functions already sourced
 #   (for add_package_repository, echo_success, echo_failure)
-# * TRUSTAGENT_HOME is set, for example /opt/trustagent
-# * TRUSTAGENT_INSTALL_LOG_FILE is set, for example /opt/trustagent/logs/install.log
 # * TPM_VERSION is set, for example 1.2 or else it will be auto-detected
 
 # Postconditions:
@@ -19,10 +17,6 @@
 
 # source functions file
 if [ -f functions ]; then . functions; fi
-
-TRUSTAGENT_HOME=${TRUSTAGENT_HOME:-/opt/trustagent}
-LOGFILE=${TRUSTAGENT_INSTALL_LOG_FILE:-$TRUSTAGENT_HOME/logs/install.log}
-mkdir -p $(dirname $LOGFILE)
 
 if [ -z "$TPM_VERSION" ]; then
   detect_tpm_version

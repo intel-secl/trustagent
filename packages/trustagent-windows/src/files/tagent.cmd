@@ -14,8 +14,6 @@ for %%i in ("%~dp0..") do set "parentfolder=%%~fi"
 set TRUSTAGENT_HOME=%parentfolder%
 
 set DAEMON=%TRUSTAGENT_HOME%\bin\%NAME%.cmd
-set logfile=%TRUSTAGENT_HOME%\logs\trustagent2.log
-set tasklogfile=%TRUSTAGENT_HOME%\logs\trustagent3.log
 
 set JAVA_HOME=%TRUSTAGENT_HOME%\jre
 set JAVABIN=%JAVA_HOME%\bin\java
@@ -133,7 +131,7 @@ if "%wcommand%"=="start" (
     call:print_help
   ) ELSE (
     REM echo. Running command: %*
-    >>"%logfile%" "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main %*
+    "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main %*
   )
 )
 EXIT /B !errorlevel!
@@ -184,7 +182,7 @@ EXIT /B !errorlevel!
   ) ELSE IF "%tasklist%"=="--force" (
       set tasklist=%TRUSTAGENT_SETUP_TASKS% --force
   )
-  >>"%logfile%" "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main setup configure-from-environment %tasklist%
+  "%JAVABIN%" %JAVA_OPTS% com.intel.mtwilson.launcher.console.Main setup configure-from-environment %tasklist%
 EXIT /B !errorlevel!
 
 :trustagent_authorize

@@ -26,10 +26,6 @@ fi
 # source functions file
 if [ -f functions ]; then . functions; fi
 
-TRUSTAGENT_HOME=${TRUSTAGENT_HOME:-/opt/trustagent}
-LOGFILE=${TRUSTAGENT_INSTALL_LOG_FILE:-$TRUSTAGENT_HOME/logs/install.log}
-mkdir -p $(dirname $LOGFILE)
-
 if [ -z "$TPM_VERSION" ]; then
   detect_tpm_version
 fi

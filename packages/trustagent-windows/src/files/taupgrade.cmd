@@ -22,8 +22,6 @@ set ASSET_TAG_SETUP="y"
 set trustagent_cmd=%package_dir%\bin\agenthandler.cmd
 set bootdriver_dir=%package_dir%\bootdriver
 
-set logfile=%package_dir%\logs\install.log
-
 REM ##Private Java install $JAVA_PACKAGE
 ECHO. ==Unpack JAVA JRE==
   cd "%package_dir%\jre"
