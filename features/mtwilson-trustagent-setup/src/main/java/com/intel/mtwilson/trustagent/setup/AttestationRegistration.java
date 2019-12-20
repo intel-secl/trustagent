@@ -153,20 +153,15 @@ public class AttestationRegistration extends AbstractSetupTask{
         tlsPolicyDescriptor.setProtection(TlsPolicyFactoryUtil.getAllTlsProtection());
         tlsPolicyDescriptor.setMeta(new HashMap());
         tlsPolicyDescriptor.getMeta().put("encoding", "base64");
-        RsaCredentialX509 rsaCert = getCertificateData();
-        X509Certificate certificate = null;
-        if (rsaCert != null) {
-            certificate = rsaCert.getCertificate();
-        if ( certificate != null ) {
+        X509Certificate rsaCert = getCertificateData();
+        
+        if ( rsaCert != null ) {
             tlsPolicyDescriptor.setData(new HashSet());
-            String certificateString = Base64.encodeBase64String(certificate.getEncoded());
+            String certificateString = Base64.encodeBase64String(rsaCert.getEncoded());
             tlsPolicyDescriptor.getData().add(certificateString);
             log.debug("Added certificate to TLS policy: {}", certificateString);
         } else {
             log.error("getCertificate failed for X509Certificate.");
-        }
-        } else {
-            log.error("getCertificateData failed for RsaCredentialX509.");
         }
         
         UUID id = new UUID();
@@ -186,25 +181,22 @@ public class AttestationRegistration extends AbstractSetupTask{
         return mtWilsonClient.getTarget().path("tls-policies").request().accept(MediaType.APPLICATION_JSON).post(Entity.json(tlsPolicy), HostTlsPolicy.class);
     }
     
-    private RsaCredentialX509 getCertificateData() throws CertificateException {
-        RsaCredentialX509 credential = null;
+    private X509Certificate getCertificateData() throws CertificateException {
+        X509Certificate credential = null;
         try {
-            credential = keystore.getRsaCredentialX509(TLS_ALIAS, keystoreGuardedPassword.getInsPassword());
-            if (credential == null || credential.getCertificate() == null 
-                    || credential.getCertificate().getSubjectX500Principal() == null 
-                    || credential.getCertificate().getSubjectX500Principal().getName() == null) {
+            credential = keystore.getX509Certificate(TLS_ALIAS);
+            if (credential == null || credential.getSubjectX500Principal() == null
+                    || credential.getSubjectX500Principal().getName() == null) {
                 log.debug("Invalid TLS certificate: credential contains null value");
                 throw new CertificateException("Invalid TLS certificate: credential contains null value.");
             }
-            log.debug("Found TLS key {}", credential.getCertificate().getSubjectX500Principal().getName());
-        } catch (FileNotFoundException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException | CertificateEncodingException | CryptographyException e) {
+            log.debug("Found TLS key {}", credential.getSubjectX500Principal().getName());
+        } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException | CertificateEncodingException e) {
             log.warn("Unable to get certificate from trustagent properties.");
             throw new CertificateException("Unable to get certificate from trustagent properties.", e);
         } catch (GeneralSecurityException ex) {
             log.error("Failed to get credentials from trustagent properties. ", ex);
-        } catch (IOException ex) {
-            log.error("Unable to get certificate from trustagent properties. ", ex);
-        }
+        } 
         return credential;
     }
     
@@ -217,3 +209,4 @@ public class AttestationRegistration extends AbstractSetupTask{
         }
     }
 }
+
