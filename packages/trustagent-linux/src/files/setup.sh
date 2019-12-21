@@ -68,6 +68,7 @@ export PROVISION_ATTESTATION=${PROVISION_ATTESTATION:-y}
 export TRUSTAGENT_NOSETUP=${TRUSTAGENT_NOSETUP:-false}
 export REGISTER_TPM_PASSWORD=${REGISTER_TPM_PASSWORD:-y}
 export TRUSTAGENT_HOME=${TRUSTAGENT_HOME:-$DEFAULT_TRUSTAGENT_HOME}
+export INSTALL_WORKLOAD_AGENT=${INSTALL_WORKLOAD_AGENT:-n}
 TRUSTAGENT_LAYOUT=${TRUSTAGENT_LAYOUT:-home}
 # PID file needed for startup service registration and as set in tagent.sh
 TRUSTAGENT_PID_FILE=$TRUSTAGENT_HOME/trustagent.pid
@@ -712,7 +713,7 @@ if [[ "$PROVISION_ATTESTATION" == "y" || "$PROVISION_ATTESTATION" == "Y" || "$PR
 fi
 
 # install workload agent
-if [[ "$INSTALL_WORKLOAD_AGENT" != "n" && "$INSTALL_WORKLOAD_AGENT" != "N" && "$INSTALL_WORKLOAD_AGENT" != "no" ]]; then
+if [[ -n "$INSTALL_WORKLOAD_AGENT" && "$INSTALL_WORKLOAD_AGENT" != "n" && "$INSTALL_WORKLOAD_AGENT" != "N" && "$INSTALL_WORKLOAD_AGENT" != "no" ]]; then
   # make sure that we have exported the TRUSTAGENT_CONFIGURATION and TRUSTAGENT_USERNAME as these are required by
   # the workload_agent installer
   export TRUSTAGENT_CONFIGURATION
