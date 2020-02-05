@@ -151,7 +151,6 @@ EXIT /B !errorlevel!
 
 :trustagent_restart
   call :get_status
-  echo. Stopping trustagent
   IF "%TASTATUS%"=="Stopped" (
      echo.   Trustagent was not running
   ) ELSE (
@@ -162,7 +161,7 @@ EXIT /B !errorlevel!
 EXIT /B !errorlevel!
 
 :trustagent_stop
-  echo. Stopping the trust agent
+  echo. Stopping trustagent service
   sc stop trustagent > null
   echo. Trustagent stopped
 EXIT /B !errorlevel!
