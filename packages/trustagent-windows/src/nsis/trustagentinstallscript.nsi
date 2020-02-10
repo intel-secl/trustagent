@@ -30,24 +30,11 @@ var /Global HENVPATH
 var /Global HENVFILE
 var /Global L_URL
 var /Global MTWILSON_API_URL
-var /Global TRUSTAGENT_ADMIN_USERNAME
-var /Global TRUSTAGENT_ADMIN_PASSWORD
 var /Global CURRENT_IP
 var /Global PROVISION_ATTESTATION
 var /Global AUTOMATIC_REGISTRATION
 var /Global AUTOMATIC_FLAVOR_CREATION
-var /Global TRUSTAGENT_LOGIN_REGISTER
-var /Global REGISTER_TPM_PASSWORD
-var /Global AAS_API_URL
-var /Global CMS_BASE_URL
-var /Global CMS_TLS_CERT_SHA384
-var /Global BEARER_TOKEN
-var /Global INSECURE_SKIP_VERIFY
-var /Global TRUSTAGENT_LOG_LEVEL
-var /Global TA_TLS_CERT_IP
-var /Global TA_TLS_CERT_DNS
-var /Global JETTY_PORT
-var /Global JETTY_SECURE_PORT
+
 
 !define Environ 'HKCU "Environment"'
 !define MUI_ICON "TAicon.ico"
@@ -370,7 +357,7 @@ Section "install"
         end_of_check:
 
 	# Copy the ini file if exists. This would be replaced by 
-        # CopyFiles $EXEDIR\trustagent.ini $INSTDIR\trustagent.env
+        CopyFiles $EXEDIR\trustagent.ini $INSTDIR\trustagent.env
 
         # If silent installation, check if trustagent.env file is passed as argument '/E'
         ${GetOptions} $cmdLineParams "/E=" $R0
@@ -610,8 +597,8 @@ Function EnvCustomLeave
         StrCpy $R0 $text1
         StrCmp $R0 "" textboxcheck
         SetOutPath $INSTDIR
-        FileOpen $R1 "$INSTDIR\trustagent.env" w
-        FileWrite $R1 $text1
+        FileOpen $R1 "trustagent.env" w
+        FileWrite $R1 $R0
         FileClose $R1
         goto exitfunc
         textboxcheck:
@@ -639,18 +626,6 @@ Function ReadEnvFile
         ReadINIStr $PROVISION_ATTESTATION "$INIFILE" "TRUST_AGENT" "PROVISION_ATTESTATION"
         ReadINIStr $AUTOMATIC_REGISTRATION "$INIFILE" "TRUST_AGENT" "AUTOMATIC_REGISTRATION"
         ReadINIStr $AUTOMATIC_FLAVOR_CREATION "$INIFILE" "TRUST_AGENT" "AUTOMATIC_FLAVOR_CREATION"
-        ReadINIStr $TRUSTAGENT_LOGIN_REGISTER "$INIFILE" "TRUST_AGENT" "TRUSTAGENT_LOGIN_REGISTER"
-        ReadINIStr $REGISTER_TPM_PASSWORD "$INIFILE" "TRUST_AGENT" "REGISTER_TPM_PASSWORD"
-        ReadINIStr $AAS_API_URL "$INIFILE" "TRUST_AGENT" "AAS_API_URL"
-        ReadINIStr $CMS_BASE_URL "$INIFILE" "TRUST_AGENT" "CMS_BASE_URL"
-        ReadINIStr $CMS_TLS_CERT_SHA384 "$INIFILE" "TRUST_AGENT" "CMS_TLS_CERT_SHA384"
-        ReadINIStr $BEARER_TOKEN "$INIFILE" "TRUST_AGENT" "BEARER_TOKEN"
-        ReadINIStr $INSECURE_SKIP_VERIFY "$INIFILE" "TRUST_AGENT" "INSECURE_SKIP_VERIFY"
-        ReadINIStr $TRUSTAGENT_LOG_LEVEL "$INIFILE" "TRUST_AGENT" "TRUSTAGENT_LOG_LEVEL"
-        ReadINIStr $TA_TLS_CERT_IP "$INIFILE" "TRUST_AGENT" "TA_TLS_CERT_IP"
-        ReadINIStr $TA_TLS_CERT_DNS "$INIFILE" "TRUST_AGENT" "TA_TLS_CERT_DNS"
-        ReadINIStr $JETTY_PORT "$INIFILE" "TRUST_AGENT" "JETTY_PORT"
-        ReadINIStr $JETTY_SECURE_PORT "$INIFILE" "TRUST_AGENT" "JETTY_SECURE_PORT"
         ${NSD_SetText} $L_URL "MTWILSON_API_URL : $MTWILSON_API_URL"
 
         StrCpy $text1 ""
@@ -660,21 +635,6 @@ Function ReadEnvFile
         StrCpy $R1 "$R1$\r$\nPROVISION_ATTESTATION=$PROVISION_ATTESTATION"
         StrCpy $R1 "$R1$\r$\nAUTOMATIC_REGISTRATION=$AUTOMATIC_REGISTRATION"
         StrCpy $R1 "$R1$\r$\nAUTOMATIC_FLAVOR_CREATION=$AUTOMATIC_FLAVOR_CREATION"
-        StrCpy $R1 "$R1$\r$\nTRUSTAGENT_ADMIN_USERNAME=$TRUSTAGENT_ADMIN_USERNAME"
-        StrCpy $R1 "$R1$\r$\nTRUSTAGENT_ADMIN_PASSWORD=$TRUSTAGENT_ADMIN_PASSWORD"
-        StrCpy $R1 "$R1$\r$\nTRUSTAGENT_LOGIN_REGISTER=$TRUSTAGENT_LOGIN_REGISTER"
-        StrCpy $R1 "$R1$\r$\nREGISTER_TPM_PASSWORD=$REGISTER_TPM_PASSWORD"
-        StrCpy $R1 "$R1$\r$\nAAS_API_URL=$AAS_API_URL"
-        StrCpy $R1 "$R1$\r$\nCMS_BASE_URL=$CMS_BASE_URL"
-        StrCpy $R1 "$R1$\r$\nCMS_TLS_CERT_SHA384=$CMS_TLS_CERT_SHA384"
-        StrCpy $R1 "$R1$\r$\nBEARER_TOKEN=$BEARER_TOKEN"
-        StrCpy $R1 "$R1$\r$\nTA_TLS_CERT_IP=$TA_TLS_CERT_IP"
-        StrCpy $R1 "$R1$\r$\nTA_TLS_CERT_DNS=$TA_TLS_CERT_DNS"
-        StrCpy $R1 "$R1$\r$\nJETTY_PORT=$JETTY_PORT"
-        StrCpy $R1 "$R1$\r$\nJETTY_SECURE_PORT=$JETTY_SECURE_PORT"
-        StrCpy $R1 "$R1$\r$\nINSECURE_SKIP_VERIFY=$INSECURE_SKIP_VERIFY"
-        StrCpy $R1 "$R1$\r$\nTRUSTAGENT_LOG_LEVEL=$TRUSTAGENT_LOG_LEVEL"
-
 
         StrCpy $text1 $R1
 
