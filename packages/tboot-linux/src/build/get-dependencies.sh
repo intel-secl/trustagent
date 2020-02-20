@@ -1,6 +1,6 @@
 #!/bin/bash
 TBOOT_VERSION="1.9.7"
-TBOOTXM_VERSION="4.6-SNAPSHOT"
+TBOOTXM_VERSION="4.6.1-SNAPSHOT"
 
 
 yum_detect() {
