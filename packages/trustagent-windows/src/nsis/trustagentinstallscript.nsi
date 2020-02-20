@@ -356,14 +356,14 @@ Section "install"
                 File "..\trustagent.env"
         end_of_check:
 
-	# Copy the ini file if exists. This would be replaced by 
-        CopyFiles $EXEDIR\trustagent.ini $INSTDIR\trustagent.env
+	# Copy the ini file if exists, stripping off the section header
+        nsExec::Exec 'cmd /C if 1==1 type "$EXEDIR\trustagent.ini" | findstr /v \[TRUST_AGENT\] > "$INSTDIR\trustagent.env"'
 
         # If silent installation, check if trustagent.env file is passed as argument '/E'
         ${GetOptions} $cmdLineParams "/E=" $R0
         IfFileExists $R0 envpara noenvpara
         envpara:
-                CopyFiles $R0 $INSTDIR\trustagent.env
+                nsExec::Exec 'cmd /C if 1==1 type "$R0" | findstr /v \[TRUST_AGENT\] > "$INSTDIR\trustagent.env"'
                 goto end_of_para_check
         noenvpara:
         end_of_para_check:

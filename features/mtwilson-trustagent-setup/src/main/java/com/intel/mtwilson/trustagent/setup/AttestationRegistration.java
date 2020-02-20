@@ -134,7 +134,7 @@ public class AttestationRegistration extends AbstractSetupTask{
             host.setId(existingHost.getId());
             host.setTlsPolicyId(hostTlsPolicy.getId().toString());
             hostsClient.editHost(host);
-            log.warn("Host with name {} already exists", existingHost.getHostName());
+            log.info("Host with name {} already exists", existingHost.getHostName());
         }
         else { 
             //Building create criteria for client call
