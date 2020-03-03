@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.intel.mtwilson.trustagent.features</groupId>
         <artifactId>trustagent-maven-build-features</artifactId>
-        <version>4.6.1-SNAPSHOT</version>
+        <version>5.0-SNAPSHOT</version>
     </parent>
     
     <build>
@@ -67,17 +67,17 @@
         <dependency>
             <groupId>com.intel.mtwilson.core</groupId>
             <artifactId>lib-common</artifactId>
-            <version>1.3.2</version>
+            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.core</groupId>
             <artifactId>lib-flavor</artifactId>
-            <version>1.3.2</version>
+            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.core</groupId>
             <artifactId>lib-tpm-provider</artifactId>
-            <version>1.3.2</version>
+            <version>1.4</version>
         </dependency>
         
         <!-- common-java -->

@@ -30,8 +30,6 @@ var /Global HENVPATH
 var /Global HENVFILE
 var /Global L_URL
 var /Global MTWILSON_API_URL
-var /Global TRUSTAGENT_ADMIN_USERNAME
-var /Global TRUSTAGENT_ADMIN_PASSWORD
 var /Global CURRENT_IP
 var /Global PROVISION_ATTESTATION
 var /Global AUTOMATIC_REGISTRATION
@@ -358,14 +356,14 @@ Section "install"
                 File "..\trustagent.env"
         end_of_check:
 
-	# Copy the ini file if exists. This would be replaced by 
-        CopyFiles $EXEDIR\trustagent.ini $INSTDIR\trustagent.env
+	# Copy the ini file if exists, stripping off the section header
+        nsExec::Exec 'cmd /C if 1==1 type "$EXEDIR\trustagent.ini" | findstr /v \[TRUST_AGENT\] > "$INSTDIR\trustagent.env"'
 
         # If silent installation, check if trustagent.env file is passed as argument '/E'
         ${GetOptions} $cmdLineParams "/E=" $R0
         IfFileExists $R0 envpara noenvpara
         envpara:
-                CopyFiles $R0 $INSTDIR\trustagent.env
+                nsExec::Exec 'cmd /C if 1==1 type "$R0" | findstr /v \[TRUST_AGENT\] > "$INSTDIR\trustagent.env"'
                 goto end_of_para_check
         noenvpara:
         end_of_para_check:
@@ -628,9 +626,6 @@ Function ReadEnvFile
         ReadINIStr $PROVISION_ATTESTATION "$INIFILE" "TRUST_AGENT" "PROVISION_ATTESTATION"
         ReadINIStr $AUTOMATIC_REGISTRATION "$INIFILE" "TRUST_AGENT" "AUTOMATIC_REGISTRATION"
         ReadINIStr $AUTOMATIC_FLAVOR_CREATION "$INIFILE" "TRUST_AGENT" "AUTOMATIC_FLAVOR_CREATION"
-        ReadINIStr $TRUSTAGENT_ADMIN_USERNAME "$INIFILE" "TRUST_AGENT" "TRUSTAGENT_ADMIN_USERNAME"
-        ReadINIStr $TRUSTAGENT_ADMIN_PASSWORD "$INIFILE" "TRUST_AGENT" "TRUSTAGENT_ADMIN_PASSWORD"
-
         ${NSD_SetText} $L_URL "MTWILSON_API_URL : $MTWILSON_API_URL"
 
         StrCpy $text1 ""
@@ -640,8 +635,6 @@ Function ReadEnvFile
         StrCpy $R1 "$R1$\r$\nPROVISION_ATTESTATION=$PROVISION_ATTESTATION"
         StrCpy $R1 "$R1$\r$\nAUTOMATIC_REGISTRATION=$AUTOMATIC_REGISTRATION"
         StrCpy $R1 "$R1$\r$\nAUTOMATIC_FLAVOR_CREATION=$AUTOMATIC_FLAVOR_CREATION"
-        StrCpy $R1 "$R1$\r$\nTRUSTAGENT_ADMIN_USERNAME=$TRUSTAGENT_ADMIN_USERNAME"
-        StrCpy $R1 "$R1$\r$\nTRUSTAGENT_ADMIN_PASSWORD=$TRUSTAGENT_ADMIN_PASSWORD"
 
         StrCpy $text1 $R1
 
