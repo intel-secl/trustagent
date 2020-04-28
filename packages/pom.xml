@@ -8,11 +8,8 @@
     <packaging>pom</packaging>
     
     <modules>
-        <module>tboot-linux</module>
-        <module>trustagent-linux</module>
         <module>trustagent-windows</module>
         <module>trustagent-zip</module>
-        <module>trustagent-docker</module>
     </modules>
     
 </project>
