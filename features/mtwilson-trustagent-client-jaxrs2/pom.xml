@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.intel.mtwilson.trustagent.features</groupId>
         <artifactId>trustagent-maven-build-features</artifactId>
-        <version>5.2-SNAPSHOT</version>
+        <version>5.2.1-SNAPSHOT</version>
     </parent>
     
     <build>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>com.intel.mtwilson.core</groupId>
             <artifactId>lib-flavor</artifactId>
-            <version>1.4.2</version>
+            <version>1.4.3</version>
             <type>jar</type>
         </dependency>
         <!-- common-java -->
